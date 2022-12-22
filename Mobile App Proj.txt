@@ -1,0 +1,80 @@
+Extra Feature
+
+- voice note in chats
+- take photo using camera
+- add location using maps for buyers post
+----------
+- only most used user tabs appear down others in drawer
+- add a trending tab/ bids that will end in a few days/
+
+Database Tables
+
+1- User (id, email, username, first name, last name, password, photo url, list[id ad], fav list[id ad], bid list [id ad])
+2- Ads (id, title, desc, asking price, highest bid so far, highest bidder id , car id, user id, date, duration)
+3- Car (id, type, year, km , list[photo url], color, type id)
+4- Type(id, manufacturer , model)
+5- Chat()
+
+Filters
+
+1- most recent 
+2- price
+3- manufacturer
+4- model
+5- year
+
+
+Notifications
+
+1- Notify sellers bel new bids on their ads
+2- Notify buyers with bids a3la menhom
+
+
+----------------------------------------------------------------------------------------------------------
+TODOs:
+	ALL:
+		1. revise last 2 lecs
+	Omar:
+		1.Profile Screen 
+		2.image
+		3.info
+		4.user model
+	Tito:
+		1.chat model
+		2.Chat screen
+		3.messages UI
+	Philo:
+		1.backend logic
+		2.login screen ui
+		3. signup screen ui
+		4. model - token - whatever needed	
+	Farah:
+		1.card ui 
+		2.car model
+		3.ads model
+	Peter:
+		1. Home page UI
+		2. dummy logo
+		3. routings
+		
+
+----------------------------------------------------------------------------------------------------------
+Screens
+1. authentication( login - signup - forget password(mail) - authenticationProvider[backend]-logout functionality )
+2. Appbar:
+	LOGO 
+	profile(User info - pic [upload] - chat)
+	chats
+3. Homepage:
+	a.Search --> filters	
+	b.Fav
+	c.Bid
+	d.My adds --> (+)
+4.ChatScreen:
+5.Ads screen
+
+----------------------------------------------------------------------------------------------------------
+Models
+----------------------------------------------------------------------------------------------------------
+Components
+	

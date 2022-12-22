@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "92993855857",
+    "project_id": "mobileapp-18909",
+    "storage_bucket": "mobileapp-18909.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:92993855857:android:b23ec84187296f877016d0",
+        "android_client_info": {
+          "package_name": "com.example.kargo"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "92993855857-gl2os95n1dbn8nnpjdm943r8vgl3q9bc.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAc6t3i-TQ7-ExgKVE81h7CFjxDMhVSrxM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "92993855857-gl2os95n1dbn8nnpjdm943r8vgl3q9bc.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
