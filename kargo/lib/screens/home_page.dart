@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/container.dart';
 import 'package:flutter/src/widgets/framework.dart';
+import 'package:kargo/components/my_bottom_navigator.dart';
 import 'package:kargo/components/my_scaffold.dart';
 
 class HomePage extends StatelessWidget {
@@ -8,6 +9,9 @@ class HomePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MyScaffold();
+    return MyScaffold(
+      body: Container(),
+      bottomNavigationBar: MyBottomNavagationBar(),
+    );
   }
 }
