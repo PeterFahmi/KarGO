@@ -4,14 +4,14 @@ import 'package:flutter/src/widgets/framework.dart';
 import 'package:flutter_snake_navigationbar/flutter_snake_navigationbar.dart';
 
 class MyBottomNavagationBar extends StatefulWidget {
-  const MyBottomNavagationBar({super.key});
-
+  Function(int) notifyParent;
+  MyBottomNavagationBar({required this.notifyParent});
   @override
   State<MyBottomNavagationBar> createState() => _MyBottomNavagationBarState();
 }
 
 class _MyBottomNavagationBarState extends State<MyBottomNavagationBar> {
-  var _selectedItemPosition = 0;
+  var _selectedTabPosition = 0;
 
   @override
   Widget build(BuildContext context) {
@@ -36,21 +36,24 @@ class _MyBottomNavagationBarState extends State<MyBottomNavagationBar> {
       showUnselectedLabels: false,
       showSelectedLabels: false,
 
-      currentIndex: _selectedItemPosition,
-      onTap: (index) => setState(() => _selectedItemPosition = index),
+      currentIndex: _selectedTabPosition,
+      onTap: (index) => onNavigationChange(index),
       items: const [
+        BottomNavigationBarItem(icon: Icon(Icons.search), label: 'tickets'),
+        BottomNavigationBarItem(icon: Icon(Icons.favorite), label: 'calendar'),
+        BottomNavigationBarItem(icon: Icon(Icons.sell), label: 'home'),
         BottomNavigationBarItem(
-            icon: Icon(Icons.notifications), label: 'tickets'),
-        BottomNavigationBarItem(
-            icon: Icon(Icons.ac_unit_outlined), label: 'calendar'),
-        BottomNavigationBarItem(
-            icon: Icon(Icons.ac_unit_outlined), label: 'home'),
-        BottomNavigationBarItem(
-            icon: Icon(Icons.ac_unit_outlined), label: 'microphone'),
-        BottomNavigationBarItem(icon: Icon(Icons.search), label: 'search')
+            icon: Icon(Icons.car_crash_rounded), label: 'microphone'),
       ],
       selectedLabelStyle: const TextStyle(fontSize: 14),
       unselectedLabelStyle: const TextStyle(fontSize: 10),
     );
+  }
+
+  onNavigationChange(int index) {
+    setState(() {
+      _selectedTabPosition = index;
+    });
+    widget.notifyParent(index);
   }
 }

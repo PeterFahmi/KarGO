@@ -3,11 +3,12 @@ import 'package:flutter/src/widgets/container.dart';
 import 'package:flutter/src/widgets/framework.dart';
 
 class MyScaffold extends StatelessWidget {
-  String? userImageURL;
+  String userImageURL =
+      'https://dynaimage.cdn.cnn.com/cnn/c_fill,g_auto,w_1200,h_675,ar_16:9/https%3A%2F%2Fcdn.cnn.com%2Fcnnnext%2Fdam%2Fassets%2F221208164147-argentina-lionel-messi.jpg';
   Widget body;
   Widget? bottomNavigationBar;
 
-  MyScaffold({required this.body, this.userImageURL, this.bottomNavigationBar});
+  MyScaffold({required this.body, this.bottomNavigationBar});
 
   @override
   Widget build(BuildContext context) {
