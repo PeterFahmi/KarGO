@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:kargo/screens/chat_screen.dart';
 import 'package:kargo/screens/home_page.dart';
 
 void main() {
@@ -18,6 +19,7 @@ class MyApp extends StatelessWidget {
       ),
       routes: {
         '/': (ctx) => HomePage(),
+        '/Chats': (context) => ChatScreen()
       },
     );
   }
