@@ -149,20 +149,28 @@ class Ad_Card extends StatelessWidget {
                               Row(
                                   mainAxisAlignment: MainAxisAlignment.start,
                                   children: [
-                                    Text('Ask: $ask LE',
+                                    Text('Ask: ',
                                         style: TextStyle(
                                           color: Colors.white,
                                           fontWeight: FontWeight.bold,
                                           fontSize: 15.0,
                                         )),
+                                    Text('EGP $ask',
+                                        style: TextStyle(
+                                          color: Colors.white,
+                                        )),
                                   ]),
                               Row(
                                   mainAxisAlignment: MainAxisAlignment.start,
                                   children: [
-                                    Text('Year: $year',
+                                    Text('Year: ',
                                         style: TextStyle(
                                           color: Colors.white,
                                           fontWeight: FontWeight.bold,
+                                        )),
+                                    Text('$year',
+                                        style: TextStyle(
+                                          color: Colors.white,
                                         )),
                                   ])
                             ]),
@@ -173,20 +181,28 @@ class Ad_Card extends StatelessWidget {
                               Row(
                                   mainAxisAlignment: MainAxisAlignment.start,
                                   children: [
-                                    Text('Bid: $bid LE',
+                                    Text('Bid: ',
                                         style: TextStyle(
                                           color: Colors.white,
                                           fontWeight: FontWeight.bold,
                                           fontSize: 15.0,
                                         )),
+                                    Text('EGP $bid',
+                                        style: TextStyle(
+                                          color: Colors.white,
+                                        )),
                                   ]),
                               Row(
                                   mainAxisAlignment: MainAxisAlignment.start,
                                   children: [
-                                    Text('KM: $km',
+                                    Text('KM: ',
                                         style: TextStyle(
                                           color: Colors.white,
                                           fontWeight: FontWeight.bold,
+                                        )),
+                                    Text('$km',
+                                        style: TextStyle(
+                                          color: Colors.white,
                                         )),
                                   ])
                             ]),
