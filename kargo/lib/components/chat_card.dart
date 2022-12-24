@@ -19,7 +19,7 @@ class ChatCardState extends State<ChatCard> {
   @override
   Widget build(BuildContext context) {
     return ListTile(
-      onTap: (){},
+      onTap: (){Navigator.of(context).pushNamed('/ChatDetail', arguments: {'username': widget.user.name});},
       leading: CircleAvatar(
         backgroundImage: NetworkImage(widget.user.imageUrl),
         maxRadius: 30,

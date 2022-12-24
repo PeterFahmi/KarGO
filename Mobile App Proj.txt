@@ -40,9 +40,10 @@ TODOs:
 		3.info
 		4.user model
 	Tito:
-		1.chat model [TODO: ask philo to add "chats" field in users collection]
+		1.chat model 
 		2.Chat screen
 		3.messages UI
+		4. chat backend
 	Philo:
 		1.backend logic
 		2.login screen ui
