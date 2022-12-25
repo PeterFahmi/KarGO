@@ -38,6 +38,7 @@ dependencies:
   cupertino_icons: ^1.0.2
   cloud_firestore: ^4.3.0
   fade_shimmer: ^2.0.1
+  firebase_auth: ^4.2.3
 
 dev_dependencies:
   flutter_test:
