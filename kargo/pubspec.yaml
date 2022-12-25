@@ -39,6 +39,9 @@ dependencies:
   cupertino_icons: ^1.0.2
   cloud_firestore: ^4.3.0
   fade_shimmer: ^2.0.1
+  image_picker: ^0.8.6
+  path_provider: ^2.0.11
+  firebase_storage: ^11.0.9
   firebase_auth: ^4.2.3
   getwidget: ^3.0.1
   flutter_chat_ui: ^1.6.6

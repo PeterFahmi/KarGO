@@ -4,6 +4,7 @@ import 'package:kargo/screens/chat_list_screen.dart';
 import 'package:kargo/screens/chat_screen.dart';
 import 'package:kargo/screens/chat_screen.dart';
 import 'package:kargo/screens/home_page.dart';
+import 'package:kargo/screens/profile_page.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -57,7 +58,8 @@ class _MyAppState extends State<MyApp> {
       routes: {
         '/': (ctx) => getLandingScreen(),
         '/Chats': (context) => ChatListScreen(),
-        '/ChatDetail': (context) => ChatScreen()
+        '/ChatDetail': (context) => ChatScreen(),
+        '/profile_page': (ctx) => ProfilePage()
       },
     );
   }
