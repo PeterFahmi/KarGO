@@ -32,12 +32,14 @@ dependencies:
   flutter:
     sdk: flutter
   flutter_snake_navigationbar: ^0.6.1
+  carousel_slider: ^4.2.1
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.2
   cloud_firestore: ^4.3.0
   fade_shimmer: ^2.0.1
+  getwidget: ^3.0.1
   flutter_chat_ui: ^1.6.6
   flutter_chat_types: ^3.6.0
   intl: ^0.17.0
