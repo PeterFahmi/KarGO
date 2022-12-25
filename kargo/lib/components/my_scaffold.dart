@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/container.dart';
 import 'package:flutter/src/widgets/framework.dart';
@@ -36,8 +37,14 @@ class MyScaffold extends StatelessWidget {
                 width: 150,
                 height: 100,
               ),
-              actions: [
+              actions: [ IconButton(
+ onPressed: () {
+ FirebaseAuth.instance.signOut();
+ },
+ icon: Icon(Icons.logout_outlined, color: Colors.black)),
+ 
                 GestureDetector(
+                  onTap: () {Navigator.of(context).pushNamed('/Chats');},
                   child: Padding(
                     padding: const EdgeInsets.all(10.0),
                     child: Image(
