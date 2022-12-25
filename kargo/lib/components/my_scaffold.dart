@@ -28,6 +28,7 @@ class MyScaffold extends StatelessWidget {
               ),
               actions: [
                 GestureDetector(
+                  onTap: () {Navigator.of(context).pushNamed('/Chats');},
                   child: Padding(
                     padding: const EdgeInsets.all(10.0),
                     child: Image(
