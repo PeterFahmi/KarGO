@@ -34,6 +34,7 @@ class MyScaffold extends StatelessWidget {
  icon: Icon(Icons.logout_outlined, color: Colors.black)),
  
                 GestureDetector(
+                  onTap: () {Navigator.of(context).pushNamed('/Chats');},
                   child: Padding(
                     padding: const EdgeInsets.all(10.0),
                     child: Image(
