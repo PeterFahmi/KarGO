@@ -2,7 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/container.dart';
 import 'package:flutter/src/widgets/framework.dart';
-import 'package:kargo/models/user.dart';
+import 'package:kargo/models/user.dart' as UserModel;
 
 class MyScaffold extends StatelessWidget {
   String userImageURL =
@@ -14,7 +14,7 @@ class MyScaffold extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    User curUser = User(
+    UserModel.User curUser = UserModel.User(
         imagePath: userImageURL, name: "Omar Gamal", email: "Omar@gmail.com");
 
     return Scaffold(
