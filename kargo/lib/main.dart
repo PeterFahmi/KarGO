@@ -9,6 +9,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:kargo/screens/loading_screen.dart';
 import 'package:kargo/screens/login_page.dart';
 
+
 void main() {
   initializeDateFormatting().then((_) {
     runApp(const MyApp());
@@ -57,7 +58,8 @@ class _MyAppState extends State<MyApp> {
         '/': (ctx) => getLandingScreen(),
         '/Chats': (context) => ChatListScreen(),
         '/ChatDetail': (context) => ChatScreen(),
-        '/profile_page': (ctx) => ProfilePage()
+        '/profile_page': (ctx) => ProfilePage(),
+        
       },
     );
   }

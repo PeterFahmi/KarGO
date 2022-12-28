@@ -2,13 +2,16 @@ import 'dart:convert';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 import '../components/errorBar.dart';
 class LoginScreen extends StatefulWidget {
  @override
  _LoginScreenState createState() => _LoginScreenState();
 }
 class _LoginScreenState extends State<LoginScreen> {
+  Country _selectedCountry = Country(code: '1', name: 'United States', flagUrl: 'https://flagcdn.com/w320/us.png');
+  List<Country> _countries = [];
  var emailController = TextEditingController();
  var passwordController = TextEditingController();
  var usernameController = TextEditingController();
@@ -16,6 +19,11 @@ class _LoginScreenState extends State<LoginScreen> {
  final authenticationInstance = FirebaseAuth.instance;
  var authenticationMode = 0;
 
+  @override
+  void initState() {
+    super.initState();
+    _fetchCountries();
+  }
  void toggleAuthMode() {
  if (authenticationMode == 0) {
  setState(() {
@@ -26,84 +34,221 @@ class _LoginScreenState extends State<LoginScreen> {
  authenticationMode = 0;
  });
  }
- 
-  @override
-  Widget build(BuildContext context) {
-    // TODO: implement build
-    throw UnimplementedError();
+ }
+void _fetchCountries() async {
+    final response = await http.get(Uri.parse("https://restcountries.com/v2/all"));
+    if (response.statusCode == 200) {
+      setState(() {
+        _countries = (json.decode(response.body) as List)
+            .map((data) => Country.fromJson(data))
+            .toList();
+      });
+    } else {
+      throw Exception('Failed to load countries');
+    }
   }
- }
+ final _formKey = GlobalKey<FormState>();
  @override
- Widget build(BuildContext context) {
+Widget build(BuildContext context) {
+  return Scaffold(
+  
+  
+  body: SingleChildScrollView(child:Container(
+    width: double.infinity,
+    height: authenticationMode == 1 ?550: 400,
+    margin: EdgeInsets.only(top: 60, left: 10, right: 10),
+    child: Card(
+      elevation: 5,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Form(
+          autovalidateMode: AutovalidateMode.onUserInteraction,
+          child: Column(
+            children: [
+              Center(
+                child: Image(
+                  image: AssetImage('assets/images/logo.png'),
+                  width: 150,
+                  height: 100,
+                ),
+              ),
+              SizedBox(height: 10),
+              Expanded(
+                child: TextFormField(
+                  decoration: InputDecoration(labelText: "Email"),
+                  controller: emailController,
+                  keyboardType: TextInputType.emailAddress,
+                  validator: (value) {
+                    if (value!.isEmpty) {
+                      return 'Please enter a valid email address';
+                    }
+                    return null;
+                  },
+                ),
+              ),
+              SizedBox(height: 10),
+              Expanded(
+                child: TextFormField(
+                  decoration: InputDecoration(labelText: "Password"),
+                  controller: passwordController,
+                  obscureText: true,
+                  validator: (value) {
+                    if (value!.isEmpty) {
+                      return 'Please enter a password';
+                    }
+                    return null;
+                  },
+                ),
+              ),
+              if (authenticationMode == 0)
+              TextButton(
+               onPressed: () async {
+    // 1. Display a form or a dialog to collect the email address of the user whose password needs to be reset
+ showDialog(
+  context: context,
+  builder: (context) {
+    String _email="";
+    return AlertDialog(
+      title: Text("Reset Password"),
+      content: Form(
+        key:_formKey,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            TextFormField(
+              decoration: InputDecoration(labelText: "Email"),
+              validator: (value) {
+                if (value!.isEmpty) {
+                  return "Please enter an email";
+                }
+                return null;
+              },
+              onSaved: (value) => _email = value!,
+            ),
+          ],
+        ),
+      ),
+      actions: [
+        ElevatedButton(style: ButtonStyle(
+                    backgroundColor: MaterialStateProperty.all(Colors.black)),
+          child: Text("Cancel"),
+          onPressed: () => Navigator.of(context).pop(),
+        ),
+        ElevatedButton(style: ButtonStyle(
+                    backgroundColor: MaterialStateProperty.all(Colors.black)),
+          child: Text("Send"),
+          onPressed: () async {
+            if (_formKey.currentState!.validate()) {
+              _formKey.currentState!.save();
+              try {
+                await FirebaseAuth.instance.sendPasswordResetEmail(email: _email);
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text("Password reset email sent")),
+                );
+              } catch (e) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text("Error: $e")),
+                );
+              }
+              Navigator.of(context).pop();
+            }
+          },
+        ),
+      ],
+    );
+  },
+);
+},
+                child: Text("Forgot Password", style: TextStyle(color: Colors.black)),
+              ),
+              if (authenticationMode == 1) ...[
+                SizedBox(height: 10),
+                Expanded(
+                  child: TextFormField(
+                    decoration: InputDecoration(labelText: "Username"),
+                    controller: usernameController,
+                    validator: (value) {
+                      if (value!.isEmpty) {
+                        return 'Please enter a username';
+                      }
+                      return null;
+                    },
+                  ),
+                ),
+                SizedBox(height: 10),
+  ConstrainedBox(
+    constraints: BoxConstraints(maxWidth: double.infinity, minHeight: 48),
+    child: Row(
+      children: [
+        Image.network(
+          _selectedCountry.flagUrl,
+          width: 32,
+          height: 32,
+        ),
+        SizedBox(width: 8),
+     Text(" +"+_selectedCountry.code,style: TextStyle(fontSize: 15)),
+                          PopupMenuButton(
+                            onSelected: (Country country) {
+                              setState(() {
+                                _selectedCountry = country;
+                              });
+                            },
+                            itemBuilder: (BuildContext context) {
+                              return _countries.map((Country country) {
+                                return PopupMenuItem(
+                                  value: country,
+                                  child: Text(country.name),
+                                );
+                              }).toList();
+                            },
+                          ),
+        SizedBox(width: 5),
+        Expanded(
+          child: TextField(
+            decoration: InputDecoration(labelText: "Phone Number"),
+            controller: phoneNumberController,
+            keyboardType: TextInputType.phone,
+          ),
+        ),
+      ],
+    ),
+  ),
+],SizedBox(height: 5),
+              ElevatedButton(
+                style: ButtonStyle(
+                    backgroundColor: MaterialStateProperty.all(Colors.black)),
+                onPressed: () {
+                  loginORsignup();
+                },
+                child: (authenticationMode == 1)
+                    ? Text("Sign up")
+                    : Text("Login"),
+              ),
+              SizedBox(height: 5),
+              TextButton(
+                onPressed: () {
+                  toggleAuthMode();
+                },
+                child: (authenticationMode == 1)
+                    ? Text("Login instead", style: TextStyle(color: Colors.black))
+                    : Text("Sign up instead", style: TextStyle(color: Colors.black)),
+              ),
+            ],
+          ),
+        ),
+      ),
+    ),
+  ),
+));
+}
 
 
- return Scaffold(
- body: 
- Container(
- width: double.infinity,
- height: 480,
- margin: EdgeInsets.only(top: 60, left: 10, right: 10),
- child: Card(
- elevation: 5,
- shape: RoundedRectangleBorder(
- borderRadius: BorderRadius.circular(20),
- ),
- child: Padding(
- padding: const EdgeInsets.all(8.0),
- child: Column(
- children: [
- Center(
- child: Image(
-                image: AssetImage('assets/images/logo.png'),
-                width: 150,
-                height: 100,
-              )
- ),
- TextField(
- decoration: InputDecoration(labelText: "Email"),
- controller: emailController,
- keyboardType: TextInputType.emailAddress,
- ),
- TextField(
- decoration: InputDecoration(labelText: "Password"),
- controller: passwordController,
- obscureText: true,
- ),
- if (authenticationMode == 1)
- TextField(
- decoration: InputDecoration(labelText: "Username"),
- controller: usernameController,
-  ),
-   if (authenticationMode == 1)
- TextField(
- decoration: InputDecoration(labelText: "Phone Number"),
- controller: phoneNumberController,
-  keyboardType: TextInputType.phone,
-  ),
- ElevatedButton(style: ButtonStyle(
-                      backgroundColor:MaterialStateProperty.all(Colors.black)),
- onPressed: () {
- loginORsignup();
- },
- child: (authenticationMode == 1)
- ? Text("Sign up")
- : Text("Login"),
- ),
- TextButton(
- onPressed: () {
- toggleAuthMode();
- },
- child: (authenticationMode == 1)
- ? Text("Login instead", style: TextStyle(color: Colors.black))
- : Text("Sign up instead", style: TextStyle(color: Colors.black)),
- ),
- ],
- ),
- ),
- ),
- ),
- );
- }
+
+
+
  void loginORsignup() async {
 
  var email = emailController.text.trim();
@@ -211,4 +356,28 @@ overflow: TextOverflow.ellipsis,
  print(err.toString());
 }
  }
+ 
 }
+Future<bool> sendPasswordResetRequest(String email) async {
+  try {
+    await FirebaseAuth.instance.sendPasswordResetEmail(email: email);
+    return true;
+  } catch (error) {
+    print(error);
+    return false;
+  }
+}
+class Country {
+  final String code;
+  final String name;
+  final String flagUrl;
+
+  Country({required this.code,  required this.name, required this.flagUrl});
+
+  factory Country.fromJson(Map<String, dynamic> json) {
+    return Country(
+      code: json['callingCodes'][0],
+      name: json['name'],
+      flagUrl: json['flags']['png'],
+    );
+  }}
