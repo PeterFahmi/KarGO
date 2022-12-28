@@ -1,6 +1,8 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/container.dart';
 import 'package:flutter/src/widgets/framework.dart';
+import 'package:kargo/models/user.dart' as UserModel;
 
 class MyScaffold extends StatelessWidget {
   String userImageURL =
@@ -12,6 +14,9 @@ class MyScaffold extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    UserModel.User curUser = UserModel.User(
+        imagePath: userImageURL, name: "Omar Gamal", email: "Omar@gmail.com");
+
     return Scaffold(
       appBar: PreferredSize(
           preferredSize: Size.fromHeight(80.0),
@@ -20,13 +25,24 @@ class MyScaffold extends StatelessWidget {
             child: AppBar(
               backgroundColor: Colors.white,
               titleSpacing: 0,
-              leading: showUserImage(),
+              leading: GestureDetector(
+                onTap: () {
+                  Navigator.of(context)
+                      .pushNamed('/profile_page', arguments: {'user': curUser});
+                },
+                child: showUserImage(),
+              ),
               title: Image(
                 image: AssetImage('assets/images/logo.png'),
                 width: 150,
                 height: 100,
               ),
-              actions: [
+              actions: [ IconButton(
+ onPressed: () {
+ FirebaseAuth.instance.signOut();
+ },
+ icon: Icon(Icons.logout_outlined, color: Colors.black)),
+ 
                 GestureDetector(
                   onTap: () {Navigator.of(context).pushNamed('/Chats');},
                   child: Padding(

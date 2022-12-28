@@ -32,32 +32,39 @@ Notifications
 
 ----------------------------------------------------------------------------------------------------------
 TODOs:
-	ALL:
-		1. revise last 2 lecs
 	Omar:
-		1.Profile Screen 
+		1.Profile Screen ✔
 		2.image
 		3.info
 		4.user model
+		5. complete profile screen
+		6. help philo with search
 	Tito:
-		1.chat model 
-		2.Chat screen
-		3.messages UI
+		1.chat model  ✔
+		2.Chat screen ✔
+		3.messages UI ✔
 		4. chat backend
+		5. chat search
 	Philo:
-		1.backend logic
-		2.login screen ui
-		3. signup screen ui
-		4. model - token - whatever needed	
+		1.backend logic ✔
+		2.login screen ui ✔
+		3. signup screen ui ✔
+		4. model - token - whatever needed	✔
+		5. forget password [extra feature]
+		7. tweaking sign up + log in
+		8. search filters for ads	[front + backend]
 	Farah:
-		1.card ui 
-		2.car model
-		3.ads model
+		1.card ui 	✔
+		2.car model	✔
+		3.ads model	✔
+		4. screen for the ads -> bid option
+		5. call functionality [extra]
 	Peter:
-		1. Home page UI
-		2. dummy logo
-		3. routings
-		
+		1. Home page UI ✔
+		2. dummy logo	✔
+		3. routings		✔
+		4. post ad (form for ad creation) 
+		5. location (add as an attribute) 
 
 ----------------------------------------------------------------------------------------------------------
 Screens
