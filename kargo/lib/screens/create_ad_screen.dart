@@ -20,17 +20,16 @@ class CreateAdScreen extends StatefulWidget {
 }
 
 class _CreateAdScreenState extends State<CreateAdScreen> {
-  //constants
-  static const imgUrls = [
-    'https://www.hdcarwallpapers.com/download/abt_sportsline_audi_tt-2880x1800.jpg',
-    'https://th.bing.com/th/id/OIP.zpu1nHs3RCyeRXikR-nFGgHaFj?pid=ImgDet&w=1600&h=1200&rs=1'
-  ];
-
   final PageController _pageController = PageController();
   int index = 0;
 
   //carpage
-  List<Image> imgs = imgUrls.map((e) => Image.network(e)).toList();
+  List<Image> imgs = [
+    Image(
+        image: AssetImage('assets/images/carPlaceHolder.jpg'),
+        fit: BoxFit.fill,
+        width: double.infinity)
+  ];
   final yearCtrl = TextEditingController(),
       kmCtrl = TextEditingController(),
       colorCtrl = TextEditingController(),
@@ -41,7 +40,7 @@ class _CreateAdScreenState extends State<CreateAdScreen> {
       askPrice = TextEditingController(),
       adDuration = TextEditingController();
 
-  bool noImages = false;
+  bool noImages = true;
   bool nextEnabled = false;
 
   @override
