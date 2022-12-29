@@ -8,17 +8,24 @@ import '../../components/my_textfield.dart';
 
 class AdDetailsPage extends StatefulWidget {
   static const _subheader = TextStyle(fontWeight: FontWeight.w600);
-  const AdDetailsPage({super.key});
+  final adTitle;
+  final adDescription;
+  final askPrice;
+  final adDuration;
+  VoidCallback onChange;
+  AdDetailsPage({
+    required this.adDescription,
+    required this.adTitle,
+    required this.adDuration,
+    required this.askPrice,
+    required this.onChange,
+  });
 
   @override
   State<AdDetailsPage> createState() => _AdDetailsPageState();
 }
 
 class _AdDetailsPageState extends State<AdDetailsPage> {
-  final adTitle = TextEditingController();
-  final adDescription = TextEditingController();
-  final askPrice = TextEditingController();
-  final adDuration = TextEditingController();
   @override
   Widget build(BuildContext context) {
     return Column(children: [
@@ -38,31 +45,35 @@ class _AdDetailsPageState extends State<AdDetailsPage> {
         child: ListView(padding: EdgeInsets.all(15), children: [
           const Text('Ad title', style: AdDetailsPage._subheader),
           MyTextField(
-            controller: adTitle,
+            controller: widget.adTitle,
             labelText: "Title",
             maxLength: 20,
+            onSubmitted: widget.onChange,
           ),
           const Divider(height: 24),
           const Text('Ad description', style: AdDetailsPage._subheader),
           MyTextField(
-            controller: adDescription,
+            controller: widget.adDescription,
             labelText: "Description",
             maxLength: 100,
             height: 140.0,
+            onSubmitted: widget.onChange,
           ),
           const Divider(height: 24),
           const Text('Ask price', style: AdDetailsPage._subheader),
           MyTextField(
-            controller: askPrice,
+            controller: widget.askPrice,
             labelText: "Ask price",
             keyboardType: TextInputType.number,
+            onSubmitted: widget.onChange,
           ),
           const Divider(height: 24),
           const Text('Ad duration', style: AdDetailsPage._subheader),
           MyTextField(
-            controller: adDuration,
+            controller: widget.adDuration,
             labelText: "Days",
             keyboardType: TextInputType.number,
+            onSubmitted: widget.onChange,
           ),
         ]),
       ))

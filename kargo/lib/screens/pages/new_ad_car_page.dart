@@ -14,12 +14,14 @@ class CarPage extends StatefulWidget {
   TextEditingController kmCtrl;
   TextEditingController colorCtrl;
   bool noImages;
+  VoidCallback onChange;
   CarPage(
       {required this.imgs,
       required this.colorCtrl,
       required this.kmCtrl,
       required this.yearCtrl,
-      required this.noImages});
+      required this.noImages,
+      required this.onChange});
   @override
   State<CarPage> createState() => _CarPageState();
 }
@@ -96,6 +98,7 @@ class _CarPageState extends State<CarPage> {
               controller: widget.yearCtrl,
               labelText: "Model year",
               keyboardType: TextInputType.number,
+              onSubmitted: widget.onChange,
             ),
             const Divider(height: 24),
             const Text('Car km', style: CarPage._subheader),
@@ -103,12 +106,14 @@ class _CarPageState extends State<CarPage> {
               controller: widget.kmCtrl,
               labelText: "Car km",
               keyboardType: TextInputType.number,
+              onSubmitted: widget.onChange,
             ),
             const Divider(height: 24),
             const Text('Car color', style: CarPage._subheader),
             MyTextField(
               controller: widget.colorCtrl,
               labelText: "Car color",
+              onSubmitted: widget.onChange,
             ),
           ],
         ),

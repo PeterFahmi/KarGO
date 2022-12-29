@@ -8,16 +8,19 @@ class ManufacturePage extends StatefulWidget {
   static const modelList = ["civic", "corrola", "balabizo"];
 
   static const _subheader = TextStyle(fontWeight: FontWeight.w600);
-  const ManufacturePage({super.key});
+  final manufacturerDropdownCtrl, modelDropdownCtrl;
 
+  VoidCallback onChanged;
+
+  ManufacturePage(
+      {required this.manufacturerDropdownCtrl,
+      required this.modelDropdownCtrl,
+      required this.onChanged});
   @override
   State<ManufacturePage> createState() => _ManufacturePageState();
 }
 
 class _ManufacturePageState extends State<ManufacturePage> {
-  final manufacturerDropdownCtrl = TextEditingController(),
-      modelDropdownCtrl = TextEditingController();
-
   @override
   Widget build(BuildContext context) {
     return Column(children: [
@@ -39,16 +42,21 @@ class _ManufacturePageState extends State<ManufacturePage> {
           CustomDropdown.search(
             hintText: 'Select manufacturer',
             items: ManufacturePage.carList,
-            controller: manufacturerDropdownCtrl,
+            controller: widget.manufacturerDropdownCtrl,
             excludeSelected: false,
+            onChanged: (_) {
+              print("here");
+              widget.onChanged();
+            },
           ),
           const Divider(height: 24),
           const Text('Car model', style: ManufacturePage._subheader),
           CustomDropdown.search(
             hintText: 'Select model',
             items: ManufacturePage.modelList,
-            controller: modelDropdownCtrl,
+            controller: widget.modelDropdownCtrl,
             excludeSelected: false,
+            onChanged: (_) => widget.onChanged(),
           ),
         ]),
       ))

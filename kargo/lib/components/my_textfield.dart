@@ -9,8 +9,10 @@ class MyTextField extends StatefulWidget {
   final labelText;
   final maxLength;
   final height;
+  VoidCallback onSubmitted;
   MyTextField(
       {required this.controller,
+      required this.onSubmitted,
       this.keyboardType = TextInputType.text,
       required this.labelText,
       this.maxLength,
@@ -38,6 +40,9 @@ class _MyTextFieldState extends State<MyTextField> {
         style: TextStyle(fontSize: 20),
         maxLength: widget.maxLength,
         maxLines: widget.maxLength == null ? 1 : null,
+        onChanged: ((value) {
+          widget.onSubmitted();
+        }),
       ),
     );
   }

@@ -33,21 +33,40 @@ class _CreateAdScreenState extends State<CreateAdScreen> {
   List<Image> imgs = imgUrls.map((e) => Image.network(e)).toList();
   final yearCtrl = TextEditingController(),
       kmCtrl = TextEditingController(),
-      colorCtrl = TextEditingController();
+      colorCtrl = TextEditingController(),
+      manufacturerDropdownCtrl = TextEditingController(),
+      modelDropdownCtrl = TextEditingController(),
+      adTitle = TextEditingController(),
+      adDescription = TextEditingController(),
+      askPrice = TextEditingController(),
+      adDuration = TextEditingController();
 
   bool noImages = false;
+  bool nextEnabled = false;
 
   @override
   Widget build(BuildContext context) {
     var pages = [
-      ManufacturePage(),
+      ManufacturePage(
+        manufacturerDropdownCtrl: manufacturerDropdownCtrl,
+        modelDropdownCtrl: modelDropdownCtrl,
+        onChanged: setCanGoNext,
+      ),
       CarPage(
-          imgs: imgs,
-          yearCtrl: yearCtrl,
-          kmCtrl: kmCtrl,
-          colorCtrl: colorCtrl,
-          noImages: noImages),
-      AdDetailsPage()
+        imgs: imgs,
+        yearCtrl: yearCtrl,
+        kmCtrl: kmCtrl,
+        colorCtrl: colorCtrl,
+        noImages: noImages,
+        onChange: setCanGoNext,
+      ),
+      AdDetailsPage(
+        adDescription: adDescription,
+        adDuration: adDuration,
+        adTitle: adTitle,
+        askPrice: askPrice,
+        onChange: setCanGoNext,
+      )
     ];
     return MyScaffold(
       hasLeading: false,
@@ -71,7 +90,7 @@ class _CreateAdScreenState extends State<CreateAdScreen> {
                     onPressed: (() => changePage(index - 1)),
                     icon: Icon(
                       Icons.arrow_back,
-                      color: Colors.white,
+                      color: index == 0 ? Colors.black : Colors.white,
                       size: 30,
                     )),
                 Expanded(
@@ -99,13 +118,14 @@ class _CreateAdScreenState extends State<CreateAdScreen> {
                         onPressed: showBottomSheet,
                         child: Text(
                           "Next",
-                          style: TextStyle(color: Colors.white),
+                          style: TextStyle(
+                              color: nextEnabled ? Colors.white : Colors.grey),
                         ))
                     : IconButton(
                         onPressed: (() => changePage(index + 1)),
                         icon: Icon(
                           Icons.arrow_forward,
-                          color: Colors.white,
+                          color: nextEnabled ? Colors.white : Colors.grey,
                           size: 30,
                         )),
               ],
@@ -117,35 +137,130 @@ class _CreateAdScreenState extends State<CreateAdScreen> {
   }
 
   void changePage(int idx) {
+    if (idx < 0) return;
+    if (idx > index && !nextEnabled) return;
     _pageController.animateToPage(idx,
         duration: Duration(milliseconds: 500), curve: Curves.easeInOut);
     setState(() {
       index = idx;
     });
+    setCanGoNext();
+  }
+
+  List<Widget> getAdDetailsEntry(String title, String data,
+      {bool hasDivider = true}) {
+    return [
+      Row(
+        children: [
+          Text(title, style: TextStyle(fontWeight: FontWeight.w600)),
+          Spacer(),
+          Text(data, style: TextStyle(fontWeight: FontWeight.w600)),
+        ],
+      ),
+      if (hasDivider)
+        Divider(
+          height: 10,
+          thickness: 1,
+        ),
+    ];
+  }
+
+  setCanGoNext() {
+    print("here2");
+    bool canGoNext = true;
+    if (index == 0) {
+      canGoNext &= manufacturerDropdownCtrl.text.isNotEmpty;
+      print(manufacturerDropdownCtrl.text);
+      canGoNext &= modelDropdownCtrl.text.isNotEmpty;
+      print(canGoNext);
+    } else if (index == 1) {
+      canGoNext &= yearCtrl.text.isNotEmpty;
+      canGoNext &= colorCtrl.text.isNotEmpty;
+      canGoNext &= kmCtrl.text.isNotEmpty;
+    } else {
+      canGoNext &= adTitle.text.isNotEmpty;
+      canGoNext &= adDescription.text.isNotEmpty;
+      canGoNext &= adDuration.text.isNotEmpty;
+      canGoNext &= askPrice.text.isNotEmpty;
+    }
+    setState(() {
+      nextEnabled = canGoNext;
+    });
+    ;
   }
 
   void showBottomSheet() {
+    if (!nextEnabled) return;
     showModalBottomSheet<dynamic>(
+        backgroundColor: Colors.transparent,
         isScrollControlled: true,
         context: context,
         builder: (BuildContext bc) {
           return Wrap(children: <Widget>[
             Container(
-              child: Container(
-                decoration: new BoxDecoration(
-                    color: Colors.black,
-                    borderRadius: new BorderRadius.only(
-                        topLeft: const Radius.circular(25.0),
-                        topRight: const Radius.circular(25.0))),
-                child: Container(
-                  child: Column(
-                    children: [
-                      UploadedPhotosRow(imgs: imgs, removeCallback: null)
-                    ],
+              decoration: new BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: new BorderRadius.only(
+                      topLeft: const Radius.circular(25.0),
+                      topRight: const Radius.circular(25.0))),
+              width: double.infinity,
+              child: Column(
+                children: [
+                  Container(
+                    width: double.infinity,
+                    height: 60,
+                    decoration: new BoxDecoration(
+                        color: Colors.black,
+                        borderRadius: new BorderRadius.only(
+                            topLeft: const Radius.circular(25.0),
+                            topRight: const Radius.circular(25.0))),
+                    child: Center(
+                      child: Text('Your Ad details',
+                          style: TextStyle(
+                              fontWeight: FontWeight.w600,
+                              color: Colors.white,
+                              fontSize: 20)),
+                    ),
                   ),
-                ),
+                  Container(
+                    width: double.infinity,
+                    padding: EdgeInsets.all(10),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text('Car Photos',
+                            style: TextStyle(fontWeight: FontWeight.w600)),
+                        UploadedPhotosRow(imgs: imgs, removeCallback: null),
+                        ...getAdDetailsEntry('Title', adTitle.text),
+                        ...getAdDetailsEntry(
+                            'Manufacturer', manufacturerDropdownCtrl.text),
+                        ...getAdDetailsEntry('Model', modelDropdownCtrl.text),
+                        ...getAdDetailsEntry('Year', yearCtrl.text),
+                        ...getAdDetailsEntry('Car Km', kmCtrl.text),
+                        ...getAdDetailsEntry('Car color', colorCtrl.text),
+                        ...getAdDetailsEntry('Ask price', askPrice.text),
+                        ...getAdDetailsEntry('Ad duration', adDuration.text,
+                            hasDivider: false),
+                      ],
+                    ),
+                  ),
+                  Center(
+                    child: ElevatedButton(
+                      onPressed: () {
+                        // Perform some action
+                      },
+                      child: Text('Submit'),
+                      style: ButtonStyle(
+                        backgroundColor:
+                            MaterialStateProperty.all<Color>(Colors.black),
+                        foregroundColor:
+                            MaterialStateProperty.all<Color>(Colors.white),
+                      ),
+                    ),
+                  ),
+                ],
               ),
-            )
+            ),
           ]);
         });
   }
