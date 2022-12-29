@@ -1,18 +1,10 @@
-import 'dart:io';
-
-import 'package:animated_custom_dropdown/custom_dropdown.dart';
-import 'package:carousel_slider/carousel_slider.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:image_picker/image_picker.dart';
 import 'package:kargo/components/my_scaffold.dart';
-import 'package:kargo/components/my_textfield.dart';
-
-import 'package:image_picker/image_picker.dart';
 import 'package:kargo/components/uploaded_photos_row.dart';
 import 'package:kargo/screens/pages/new_ad_car_page.dart';
 import 'package:kargo/screens/pages/new_ad_details_page.dart';
 import 'package:kargo/screens/pages/new_ad_manufacture_page.dart';
-import '../components/CarouselWithDots.dart';
 
 class CreateAdScreen extends StatefulWidget {
   @override
@@ -245,9 +237,7 @@ class _CreateAdScreenState extends State<CreateAdScreen> {
                   ),
                   Center(
                     child: ElevatedButton(
-                      onPressed: () {
-                        // Perform some action
-                      },
+                      onPressed: submit,
                       child: Text('Submit'),
                       style: ButtonStyle(
                         backgroundColor:
@@ -262,5 +252,28 @@ class _CreateAdScreenState extends State<CreateAdScreen> {
             ),
           ]);
         });
+  }
+
+  void submit() {
+    print("here");
+    createType();
+    Navigator.pop(context);
+    //Navigator.pop(context);
+  }
+
+  void createType() async {
+    CollectionReference types = FirebaseFirestore.instance.collection('types');
+    types
+        .where('manufacturer', isEqualTo: manufacturerDropdownCtrl.text)
+        .where('model', isEqualTo: modelDropdownCtrl.text)
+        .get()
+        .then((value) {
+      if (value.docs.length == 0) {
+        types.add({
+          'manufacturer': manufacturerDropdownCtrl.text,
+          'model': modelDropdownCtrl.text
+        });
+      }
+    });
   }
 }
