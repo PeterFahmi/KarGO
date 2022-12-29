@@ -35,13 +35,9 @@ class ChatScreenState extends State<ChatScreen> {
   }
   
   getChatStream() async {
-    await db.getCollectionFromDocument(chatReference)
-      .then((snapshots){
-        setState(() {
-          print("inside set state, " + snapshots.runtimeType.toString());
-          messageStream=snapshots;
-        });
-      });
+    setState(() {
+      messageStream=chatReference.collection("messages").orderBy("date").snapshots();
+    });
   }
 
   @override
@@ -60,14 +56,6 @@ class ChatScreenState extends State<ChatScreen> {
         )
       ),
       body: chatMessages()
-      
-      //  readAllMessages()
-
-      // Chat(
-      //   messages: _messages,
-      //   user: _user,
-      //   onSendPressed: _handleSendPressed,
-      // ),
     );
   }
 
@@ -88,26 +76,25 @@ class ChatScreenState extends State<ChatScreen> {
     _addMessage(textMessage);
   }
 
-  readAllMessages(){
-    // chatReference.collection("messages").get().then(((value) {
-    //   print("value of message=" + value.docs[0].data().toString());
-    //   print("value of message=" + value.docs.length.toString());
-    // }));
-    // chatReference.collection("messages").snapshots().listen(((snapshot) {
-    //   print("value of message="+snapshot.docs[0].data().toString());
-    // }));
-    db.getCollectionFromDocument(chatReference).then((snapshot) {
-      snapshot.listen((snap) {
-        print("value of message="+snap.docs[1].data().toString());
-       });
-    });
-    return Container();
-  }
+  // readAllMessages(){
+  //   // chatReference.collection("messages").get().then(((value) {
+  //   //   print("value of message=" + value.docs[0].data().toString());
+  //   //   print("value of message=" + value.docs.length.toString());
+  //   // }));
+  //   // chatReference.collection("messages").snapshots().listen(((snapshot) {
+  //   //   print("value of message="+snapshot.docs[0].data().toString());
+  //   // }));
+  //   db.getCollectionFromDocument(chatReference).then((snapshot) {
+  //     snapshot.listen((snap) {
+  //       print("value of message="+snap.docs[1].data().toString());
+  //      });
+  //   });
+  //   return Container();
+  // }
 
-  chatMessages(){
-    
+  chatMessages(){    
     return StreamBuilder(
-      stream: chatReference.collection("messages").orderBy("date").snapshots(),
+      stream: messageStream,
       builder: (context, snapshot) {
         if(snapshot.connectionState == ConnectionState.waiting){
           return const ShimmerCard();
@@ -115,41 +102,38 @@ class ChatScreenState extends State<ChatScreen> {
         if(!snapshot.hasData){
           return const NoChatsComponent();
         }
-        var messagesList = snapshot.data!.docs;
+        var updatedMessages = snapshot.data!.docs;
         // print("messages data="+messagesList[0].data().toString());
-        // print("messages data="+messagesList[0].data()['date'].toDate().toString());
-        _messages.clear();
-        messagesList.forEach((msg) {
-          print("msg data="+msg.data().toString());
-          var sender;
-          if(msg.data()['sender']==FirebaseAuth.instance.currentUser!.uid) {
-            sender=_user;
-          }
-          else{
-            sender=types.User(id: msg.data()['sender']);
-          }
-          final textMessage = types.TextMessage(
-            author: sender,
-            createdAt: DateTime.parse(msg.data()['date'].toDate().toString()).millisecondsSinceEpoch,
-            id: DateTime.now().toString(),
-            text: msg.data()['content'],
-          );
-
-          _messages.insert(0,textMessage);
-        });
+        addFetchedMessages(updatedMessages);
         return Chat(
           messages: _messages, 
           onSendPressed: _handleSendPressed, 
           user: _user
         );
-        // return ListView.builder(
-        //   itemCount: messagesList.length,
-        //   shrinkWrap: true,
-        //   itemBuilder: (context, index) {
-        //     return Text(messagesList[index].data()['content']);
-        //   },
-        // );
       },
     );
+  }
+
+  void addFetchedMessages(updatedMessages) {
+    _messages.clear();
+    updatedMessages.forEach((msg) {
+      // print("msg data="+msg.data().toString());
+      var sender;
+      if(msg.data()['sender']==FirebaseAuth.instance.currentUser!.uid) {
+        sender=_user;
+      }
+      else{
+        sender=types.User(id: msg.data()['sender']);
+      }
+      
+      final textMessage = types.TextMessage(
+        author: sender,
+        createdAt: DateTime.parse(msg.data()['date'].toDate().toString()).millisecondsSinceEpoch,
+        id: DateTime.now().toString(),
+        text: msg.data()['content'],
+      );
+    
+      _messages.insert(0,textMessage);
+    });
   }
 }
