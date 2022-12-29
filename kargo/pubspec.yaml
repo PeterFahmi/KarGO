@@ -48,6 +48,7 @@ dependencies:
   flutter_chat_types: ^3.6.0
   intl: ^0.17.0
   animated_custom_dropdown: ^1.2.2
+  stepper_counter_swipe: ^1.0.2
 
 dev_dependencies:
   flutter_test:

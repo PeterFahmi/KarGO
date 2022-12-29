@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter/src/widgets/container.dart';
 import 'package:flutter/src/widgets/framework.dart';
 
@@ -6,10 +7,14 @@ class MyTextField extends StatefulWidget {
   final controller;
   final keyboardType;
   final labelText;
+  final maxLength;
+  final height;
   MyTextField(
       {required this.controller,
       this.keyboardType = TextInputType.text,
-      required this.labelText});
+      required this.labelText,
+      this.maxLength,
+      this.height});
   @override
   State<MyTextField> createState() => _MyTextFieldState();
 }
@@ -18,7 +23,7 @@ class _MyTextFieldState extends State<MyTextField> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 45,
+      height: getHeight(),
       padding: EdgeInsets.fromLTRB(10, 2, 10, 2),
       decoration: BoxDecoration(
           color: Colors.white, borderRadius: BorderRadius.circular(12)),
@@ -31,7 +36,15 @@ class _MyTextFieldState extends State<MyTextField> {
         controller: widget.controller,
         keyboardType: widget.keyboardType,
         style: TextStyle(fontSize: 20),
+        maxLength: widget.maxLength,
+        maxLines: widget.maxLength == null ? 1 : null,
       ),
     );
+  }
+
+  getHeight() {
+    if (widget.height != null) return widget.height;
+    if (widget.maxLength != null) return 100.0;
+    return 45.0;
   }
 }
