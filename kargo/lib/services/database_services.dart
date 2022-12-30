@@ -25,7 +25,11 @@ class DatabaseService{
     //TODO: handle non-text messages + delivered and seen functionality
     Map<String,dynamic> messageData = reformatMessageJson(message);
     chatReference.collection("messages").add(messageData);
-
+    chatReference.update({
+      "recentMessage": messageData['content'],
+      "recentMessageSender": messageData['sender'],
+      "recentMessageTime": messageData['date']
+    });
     //TODO: add most recent message functionality to code & schema 
   }
   
