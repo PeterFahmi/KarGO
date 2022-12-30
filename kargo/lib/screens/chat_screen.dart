@@ -66,13 +66,20 @@ class ChatScreenState extends State<ChatScreen> {
   }
 
   void _handleSendPressed(types.PartialText message) {
+    String trimmedText = message.text.trim();
+    if(trimmedText == "") {
+      return;
+    }
+
     final textMessage = types.TextMessage(
       author: _user,
       createdAt: DateTime.now().millisecondsSinceEpoch,
       id: DateTime.now().toString(),
-      text: message.text,
+      text: trimmedText,
     );
 
+    print("text message json="+textMessage.toJson().toString());
+    db.sendMessage(chatReference, textMessage.toJson());
     _addMessage(textMessage);
   }
 

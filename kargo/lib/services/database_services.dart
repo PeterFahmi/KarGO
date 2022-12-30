@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter_chat_ui/flutter_chat_ui.dart';
 
 class DatabaseService{
   final String? uid;
@@ -20,4 +21,20 @@ class DatabaseService{
     return ref.collection("messages").snapshots();
   }
 
+  sendMessage(DocumentReference chatReference, Map<String,dynamic> message){
+    //TODO: handle non-text messages + delivered and seen functionality
+    Map<String,dynamic> messageData = reformatMessageJson(message);
+    chatReference.collection("messages").add(messageData);
+
+    //TODO: add most recent message functionality to code & schema 
+  }
+  
+  Map<String,dynamic> reformatMessageJson(Map<String, dynamic> message) {
+    Map<String,dynamic> newMsg = {};
+    newMsg['content'] = message['text'];
+    newMsg['date'] = Timestamp.fromDate(DateTime.parse(message['id']));
+    newMsg['sender'] = message['author']['id'];
+    newMsg['seen'] = true;
+    return newMsg;
+  }
 }
