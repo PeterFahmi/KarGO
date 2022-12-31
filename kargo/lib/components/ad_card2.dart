@@ -14,7 +14,7 @@ class Ad_Card2 extends StatelessWidget {
   List<String> imgUrls = [];
 
   Ad_Card2(
-      {required,
+      {required
       this.model,
       required this.year,
       required this.manufacturer,

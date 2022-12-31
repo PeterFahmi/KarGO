@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_chat_ui/flutter_chat_ui.dart';
+import 'package:kargo/screens/filtered_screen.dart';
 import '../components/multiChip.dart';
 
 class FilterPage extends StatefulWidget {
@@ -16,7 +17,7 @@ Future<Map<String, List<String>>> getModels() async {
   
 
 // Get a reference to the "car_ads" collection
-final carAdsRef = FirebaseFirestore.instance.collection('car_ads');
+final carAdsRef = FirebaseFirestore.instance.collection('types');
 Map<String, List<String>> models1={};
 // Query the collection to get all documents
 final querySnapshot = await carAdsRef.get();
@@ -34,21 +35,21 @@ querySnapshot.docs.forEach((carAdDoc) {
   
   String manufacturer = carAdDoc.data()['manufacturer'];
   // get the model
-  double p= carAdDoc.data()['price'].toDouble();
-  int y= carAdDoc.data()['year'];
-  if(p>maxp)
-  maxp=p;
+  // double p= carAdDoc.data()['price'].toDouble();
+  // int y= carAdDoc.data()['year'];
+  // if(p>maxp)
+  // maxp=p;
 
 
-    if(p<minp)
-  minp=p;
+  //   if(p<minp)
+  // minp=p;
   
 
-      if(y<miny)
-  miny=y;
+  //     if(y<miny)
+  // miny=y;
 
-    if(y>maxy)
-  maxy=y;
+  //   if(y>maxy)
+  // maxy=y;
 
   String model = carAdDoc.data()['model'];
   // check if the manufacturer already exists in the map
@@ -60,7 +61,18 @@ querySnapshot.docs.forEach((carAdDoc) {
     models1[manufacturer] = [model];
   }
 });
-
+ await FirebaseFirestore.instance
+  .collection('extrema')
+  .where(FieldPath.documentId, isEqualTo:"extremes" )
+  .get()
+  .then((value) {
+    value.docs.forEach((element) {
+      minp=element["min_price"].toDouble();
+      maxp=element["max_price"].toDouble();
+      miny=element["min_year"];
+      maxy=element["max_year"];
+    });
+  });
 models1["price"]=[maxp.toString(),minp.toString()];
 models1["year"]=[maxy.toString(),miny.toString()];
 
@@ -255,7 +267,7 @@ Row(
               onPressed: () {
                 if (_formKey.currentState!.validate()) {
                   _formKey.currentState!.save();
-                  CollectionReference carAdsRef = FirebaseFirestore.instance.collection('car_ads');
+                  CollectionReference carAdsRef = FirebaseFirestore.instance.collection('types');
                   Query query = carAdsRef;
                   if (_manufacturers.isNotEmpty) {
                     query = query.where('manufacturer', whereIn: _manufacturers);
@@ -263,32 +275,97 @@ Row(
                   // if (!_models.isEmpty) {
                   //   query = query.where('model', whereIn: _models);
                   // }
-                  if (!(_minyear2==miny)) {
-                    query = query.where('year', isGreaterThanOrEqualTo: _minyear2);
-                  }
-                  if (!(_maxyear2==maxy)) {
-                    query = query.where('year', isLessThanOrEqualTo: _maxyear2);
-                  }
-                  if (!(_minPrice2==minp)  ) {
-                    query = query.where('price', isGreaterThanOrEqualTo: _minPrice2);
-                  }
-                  if (!( _maxPrice2==maxp) ) {
-                    query = query.where('price', isLessThanOrEqualTo: _maxPrice2);
-                  }
-              query.get().then(( snapshot) {
+                  // if (!(_minyear2==miny)) {
+                  //   query = query.where('year', isGreaterThanOrEqualTo: _minyear2);
+                  // }
+                  // if (!(_maxyear2==maxy)) {
+                  //   query = query.where('year', isLessThanOrEqualTo: _maxyear2);
+                  // }
+                  // if (!(_minPrice2==minp)  ) {
+                  //   query = query.where('price', isGreaterThanOrEqualTo: _minPrice2);
+                  // }
+                  // if (!( _maxPrice2==maxp) ) {
+                  //   query = query.where('price', isLessThanOrEqualTo: _maxPrice2);
+                  // }
+                 
+              query.get().then(( snapshot) async {
+                 List cars=[];
   List<DocumentSnapshot> carAds = snapshot.docs;
 carAds.forEach((document) {
-
+String k=document.id;
     var temp=document.data().toString();
     temp = temp.replaceAllMapped(new RegExp(r'(\w+):'),  (match) =>'"${match[1]}":');
     temp = temp.replaceAllMapped(new RegExp(r': (\w+)'),  (match) =>': "${match[1]}"');
     //print(temp);
- Car_ad ad=Car_ad.fromJson( jsonDecode(temp)); 
-  if ( !_models.any((model) =>models[ad.manufacturer]!.contains(model)) || _models.contains(ad.model)) 
+    Map<String,dynamic> map =jsonDecode(temp);
+ //Car_ad ad=Car_ad.fromJson( jsonDecode(temp)); 
+  if ( ((!_models.any((model) =>models[map["manufacturer"]]!.contains(model)) && _manufacturers.isNotEmpty)|| _models.contains(map["model"]))||(_manufacturers.isEmpty &&_models.isEmpty)) 
 
-  print(ad.model);
+ {
+
+cars.add(k);
+
+ }
 });
-  print(models.keys);
+
+print(cars);
+
+CollectionReference carRef = FirebaseFirestore.instance.collection('cars');
+Query query = carRef;
+if (!(_minyear2==miny)) {
+  query = query.where('year', isGreaterThanOrEqualTo: _minyear2);
+}
+if (!(_maxyear2==maxy)) {
+  query = query.where('year', isLessThanOrEqualTo: _maxyear2);
+}
+                  if (_manufacturers.isNotEmpty||_models.isNotEmpty) {
+                    query = query.where("type_id", whereIn: cars);
+                  }
+query.get().then(( snapshot) async {
+                 List cars2=[];
+  List<DocumentSnapshot> carAds = snapshot.docs;
+carAds.forEach((document) {
+String k=document.id;
+
+cars2.add(k);
+
+    });
+    
+    
+CollectionReference carRef2 = FirebaseFirestore.instance.collection('ads');
+Query query = carRef2;
+
+if (!(_minPrice2==minp)  ) {
+  query = query.where('price', isGreaterThanOrEqualTo: _minPrice2);
+}
+if (!( _maxPrice2==maxp) ) {
+  query = query.where('price', isLessThanOrEqualTo: _maxPrice2);
+}
+List<String> cars3=[];
+if(!cars2.isEmpty)
+
+{query = query.where("car_id", whereIn: cars2);
+await query.get().then(( snapshot) async {
+                 
+  List<DocumentSnapshot> carAds = snapshot.docs;
+carAds.forEach((document) {
+String k=document.id;
+
+cars3.add(k);
+
+    });
+ 
+    });
+   }     print(cars3);
+
+
+         Navigator.of(context).push(
+              MaterialPageRoute(
+                builder: (context) => FilteredScreen(values: cars3 ),
+              ),
+            );
+    });
+
   // Display the filtered list of car ads
 });
 
