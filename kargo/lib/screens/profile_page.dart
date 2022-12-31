@@ -48,7 +48,7 @@ class _ProfilePageState extends State<ProfilePage>
   @override
   Widget build(BuildContext context) {
     final routeArgs =
-        ModalRoute.of(context)!.settings.arguments as Map<String, Object>;
+        ModalRoute.of(context)!.settings.arguments as Map<String, Object?>;
 
     final curUser = routeArgs['user'] as UserModel.User;
     final updateUserFunction = routeArgs['callBack'] as Function;

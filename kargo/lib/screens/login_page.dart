@@ -136,6 +136,7 @@ class _LoginScreenState extends State<LoginScreen> {
           'favAds': [],
           'myAds': [],
           'myBids': [],
+          'chats': [],
         });
       } else //log in
       {
