@@ -1,11 +1,7 @@
 class User {
-  final String imagePath;
-  final String name;
-  final String email;
+  String? imagePath;
+  String name;
+  String email;
 
-  const User({
-    required this.imagePath,
-    required this.name,
-    required this.email,
-  });
+  User({required this.name, required this.email, this.imagePath});
 }

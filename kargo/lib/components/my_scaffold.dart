@@ -5,18 +5,19 @@ import 'package:flutter/src/widgets/framework.dart';
 import 'package:kargo/models/user.dart' as UserModel;
 
 class MyScaffold extends StatelessWidget {
-  String userImageURL =
-      'https://dynaimage.cdn.cnn.com/cnn/c_fill,g_auto,w_1200,h_675,ar_16:9/https%3A%2F%2Fcdn.cnn.com%2Fcnnnext%2Fdam%2Fassets%2F221208164147-argentina-lionel-messi.jpg';
   Widget body;
   Widget? bottomNavigationBar;
+  UserModel.User currentUser;
+  Function updateUserFunction;
 
-  MyScaffold({required this.body, this.bottomNavigationBar});
+  MyScaffold(
+      {required this.body,
+      this.bottomNavigationBar,
+      required this.currentUser,
+      required this.updateUserFunction});
 
   @override
   Widget build(BuildContext context) {
-    UserModel.User curUser = UserModel.User(
-        imagePath: userImageURL, name: "Omar Gamal", email: "Omar@gmail.com");
-
     return Scaffold(
       appBar: PreferredSize(
           preferredSize: Size.fromHeight(80.0),
@@ -27,8 +28,10 @@ class MyScaffold extends StatelessWidget {
               titleSpacing: 0,
               leading: GestureDetector(
                 onTap: () {
-                  Navigator.of(context)
-                      .pushNamed('/profile_page', arguments: {'user': curUser});
+                  Navigator.of(context).pushNamed('/profile_page', arguments: {
+                    'user': currentUser,
+                    'callBack': updateUserFunction
+                  });
                 },
                 child: showUserImage(),
               ),
@@ -37,14 +40,16 @@ class MyScaffold extends StatelessWidget {
                 width: 150,
                 height: 100,
               ),
-              actions: [ IconButton(
- onPressed: () {
- FirebaseAuth.instance.signOut();
- },
- icon: Icon(Icons.logout_outlined, color: Colors.black)),
- 
+              actions: [
+                IconButton(
+                    onPressed: () {
+                      FirebaseAuth.instance.signOut();
+                    },
+                    icon: Icon(Icons.logout_outlined, color: Colors.black)),
                 GestureDetector(
-                  onTap: () {Navigator.of(context).pushNamed('/Chats');},
+                  onTap: () {
+                    Navigator.of(context).pushNamed('/Chats');
+                  },
                   child: Padding(
                     padding: const EdgeInsets.all(10.0),
                     child: Image(
@@ -70,9 +75,9 @@ class MyScaffold extends StatelessWidget {
         decoration: BoxDecoration(
           color: const Color(0xff7c94b6),
           image: DecorationImage(
-            image: userImageURL == null
+            image: currentUser.imagePath == null
                 ? AssetImage('assets/images/default.png') as ImageProvider
-                : NetworkImage(userImageURL!),
+                : NetworkImage(currentUser.imagePath!),
             fit: BoxFit.cover,
           ),
           borderRadius: BorderRadius.all(Radius.circular(size / 2)),
