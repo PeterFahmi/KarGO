@@ -11,7 +11,7 @@ Database Tables
 
 1- User (id, email, username, first name, last name, password, photo url, list[id ad], fav list[id ad], bid list [id ad])
 2- Ads (id, title, desc, asking price, highest bid so far, highest bidder id , car id, user id, date, duration)
-3- Car (id, type, year, km , list[photo url], color, type id)
+3- Car (id, year, km , list[photo url], color, type id)
 4- Type(id, manufacturer , model)
 5- Chat()
 
