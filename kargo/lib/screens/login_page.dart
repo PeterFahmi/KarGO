@@ -168,11 +168,11 @@ Widget build(BuildContext context) {
                 SizedBox(height: 10),
                 Expanded(
                   child: TextFormField(
-                    decoration: InputDecoration(labelText: "Username"),
+                    decoration: InputDecoration(labelText: "Name"),
                     controller: usernameController,
                     validator: (value) {
                       if (value!.isEmpty) {
-                        return 'Please enter a username';
+                        return 'Please enter your Name';
                       }
                       return null;
                     },
@@ -268,10 +268,16 @@ try {
  .collection('users')
  .doc(authResult.user!.uid)
  .set({
- 'username': username,
+ 'name': username,
  'email': email,
  'phoneNumber': int.parse(phoneNumber),
-'photoURL':"",
+
+'photoURL':
+    'https://firebasestorage.googleapis.com/v0/b/mobileapp-18909.appspot.com/o/profile_pictures%2Fimage_picker6613525771089450064.jpg?alt=media&token=b89b540f-341f-4f04-81ed-c7d0be17e960',
+'favAds': [],
+'myAds': [],
+'myBids': [],
+'chats': [],
 
 
  });
