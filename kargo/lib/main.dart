@@ -9,6 +9,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:kargo/screens/loading_screen.dart';
 import 'package:kargo/screens/login_page.dart';
+import './screens/change_password_screen.dart';
 
 void main() {
   initializeDateFormatting().then((_) {
@@ -59,6 +60,7 @@ class _MyAppState extends State<MyApp> {
         '/Chats': (context) => ChatListScreen(),
         '/ChatDetail': (context) => ChatScreen(),
         '/profile_page': (ctx) => ProfilePage(),
+        '/update_password_screen': (ctx) => UpdatePasswordScreen(),
         '/create_ad': (context) => CreateAdScreen(),
       },
     );

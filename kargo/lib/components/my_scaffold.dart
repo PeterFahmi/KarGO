@@ -5,20 +5,21 @@ import 'package:flutter/src/widgets/framework.dart';
 import 'package:kargo/models/user.dart' as UserModel;
 
 class MyScaffold extends StatelessWidget {
-  String userImageURL =
-      'https://dynaimage.cdn.cnn.com/cnn/c_fill,g_auto,w_1200,h_675,ar_16:9/https%3A%2F%2Fcdn.cnn.com%2Fcnnnext%2Fdam%2Fassets%2F221208164147-argentina-lionel-messi.jpg';
   Widget body;
   Widget? bottomNavigationBar;
   bool hasLeading;
+  UserModel.User currentUser;
+  Function updateUserFunction;
 
   MyScaffold(
-      {required this.body, this.bottomNavigationBar, this.hasLeading = true});
+      {required this.body,
+      this.bottomNavigationBar,
+      required this.currentUser,
+      required this.updateUserFunction,
+       this.hasLeading = true});
 
   @override
   Widget build(BuildContext context) {
-    UserModel.User curUser = UserModel.User(
-        imagePath: userImageURL, name: "Omar Gamal", email: "Omar@gmail.com");
-
     return Scaffold(
       appBar: PreferredSize(
           preferredSize: Size.fromHeight(80.0),
@@ -30,13 +31,15 @@ class MyScaffold extends StatelessWidget {
               titleSpacing: 0,
               leading: hasLeading
                   ? GestureDetector(
-                      onTap: () {
-                        Navigator.of(context).pushNamed('/profile_page',
-                            arguments: {'user': curUser});
-                      },
-                      child: showUserImage(),
-                    )
-                  : null,
+                onTap: () {
+                  Navigator.of(context).pushNamed('/profile_page', arguments: {
+                    'user': currentUser,
+                    'callBack': updateUserFunction
+                  });
+                },
+                child: showUserImage(),
+              ) : null,
+
               title: Image(
                 image: AssetImage('assets/images/logo.png'),
                 width: 150,
@@ -82,9 +85,9 @@ class MyScaffold extends StatelessWidget {
         decoration: BoxDecoration(
           color: const Color(0xff7c94b6),
           image: DecorationImage(
-            image: userImageURL == null
+            image: currentUser.imagePath == null
                 ? AssetImage('assets/images/default.png') as ImageProvider
-                : NetworkImage(userImageURL!),
+                : NetworkImage(currentUser.imagePath!),
             fit: BoxFit.cover,
           ),
           borderRadius: BorderRadius.all(Radius.circular(size / 2)),
