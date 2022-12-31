@@ -2,13 +2,18 @@ import 'package:flutter/material.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:kargo/screens/chat_list_screen.dart';
 import 'package:kargo/screens/chat_screen.dart';
+
 import 'package:kargo/screens/filter.dart';
+
+import 'package:kargo/screens/create_ad_screen.dart';
+
 import 'package:kargo/screens/home_page.dart';
 import 'package:kargo/screens/profile_page.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:kargo/screens/loading_screen.dart';
 import 'package:kargo/screens/login_page.dart';
+import './screens/change_password_screen.dart';
 
 
 void main() {
@@ -60,8 +65,13 @@ class _MyAppState extends State<MyApp> {
         '/Chats': (context) => ChatListScreen(),
         '/ChatDetail': (context) => ChatScreen(),
         '/profile_page': (ctx) => ProfilePage(),
+
         '/filter': (ctx) => FilterPage(),
         
+
+        '/update_password_screen': (ctx) => UpdatePasswordScreen(),
+        '/create_ad': (context) => CreateAdScreen(),
+
       },
     );
   }
