@@ -39,6 +39,10 @@ class MyScaffold extends StatelessWidget {
               ),
               actions: [ IconButton(
  onPressed: () {
+ Navigator.of(context).pushNamed('/filter');
+ },
+ icon: Icon(Icons.filter_alt_rounded, color: Colors.black)),IconButton(
+ onPressed: () {
  FirebaseAuth.instance.signOut();
  },
  icon: Icon(Icons.logout_outlined, color: Colors.black)),

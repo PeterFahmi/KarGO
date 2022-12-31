@@ -254,7 +254,7 @@ Widget build(BuildContext context) {
  var email = emailController.text.trim();
  var password = passwordController.text.trim();
  var username = usernameController.text.trim();
-  var phoneNumber = phoneNumberController.text.trim();
+  var phoneNumber =""+_selectedCountry.code+ phoneNumberController.text.trim();
  UserCredential authResult;
 try {
  if (authenticationMode == 1) // sign up
@@ -270,8 +270,10 @@ try {
  .set({
  'username': username,
  'email': email,
- 'phoneNumber': phoneNumber,
-'photoURL':""
+ 'phoneNumber': int.parse(phoneNumber),
+'photoURL':"",
+
+
  });
 
  }
