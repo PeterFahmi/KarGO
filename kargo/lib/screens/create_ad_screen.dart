@@ -270,6 +270,7 @@ class _CreateAdScreenState extends State<CreateAdScreen> {
     if (adId == 'error') return;
     Navigator.pop(context);
     Navigator.pop(context);
+    Navigator.pop(context);
   }
 
   Future<String> createType() async {
