@@ -8,15 +8,15 @@ class MyScaffold extends StatelessWidget {
   Widget body;
   Widget? bottomNavigationBar;
   bool hasLeading;
-  UserModel.User currentUser;
-  Function updateUserFunction;
+  UserModel.User? currentUser;
+  Function? updateUserFunction;
 
   MyScaffold(
       {required this.body,
       this.bottomNavigationBar,
-      required this.currentUser,
-      required this.updateUserFunction,
-       this.hasLeading = true});
+      this.currentUser,
+      this.updateUserFunction,
+      this.hasLeading = true});
 
   @override
   Widget build(BuildContext context) {
@@ -31,15 +31,16 @@ class MyScaffold extends StatelessWidget {
               titleSpacing: 0,
               leading: hasLeading
                   ? GestureDetector(
-                onTap: () {
-                  Navigator.of(context).pushNamed('/profile_page', arguments: {
-                    'user': currentUser,
-                    'callBack': updateUserFunction
-                  });
-                },
-                child: showUserImage(),
-              ) : null,
-
+                      onTap: () {
+                        Navigator.of(context).pushNamed('/profile_page',
+                            arguments: {
+                              'user': currentUser,
+                              'callBack': updateUserFunction
+                            });
+                      },
+                      child: showUserImage(),
+                    )
+                  : null,
               title: Image(
                 image: AssetImage('assets/images/logo.png'),
                 width: 150,
@@ -77,6 +78,7 @@ class MyScaffold extends StatelessWidget {
   }
 
   showUserImage() {
+    if (!hasLeading) return;
     var size = 30.0;
     return Center(
       child: Container(
@@ -85,9 +87,9 @@ class MyScaffold extends StatelessWidget {
         decoration: BoxDecoration(
           color: const Color(0xff7c94b6),
           image: DecorationImage(
-            image: currentUser.imagePath == null
+            image: currentUser!.imagePath == null
                 ? AssetImage('assets/images/default.png') as ImageProvider
-                : NetworkImage(currentUser.imagePath!),
+                : NetworkImage(currentUser!.imagePath!),
             fit: BoxFit.cover,
           ),
           borderRadius: BorderRadius.all(Radius.circular(size / 2)),
