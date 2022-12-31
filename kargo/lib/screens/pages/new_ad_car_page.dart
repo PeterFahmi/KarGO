@@ -10,6 +10,7 @@ import '../../components/my_textfield.dart';
 class CarPage extends StatefulWidget {
   static const _subheader = TextStyle(fontWeight: FontWeight.w600);
   List<Image> imgs;
+  List<XFile> imgsXFile;
   TextEditingController yearCtrl;
   TextEditingController kmCtrl;
   TextEditingController colorCtrl;
@@ -21,7 +22,8 @@ class CarPage extends StatefulWidget {
       required this.kmCtrl,
       required this.yearCtrl,
       required this.noImages,
-      required this.onChange});
+      required this.onChange,
+      required this.imgsXFile});
   @override
   State<CarPage> createState() => _CarPageState();
 }
@@ -137,7 +139,9 @@ class _CarPageState extends State<CarPage> {
 
   removeFromList(Image e) {
     setState(() {
-      widget.imgs.remove(e);
+      int idx = widget.imgs.indexOf(e);
+      widget.imgs.removeAt(idx);
+      if (!widget.noImages) widget.imgsXFile.removeAt(idx);
       if (widget.imgs.length == 0) {
         widget.noImages = true;
         widget.imgs.add(Image(
@@ -212,6 +216,7 @@ class _CarPageState extends State<CarPage> {
         ImageProvider image = FileImage(File(img.path));
         widget.imgs
             .add(Image(image: image, fit: BoxFit.fill, width: double.infinity));
+        widget.imgsXFile.add(img);
       });
   }
 }

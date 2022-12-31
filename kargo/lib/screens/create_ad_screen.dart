@@ -1,5 +1,11 @@
+import 'dart:io';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_chat_ui/flutter_chat_ui.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:kargo/components/my_scaffold.dart';
 import 'package:kargo/components/uploaded_photos_row.dart';
 import 'package:kargo/screens/pages/new_ad_car_page.dart';
@@ -22,6 +28,8 @@ class _CreateAdScreenState extends State<CreateAdScreen> {
         fit: BoxFit.fill,
         width: double.infinity)
   ];
+  List<XFile> imgsXfiles = [];
+
   final yearCtrl = TextEditingController(),
       kmCtrl = TextEditingController(),
       colorCtrl = TextEditingController(),
@@ -45,6 +53,7 @@ class _CreateAdScreenState extends State<CreateAdScreen> {
       ),
       CarPage(
         imgs: imgs,
+        imgsXFile: imgsXfiles,
         yearCtrl: yearCtrl,
         kmCtrl: kmCtrl,
         colorCtrl: colorCtrl,
@@ -157,13 +166,10 @@ class _CreateAdScreenState extends State<CreateAdScreen> {
   }
 
   setCanGoNext() {
-    print("here2");
     bool canGoNext = true;
     if (index == 0) {
       canGoNext &= manufacturerDropdownCtrl.text.isNotEmpty;
-      print(manufacturerDropdownCtrl.text);
       canGoNext &= modelDropdownCtrl.text.isNotEmpty;
-      print(canGoNext);
     } else if (index == 1) {
       canGoNext &= yearCtrl.text.isNotEmpty;
       canGoNext &= colorCtrl.text.isNotEmpty;
@@ -254,16 +260,22 @@ class _CreateAdScreenState extends State<CreateAdScreen> {
         });
   }
 
-  void submit() {
-    print("here");
-    createType();
+  void submit() async {
+    showLoading();
+    String typeId = await createType();
+    if (typeId == 'error') return;
+    String carId = await createCar(typeId);
+    if (carId == 'error') return;
+    String adId = await createAd(carId);
+    if (adId == 'error') return;
     Navigator.pop(context);
-    //Navigator.pop(context);
+    Navigator.pop(context);
   }
 
-  void createType() async {
+  Future<String> createType() async {
+    String res = '';
     CollectionReference types = FirebaseFirestore.instance.collection('types');
-    types
+    await types
         .where('manufacturer', isEqualTo: manufacturerDropdownCtrl.text)
         .where('model', isEqualTo: modelDropdownCtrl.text)
         .get()
@@ -272,8 +284,123 @@ class _CreateAdScreenState extends State<CreateAdScreen> {
         types.add({
           'manufacturer': manufacturerDropdownCtrl.text,
           'model': modelDropdownCtrl.text
+        }).then((value) {
+          res = value.id;
+        }).catchError((err) {
+          showErrorDialog(err);
+          res = 'error';
         });
+      } else {
+        res = value.docs.first.id;
       }
+    }).catchError((err) {
+      showErrorDialog(err);
+      res = 'error';
     });
+    return res;
+  }
+
+  Future<String> createCar(String typeId) async {
+    String res = '';
+    CollectionReference cars = FirebaseFirestore.instance.collection('cars');
+    List<String> images = await getImagesUrl(imgsXfiles);
+    await cars.add({
+      'color': colorCtrl.text,
+      'km': kmCtrl.text,
+      'type_id': typeId,
+      'year': yearCtrl.text,
+      'photos': images
+    }).then((value) {
+      res = value.id;
+    }).catchError((err) {
+      showErrorDialog(err);
+      res = 'error';
+    }).catchError((err) {
+      showErrorDialog(err);
+      res = 'error';
+    });
+    return res;
+  }
+
+  Future<String> createAd(String carId) async {
+    String res = '';
+    String uid = FirebaseAuth.instance.currentUser!.uid;
+    CollectionReference ads = FirebaseFirestore.instance.collection('ads');
+    await ads.add({
+      'ask_price': askPrice.text,
+      'title': adTitle.text,
+      'desc': adDescription.text,
+      'car_id': carId,
+      'end_date':
+          DateTime.now().add(Duration(days: int.parse(adDuration.text))),
+      'owner_id': uid,
+      'start_date': DateTime.now(),
+    }).then((value) {
+      res = value.id;
+    }).catchError((err) {
+      showErrorDialog(err);
+      res = 'error';
+    }).catchError((err) {
+      showErrorDialog(err);
+      res = 'error';
+    });
+    return res;
+  }
+
+  showErrorDialog(err) {
+    showDialog(
+        context: context,
+        builder: (ctx) {
+          return AlertDialog(
+            title: Text("Error Occured"),
+            content: Text(err.toString()),
+            actions: [
+              TextButton(
+                  onPressed: () {
+                    Navigator.of(ctx).pop();
+                    Navigator.of(context).pop();
+                  },
+                  child: Text("OK"))
+            ],
+          );
+        });
+  }
+
+  getImagesUrl(List<XFile> imgs) async {
+    List<String> res = [];
+    final storageRef = FirebaseStorage.instance.ref();
+    for (var img in imgs) {
+      File imageFile = File(img.path);
+      final imageRef = storageRef.child('car_images/${imgs[0].name}');
+      var uploadTask = imageRef.putFile(imageFile);
+
+      final snapshot = await uploadTask.then((value) async {
+        await value.ref.getDownloadURL().then((value) {
+          res.add(value);
+        });
+      });
+    }
+    return res;
+  }
+
+  void showLoading() {
+    showDialog<void>(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return const SimpleDialog(
+          elevation: 0.0,
+          backgroundColor:
+              Colors.transparent, // can change this to your prefered color
+          children: <Widget>[
+            Center(
+              child: CircularProgressIndicator(
+                color: Colors.white,
+              ),
+            )
+          ],
+        );
+      },
+    );
   }
 }
