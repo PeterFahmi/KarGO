@@ -7,6 +7,7 @@ import 'package:kargo/models/user.dart' as UserModel;
 class MyScaffold extends StatelessWidget {
   Widget body;
   Widget? bottomNavigationBar;
+  bool hasLeading;
   UserModel.User currentUser;
   Function updateUserFunction;
 
@@ -14,7 +15,8 @@ class MyScaffold extends StatelessWidget {
       {required this.body,
       this.bottomNavigationBar,
       required this.currentUser,
-      required this.updateUserFunction});
+      required this.updateUserFunction,
+       this.hasLeading = true});
 
   @override
   Widget build(BuildContext context) {
@@ -24,9 +26,11 @@ class MyScaffold extends StatelessWidget {
           child: Container(
             padding: EdgeInsets.only(top: 10),
             child: AppBar(
+              iconTheme: IconThemeData(color: Colors.black),
               backgroundColor: Colors.white,
               titleSpacing: 0,
-              leading: GestureDetector(
+              leading: hasLeading
+                  ? GestureDetector(
                 onTap: () {
                   Navigator.of(context).pushNamed('/profile_page', arguments: {
                     'user': currentUser,
@@ -34,7 +38,8 @@ class MyScaffold extends StatelessWidget {
                   });
                 },
                 child: showUserImage(),
-              ),
+              ) : null,
+
               title: Image(
                 image: AssetImage('assets/images/logo.png'),
                 width: 150,
@@ -57,7 +62,12 @@ class MyScaffold extends StatelessWidget {
                       width: 30,
                     ),
                   ),
-                )
+                ),
+                IconButton(
+                    onPressed: () {
+                      Navigator.of(context).pushNamed('/create_ad');
+                    },
+                    icon: Icon(Icons.add, color: Colors.black)),
               ],
             ),
           )),

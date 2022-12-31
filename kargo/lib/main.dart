@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:kargo/screens/chat_list_screen.dart';
 import 'package:kargo/screens/chat_screen.dart';
+import 'package:kargo/screens/create_ad_screen.dart';
 import 'package:kargo/screens/home_page.dart';
 import 'package:kargo/screens/profile_page.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -60,6 +61,7 @@ class _MyAppState extends State<MyApp> {
         '/ChatDetail': (context) => ChatScreen(),
         '/profile_page': (ctx) => ProfilePage(),
         '/update_password_screen': (ctx) => UpdatePasswordScreen(),
+        '/create_ad': (context) => CreateAdScreen(),
       },
     );
   }

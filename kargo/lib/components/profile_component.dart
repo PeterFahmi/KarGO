@@ -128,6 +128,9 @@ class _ProfileComponentState extends State<ProfileComponent> {
               child: Column(
                 children: [
                   ElevatedButton(
+                    style: ButtonStyle(
+                        backgroundColor:
+                            MaterialStateProperty.all<Color>(Colors.black)),
                     //if user click this button, user can upload image from gallery
                     onPressed: () {
                       Navigator.pop(context);
@@ -141,6 +144,9 @@ class _ProfileComponentState extends State<ProfileComponent> {
                     ),
                   ),
                   ElevatedButton(
+                    style: ButtonStyle(
+                        backgroundColor:
+                            MaterialStateProperty.all<Color>(Colors.black)),
                     //if user click this button. user can upload image from camera
                     onPressed: () {
                       Navigator.pop(context);
