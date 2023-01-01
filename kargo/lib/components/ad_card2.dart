@@ -189,7 +189,7 @@ class Ad_Card2 extends StatelessWidget {
                     height: 15,
                     child: VerticalDivider(
                         thickness: 2, color: Color.fromRGBO(150, 150, 150, 1))),
-                Text('3000 KM',
+                Text(km.toString() + ' km',
                     style: TextStyle(
                       color: Colors.black,
                       fontSize: 13.0,

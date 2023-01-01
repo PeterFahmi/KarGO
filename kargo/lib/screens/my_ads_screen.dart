@@ -3,10 +3,13 @@ import 'dart:ffi';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/basic.dart';
 import 'package:flutter/src/widgets/container.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:kargo/components/ad_card2.dart';
+
+import '../components/my_shimmering_card.dart';
 
 class MyAdsScreen extends StatefulWidget {
   const MyAdsScreen({super.key});
@@ -17,7 +20,7 @@ class MyAdsScreen extends StatefulWidget {
 
 class _MyAdsScreenState extends State<MyAdsScreen> {
   List<String> adIds = [];
-  List<Widget> ads = [];
+  List<Ad_Card2> ads = [];
   bool isLoading = true;
   @override
   void initState() {
@@ -35,8 +38,30 @@ class _MyAdsScreenState extends State<MyAdsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [...adIds.map((e) => Text(e)), ...ads],
+    for (var ad in ads) {
+      print(ad.imgUrls);
+    }
+    return Container(
+      child: Column(
+        children: [
+          if (isLoading)
+            LinearProgressIndicator(
+              minHeight: 5,
+              value: ads.length / (adIds.length + 1),
+              backgroundColor: Colors.white,
+              color: Colors.black,
+            ),
+          Expanded(
+            child: ListView(
+              reverse: false,
+              children: [
+                ...ads,
+                if (isLoading) ShimmerCard(),
+              ],
+            ),
+          ),
+        ],
+      ),
     );
   }
 
@@ -93,10 +118,11 @@ class _MyAdsScreenState extends State<MyAdsScreen> {
             year: year,
             manufacturer: manufacturer,
             km: km,
-            fav: 1,
+            fav: 0,
             imgUrls: photos,
             bid: -1,
             ask: askPrice));
+        if (adIds.length == ads.length) isLoading = false;
       });
     }
   }

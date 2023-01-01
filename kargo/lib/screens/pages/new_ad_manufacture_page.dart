@@ -64,7 +64,6 @@ class _ManufacturePageState extends State<ManufacturePage> {
             controller: widget.manufacturerDropdownCtrl,
             excludeSelected: false,
             onChanged: (_) {
-              print("here");
               widget.onChanged();
             },
           ),
