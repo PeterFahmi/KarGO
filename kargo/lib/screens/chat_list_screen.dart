@@ -121,7 +121,15 @@ class _ChatListScreenState extends State<ChatListScreen> {
               height: 15,
             ),
             Expanded(
-              child: buildChatList(),
+              child: RefreshIndicator(
+                onRefresh: () {
+                  setState(() {
+                    
+                  });
+                  return Future<void>(() {},);
+                },
+                child: buildChatList(),
+              ) 
             )
           ],
         ));

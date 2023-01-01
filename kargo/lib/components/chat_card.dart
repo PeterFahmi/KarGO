@@ -44,7 +44,7 @@ class ChatCardState extends State<ChatCard> {
           .getUserDataFromId(widget.user.id),
       builder: (context, snapshot) {
         if (!snapshot.hasData) {
-          return Center(
+          return const Center(
             child: FadeShimmer(
               height: 150,
               width: 300,
@@ -55,7 +55,7 @@ class ChatCardState extends State<ChatCard> {
           );
         }
         final userData = (snapshot.data as DocumentSnapshot).data();
-        print("user photo url = " + widget.user.imageUrl.toString());
+        // print("user photo url = " + widget.user.imageUrl.toString());
         return ListTile(
           onTap: () {
             Navigator.of(context).pushNamed('/ChatDetail', arguments: {

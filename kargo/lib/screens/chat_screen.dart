@@ -140,7 +140,7 @@ class ChatScreenState extends State<ChatScreen> {
   void addFetchedMessages(updatedMessages) {
     _messages.clear();
     updatedMessages.forEach((msg) {
-      print("msg data=" + msg.data().toString());
+      // print("msg data=" + msg.data().toString());
       var sender;
       var message;
       if (msg.data()['sender'] == FirebaseAuth.instance.currentUser!.uid) {
