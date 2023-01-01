@@ -268,6 +268,7 @@ class _CreateAdScreenState extends State<CreateAdScreen> {
     if (carId == 'error') return;
     String adId = await createAd(carId);
     if (adId == 'error') return;
+    await addAdToUser(adId);
     Navigator.pop(context);
     Navigator.pop(context);
     Navigator.pop(context);
@@ -346,6 +347,17 @@ class _CreateAdScreenState extends State<CreateAdScreen> {
       res = 'error';
     });
     return res;
+  }
+
+  addAdToUser(String adId) async {
+    String uid = FirebaseAuth.instance.currentUser!.uid;
+    CollectionReference users = FirebaseFirestore.instance.collection('users');
+    await users.doc(uid).get().then((value) async {
+      final data = value.data() as Map<String, dynamic>;
+      List<dynamic> myAds = data['myAds'] as List<dynamic>;
+      myAds.add(adId);
+      await users.doc(uid).update({'myAds': myAds});
+    });
   }
 
   showErrorDialog(err) {

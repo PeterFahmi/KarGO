@@ -1,5 +1,4 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter_chat_ui/flutter_chat_ui.dart';
 
 class DatabaseService {
   final String? uid;
@@ -10,12 +9,18 @@ class DatabaseService {
   final CollectionReference chatCollection =
       FirebaseFirestore.instance.collection("chats");
 
-  Future gettingUserData(String email) async {
+  Future getUserDataFromEmail(String email) async {
     QuerySnapshot snapshot =
         await userCollection.where("email", isEqualTo: email).get();
     return snapshot;
   }
 
+  Future getUserDataFromId(String id) async {
+    DocumentReference docRef = userCollection.doc(id);
+    DocumentSnapshot snapshot = await docRef.get();
+    // print("userdata = " + snapshot.data().toString());
+    return snapshot;
+  }
   getUserChats() async {
     return userCollection.doc(uid).snapshots();
   }

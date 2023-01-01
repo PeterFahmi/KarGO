@@ -140,7 +140,7 @@ class ChatScreenState extends State<ChatScreen> {
   void addFetchedMessages(updatedMessages) {
     _messages.clear();
     updatedMessages.forEach((msg) {
-      print("msg data=" + msg.data().toString());
+      // print("msg data=" + msg.data().toString());
       var sender;
       var message;
       if (msg.data()['sender'] == FirebaseAuth.instance.currentUser!.uid) {
@@ -185,33 +185,17 @@ class ChatScreenState extends State<ChatScreen> {
     final imageRef = storageRef.child('chat_images/${result.path}');
     var uploadTask = imageRef.putFile(imageFile);
     final snapshot = await uploadTask.whenComplete(() {});
-    print("url=" + await snapshot.ref.getDownloadURL());
+    final imageUrl = await snapshot.ref.getDownloadURL();
+    // print("url=" + await snapshot.ref.getDownloadURL());
 
     final message = types.ImageMessage(
       author: _user,
       createdAt: DateTime.now().millisecondsSinceEpoch,
-      // height: image.height.toDouble(),
       name: result.name,
       id: DateTime.now().toString(),
       size: storageRef.bucket.length,
-      uri: result.path,
-      // width: image.width.toDouble()
+      uri: imageUrl,
     );
-    // print("image message json = " + message.toJson().toString());
-    // if(result != null){
-    //   final bytes = await result.readAsBytes();
-    //   final image = await decodeImageFromList(bytes);
-
-    //   final message = types.ImageMessage(
-    //     author: _user,
-    //     createdAt: DateTime.now().millisecondsSinceEpoch,
-    //     height: image.height.toDouble(),
-    //     name: result.name,
-    //     id: DateTime.now().toString(),
-    //     size: bytes.length,
-    //     uri: result.path,
-    //     width: image.width.toDouble()
-    //   );
     db.sendMessage(chatReference, message.toJson());
     _addMessage(message);
   }
