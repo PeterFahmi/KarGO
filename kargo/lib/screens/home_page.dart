@@ -9,6 +9,7 @@ import 'package:kargo/components/my_scaffold.dart';
 import 'package:kargo/components/my_shimmering_card.dart';
 import 'package:kargo/screens/loading_screen.dart';
 import '../models/user.dart' as UserModel;
+import 'my_ads_screen.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -89,27 +90,28 @@ class _HomePageState extends State<HomePage> {
       case 2:
         return Text("bid");
       case 3:
-        return Column(children: [
-          Ad_Card2(
-            imgUrls: imgUrls,
-            manufacturer: "Audi",
-            model: "RS7",
-            year: "2021",
-            km: "9000",
-            fav: 1,
-            bid: "1,290,000",
-            ask: "1,200,000",
-          ),
-          Ad_Card2(
-              imgUrls: imgUrls,
-              manufacturer: "Audi",
-              model: "RS7",
-              year: "2021",
-              km: "9000",
-              fav: 0,
-              bid: "1,290,000",
-              ask: "1,200,000")
-        ]);
+        return MyAdsScreen();
+      // return Column(children: [
+      //   Ad_Card2(
+      //     imgUrls: imgUrls,
+      //     manufacturer: "Audi",
+      //     model: "RS7",
+      //     year: "2021",
+      //     km: "9000",
+      //     fav: 1,
+      //     bid: "1,290,000",
+      //     ask: "1,200,000",
+      //   ),
+      //   Ad_Card2(
+      //       imgUrls: imgUrls,
+      //       manufacturer: "Audi",
+      //       model: "RS7",
+      //       year: "2021",
+      //       km: "9000",
+      //       fav: 0,
+      //       bid: "1,290,000",
+      //       ask: "1,200,000")
+      // ]);
       default:
         return Text("");
     }
