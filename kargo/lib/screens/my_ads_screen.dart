@@ -47,7 +47,7 @@ class _MyAdsScreenState extends State<MyAdsScreen> {
           if (isLoading)
             LinearProgressIndicator(
               minHeight: 5,
-              value: ads.length / (adIds.length + 1),
+              value: ads.length / (adIds.length + 0.1),
               backgroundColor: Colors.white,
               color: Colors.black,
             ),
