@@ -124,7 +124,6 @@ class _CarPageState extends State<CarPage> {
   }
 
   List<Image> getImgsToShow() {
-    print(widget.imgs.length);
     if (widget.imgs.length == 0) {
       List<Image> placeHolder = [];
       placeHolder.add(Image(
