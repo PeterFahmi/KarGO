@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:fade_shimmer/fade_shimmer.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/container.dart';
@@ -21,15 +22,10 @@ class ChatListScreen extends StatefulWidget {
 
 class _ChatListScreenState extends State<ChatListScreen> {
   bool isSearchActivated = false;
-  // List<ChatUser> chatUsers = [
-  //   ChatUser(name: "Menna Shalaby", messageText: "Awesome Setup", imageUrl: "https://english.ahram.org.eg/Media/News/2022/12/22/41_2022-638073298442678794-267.jpg", time: "Now"),
-  //   ChatUser(name: "Mo Salah", messageText: "That's Great", imageUrl: "https://img.a.transfermarkt.technology/portrait/big/148455-1546611604.jpg?lm=1", time: "Yesterday"),
-  //   ChatUser(name: "Shikabala", messageText: "Hey where are you?", imageUrl: "https://img.a.transfermarkt.technology/portrait/big/28463-1497271438.jpg?lm=1", time: "31 Mar"),
-  // ];
-
   List<ChatUser> chatUsers = [];
   Stream? chats;
   var db = DatabaseService(uid: FirebaseAuth.instance.currentUser!.uid);
+  SearchBar chatSearchBar = SearchBar();
 
   getCurrentUserData() async {
     await db.getUserChats().then((snapshot) {
@@ -41,32 +37,30 @@ class _ChatListScreenState extends State<ChatListScreen> {
 
   getChatData(ref) async {
     ChatUser otherUser = ChatUser(
+        id: "",
         imageUrl: "",
         messageText: "",
         name: FirebaseAuth.instance.currentUser!.email,
         time: '');
-    await ref.get().then((value) {
+    await ref.get().then((value) async {
       var data = value.data() as Map;
-      print("chat value=" + data.toString());
+      // print("chat value=" + data.toString());
       var users = data['users'];
       for (var i = 0; i < users.length; i++) {
-        users[i].get().then((userVal) {
+        await users[i].get().then((userVal) {
           var userData = userVal.data() as Map;
-          print("user data=" + userData.toString());
-          print("user id=" + userVal.id.toString());
+          // print("user data=" + userData.toString());
+          // print("user id=" + userVal.id.toString());
           if (userVal.id != FirebaseAuth.instance.currentUser!.uid) {
             otherUser = ChatUser(
-                name: userData['username'],
-                messageText: "",
+                id: userVal.id.toString(),
+                name: userData['name'],
+                messageText: data['recentMessage'],
                 imageUrl: userData['photoURL'],
-                time: "");
+                time: data['recentMessageTime'].toString());
           }
         });
       }
-
-      // setState(() {
-      //   chatUsers = usersWithConversation;
-      // });
     });
     return otherUser;
   }
@@ -76,10 +70,12 @@ class _ChatListScreenState extends State<ChatListScreen> {
     // TODO: implement initState
     super.initState();
     getCurrentUserData();
+    chatSearchBar.searchCtrl.addListener(() {setState(() {});});
   }
 
   @override
   Widget build(BuildContext context) {
+    print("search val="+chatSearchBar.searchCtrl.text);
     return Scaffold(
         appBar: PreferredSize(
             preferredSize: const Size.fromHeight(80.0),
@@ -117,12 +113,18 @@ class _ChatListScreenState extends State<ChatListScreen> {
             )),
         body: Column(
           children: [
-            isSearchActivated ? const SearchBar() : Container(),
+            isSearchActivated ? chatSearchBar : Container(),
             const SizedBox(
               height: 15,
             ),
             Expanded(
-              child: buildChatList(),
+              child: RefreshIndicator(
+                onRefresh: () {
+                  setState(() {});
+                  return Future<void>(() {},);
+                },
+                child: buildChatList(),
+              ) 
             )
           ],
         ));
@@ -143,22 +145,34 @@ class _ChatListScreenState extends State<ChatListScreen> {
         }
 
         var chatsList = snapshot.data['chats'];
-        // print("chatslist="+chatsList.toString());
+        
         return ListView.builder(
           itemCount: chatsList.length,
           itemBuilder: (context, index) {
-            // var user;
-            // getChatData(chatsList[index]).then((value) => user = value);
-            var user = ChatUser(
-                imageUrl: "",
-                messageText: "",
-                name: chatsList[index].toString(),
-                time: '');
-            // var user = chatUsers[index];
-            return ChatCard(
-              user: user,
-              isMessageRead: false,
-              chatRef: chatsList[index],
+            return FutureBuilder(
+              future: getChatData(chatsList[index]),
+              builder: (context, snapshot) {
+                if (!snapshot.hasData) {
+                  return const Center(
+                    child: FadeShimmer(
+                      height: 150,
+                      width: 300,
+                      radius: 10,
+                      millisecondsDelay: 2,
+                      fadeTheme: FadeTheme.light,
+                    ),
+                  );
+                }
+                // print("snapshot.data=" + (snapshot.data as ChatUser).id);
+                ChatUser chatUser = snapshot.data as ChatUser;
+                if(isSearchActivated && !chatUser.name!.contains(chatSearchBar.searchCtrl.text)){
+                  return Container();
+                }
+                return ChatCard(
+                    user: snapshot.data as ChatUser,
+                    chatRef: chatsList[index],
+                    isMessageRead: false);
+              },
             );
           },
         );
