@@ -3,7 +3,8 @@ import 'package:flutter/src/widgets/container.dart';
 import 'package:flutter/src/widgets/framework.dart';
 
 class SearchBar extends StatelessWidget {
-  const SearchBar({super.key});
+  SearchBar({super.key});
+  TextEditingController searchCtrl = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -11,6 +12,7 @@ class SearchBar extends StatelessWidget {
       child: Padding(
         padding: const EdgeInsets.only(top: 16,left: 16,right: 16),
         child: TextField(
+          controller: searchCtrl,
           decoration: InputDecoration(
             hintText: "Search for chats...",
             hintStyle: TextStyle(color: Colors.grey.shade600),
@@ -29,4 +31,8 @@ class SearchBar extends StatelessWidget {
       ),
     );
   }
+
+  // getSearchController(){
+  //   return searchCtrl;
+  // }
 }
