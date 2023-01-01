@@ -32,7 +32,16 @@ class _FilteredScreenState extends State<FilteredScreen> {
 List<Map<String, String>> ads=[];
 void getCars () async {
 List<Map<String, String>> CarADs=[];
-  List carsIDs=widget.values;
+  List<String> carsIDs=widget.values;
+
+ 
+
+  Set<String> set = new Set<String>.from(carsIDs);
+
+
+ carsIDs= new List<String>.from(set);
+ 
+  print(carsIDs);
    carsIDs.forEach((id) async {
 
     Map<String, String> map = Map();
@@ -45,8 +54,8 @@ List<Map<String, String>> CarADs=[];
       String askPrice=element["ask_price"].toString();
 
       String bid="0";
-      if(element["bid"]!=null)
-       bid=element["bid"].toString();
+      // if(element["bid"]!=null)
+      //  bid=element["bid"].toString();
        map['askPrice'] = askPrice;
 
   map['bid'] = bid;
@@ -56,7 +65,8 @@ List<Map<String, String>> CarADs=[];
   String carID=element["car_id"];
 
 print(map);
-     await FirebaseFirestore.instance
+   if(carID!="")
+   {  await FirebaseFirestore.instance
   .collection('cars')
   .where(FieldPath.documentId, isEqualTo:carID )
   .get()
@@ -66,7 +76,7 @@ print(map);
 String km=element["km"].toString();
       String url="https://t3.ftcdn.net/jpg/04/62/93/66/360_F_462936689_BpEEcxfgMuYPfTaIAOC1tCDurmsno7Sp.jpg";
       if(element["photos"]!=null ||!element["photos"].length==0)
-      url=element["photos"].join(',');
+      url=element["photos"].join(',').length<5? url:element["photos"].join(',');
 String year=element["year"].toString();
 
 
@@ -79,8 +89,10 @@ print(map);
 
   String typeID=element["type_id"];
 
+if(typeID!="") {
+  
 
-    var x= await FirebaseFirestore.instance
+ await FirebaseFirestore.instance
   .collection('types')
   .where(FieldPath.documentId, isEqualTo:typeID )
   .get()
@@ -106,14 +118,14 @@ String manufacturer=element["manufacturer"];
     }); 
  
      });
+    }
+
+    });
+
 
 
     });
-
-
-
-    });
-    
+    }
 
 
 

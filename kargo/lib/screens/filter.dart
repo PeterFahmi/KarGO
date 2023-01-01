@@ -289,7 +289,7 @@ Row(
                   // }
                  
               query.get().then(( snapshot) async {
-                 List cars=[];
+                 List<String> cars=[];
   List<DocumentSnapshot> carAds = snapshot.docs;
 carAds.forEach((document) {
 String k=document.id;
@@ -309,8 +309,17 @@ cars.add(k);
 });
 
 print(cars);
-
+List<List<String>> subList = [];
+for (var i = 0; i < cars.length; i += 10) {
+    subList.add(
+        cars.sublist(i, i + 10> cars.length ? cars.length : i + 10));
+}
 CollectionReference carRef = FirebaseFirestore.instance.collection('cars');
+List<String> cars3=[];
+int sub1=0;
+int len=subList.length;
+subList.forEach((element) {
+
 Query query = carRef;
 if (!(_minyear2==miny)) {
   query = query.where('year', isGreaterThanOrEqualTo: _minyear2);
@@ -319,10 +328,10 @@ if (!(_maxyear2==maxy)) {
   query = query.where('year', isLessThanOrEqualTo: _maxyear2);
 }
                   if (_manufacturers.isNotEmpty||_models.isNotEmpty) {
-                    query = query.where("type_id", whereIn: cars);
+                    query = query.where("type_id", whereIn: element);
                   }
 query.get().then(( snapshot) async {
-                 List cars2=[];
+                 List<String> cars2=[];
   List<DocumentSnapshot> carAds = snapshot.docs;
 carAds.forEach((document) {
 String k=document.id;
@@ -331,8 +340,15 @@ cars2.add(k);
 
     });
     
-    
+
 CollectionReference carRef2 = FirebaseFirestore.instance.collection('ads');
+List<List<String>> subList2 = [];
+int c2=0;
+for (var i = 0; i < cars2.length; i += 10) {
+    subList2.add(
+        cars2.sublist(i, i + 10> cars2.length ? cars2.length : i + 10));
+}
+subList2.forEach((element2) async {
 Query query = carRef2;
 
 if (!(_minPrice2==minp)  ) {
@@ -341,31 +357,41 @@ if (!(_minPrice2==minp)  ) {
 if (!( _maxPrice2==maxp) ) {
   query = query.where('price', isLessThanOrEqualTo: _maxPrice2);
 }
-List<String> cars3=[];
-if(!cars2.isEmpty)
 
-{query = query.where("car_id", whereIn: cars2);
+if(!element2.isEmpty)
+
+{query = query.where("car_id", whereIn: element2);
 await query.get().then(( snapshot) async {
                  
   List<DocumentSnapshot> carAds = snapshot.docs;
 carAds.forEach((document) {
 String k=document.id;
-
+c2=c2+1;
 cars3.add(k);
 
     });
  
     });
-   }     print(cars3);
-
-
+   } 
+       if(c2==cars2.length){ sub1=sub1+1;}
+        
+        if(c2==cars2.length && sub1==len)
+       {
          Navigator.of(context).push(
               MaterialPageRoute(
                 builder: (context) => FilteredScreen(values: cars3 ),
               ),
             );
-    });
+       }
+        
+         print("cars3 $cars3");});//batch2
+  
+    
 
+
+    });
+              });
+              print("cars3b1 $cars3");//batch1
   // Display the filtered list of car ads
 });
 

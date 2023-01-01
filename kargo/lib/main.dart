@@ -63,7 +63,7 @@ class _MyAppState extends State<MyApp> {
         '/ChatDetail': (context) => ChatScreen(),
         '/profile_page': (ctx) => ProfilePage(),
         '/update_password_screen': (ctx) => UpdatePasswordScreen(),
-        '/create_ad': (context) => CreateAdScreen(),,
+        '/create_ad': (context) => CreateAdScreen(),
         '/filter': (ctx) => FilterPage(),
         
       },
