@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/container.dart';
@@ -6,9 +7,10 @@ import 'package:kargo/models/chat_users_model.dart';
 
 class ChatCard extends StatefulWidget {
   ChatUser user;
+  DocumentReference chatRef;
   bool isMessageRead;
 
-  ChatCard({required this.user, required this.isMessageRead});
+  ChatCard({required this.user,required this.chatRef, required this.isMessageRead});
   
   @override
   State<ChatCard> createState() => ChatCardState();
@@ -19,14 +21,18 @@ class ChatCardState extends State<ChatCard> {
   @override
   Widget build(BuildContext context) {
     return ListTile(
-      onTap: (){Navigator.of(context).pushNamed('/ChatDetail', arguments: {'username': widget.user.name});},
+      onTap: (){
+        Navigator.of(context).pushNamed('/ChatDetail', arguments: {'username': widget.user.name, 'chatRef': widget.chatRef});
+      },
       leading: CircleAvatar(
-        backgroundImage: NetworkImage(widget.user.imageUrl),
+        backgroundImage: widget.user.imageUrl!="" ? 
+          NetworkImage(widget.user.imageUrl ?? "") 
+          : const AssetImage("assets/images/default.png") as ImageProvider,
         maxRadius: 30,
       ),
-      title: Text(widget.user.name, style: const TextStyle(fontSize: 16),),
-      subtitle: Text(widget.user.messageText, style: TextStyle(fontSize: 13,color: Colors.grey.shade600, fontWeight: widget.isMessageRead?FontWeight.bold:FontWeight.normal),),
-      trailing: Text(widget.user.time, style: TextStyle(fontSize: 12, fontWeight: widget.isMessageRead?FontWeight.bold:FontWeight.normal),),
+      title: Text(widget.user.name ?? "", style: const TextStyle(fontSize: 16),),
+      subtitle: Text(widget.user.messageText ?? "", style: TextStyle(fontSize: 13,color: Colors.grey.shade600, fontWeight: widget.isMessageRead?FontWeight.bold:FontWeight.normal),),
+      trailing: Text(widget.user.time ?? "", style: TextStyle(fontSize: 12, fontWeight: widget.isMessageRead?FontWeight.bold:FontWeight.normal),),
       // child: Container(
       //   padding: const EdgeInsets.only(left: 16,right: 16,top: 10,bottom: 10),
       //   child: Row(

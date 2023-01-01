@@ -5,10 +5,12 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import '../components/errorBar.dart';
+
 class LoginScreen extends StatefulWidget {
- @override
- _LoginScreenState createState() => _LoginScreenState();
+  @override
+  _LoginScreenState createState() => _LoginScreenState();
 }
+
 class _LoginScreenState extends State<LoginScreen> {
   Country _selectedCountry = Country(code: '1', name: 'United States', flagUrl: 'https://flagcdn.com/w320/us.png');
   List<Country> _countries = [];
@@ -16,8 +18,8 @@ class _LoginScreenState extends State<LoginScreen> {
  var passwordController = TextEditingController();
  var usernameController = TextEditingController();
   var phoneNumberController = TextEditingController();
- final authenticationInstance = FirebaseAuth.instance;
- var authenticationMode = 0;
+  final authenticationInstance = FirebaseAuth.instance;
+  var authenticationMode = 0;
 
   @override
   void initState() {
@@ -294,53 +296,42 @@ try {
 } catch (err) {
   final error =err.toString();
 // ScaffoldMessenger.of(context).showSnackBar(
-  
+
 //    const SnackBar(
 //      content: CustomSnackBarContent(
 //        errorText:
 //            "That Email Address is already in use! Please try with a different one.",
 //      ),
-     
+
 //      behavior: SnackBarBehavior. floating,
 //      backgroundColor: Colors. transparent,
 //      elevation: 0,
 //    )
 // );
 
-ScaffoldMessenger.of(context).showSnackBar(
-  
-    SnackBar(
-
-          content: 
-     
-     Container(
-padding: const EdgeInsets.all(16),
-height: 90,
-decoration: const BoxDecoration(
-color: Color(0xFFC72C41),
-borderRadius: BorderRadius.all(Radius. circular(20) ) ,
-),child: Column(
-crossAxisAlignment: CrossAxisAlignment. start,
-children: [
-const Text(
-"Oh snap!",
-style: TextStyle(fontSize: 18, color: Colors.white)),
- Text(error.split("]")[1]
-,style: TextStyle(
-color: Colors .white,
-fontSize: 12),
-maxLines: 2,
-overflow: TextOverflow.ellipsis,
-  )]))
-     
-     ,
-     behavior: SnackBarBehavior. floating,
-     backgroundColor: Colors. transparent,
-     elevation: 0,
-   )
-);
-
-
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Container(
+            padding: const EdgeInsets.all(16),
+            height: 90,
+            decoration: const BoxDecoration(
+              color: Color(0xFFC72C41),
+              borderRadius: BorderRadius.all(Radius.circular(20)),
+            ),
+            child:
+                Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              const Text("Oh snap!",
+                  style: TextStyle(fontSize: 18, color: Colors.white)),
+              Text(
+                error.split("]")[1],
+                style: TextStyle(color: Colors.white, fontSize: 12),
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+              )
+            ])),
+        behavior: SnackBarBehavior.floating,
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+      ));
 
   // showDialog(
   //               context: context,

@@ -2,9 +2,13 @@ import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 
 class CarouselWithDotsPage extends StatefulWidget {
-  List<String> imgList = [];
+  var imgList = [];
+  bool isURLList;
 
-  CarouselWithDotsPage({required this.imgList});
+  CarouselWithDotsPage({
+    required this.imgList,
+    this.isURLList = true,
+  });
 
   @override
   _CarouselWithDotsPageState createState() => _CarouselWithDotsPageState();
@@ -12,10 +16,22 @@ class CarouselWithDotsPage extends StatefulWidget {
 
 class _CarouselWithDotsPageState extends State<CarouselWithDotsPage> {
   int _current = 0;
+  late List<Image> imgs;
+  @override
+  void initState() {
+    if (widget.isURLList)
+      imgs = widget.imgList
+          .map(
+              (e) => Image.network(e, fit: BoxFit.fill, width: double.infinity))
+          .toList();
+    else
+      imgs = widget.imgList as List<Image>;
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
-    final List<Widget> imageSliders = widget.imgList
+    final List<Widget> imageSliders = imgs
         .map((item) => Container(
               child: ClipRRect(
                 borderRadius: BorderRadius.only(
@@ -23,8 +39,7 @@ class _CarouselWithDotsPageState extends State<CarouselWithDotsPage> {
                     topRight: Radius.circular(15)),
                 child: Stack(
                   children: [
-                    Image.network(item,
-                        fit: BoxFit.fill, width: double.infinity),
+                    item,
                     Positioned(
                       bottom: 0.0,
                       left: 0.0,
@@ -45,7 +60,7 @@ class _CarouselWithDotsPageState extends State<CarouselWithDotsPage> {
                           vertical: 10,
                         ),
                         child: Text(
-                          ' ${widget.imgList.indexOf(item)} / ${widget.imgList.length}',
+                          ' ${imgs.indexOf(item) + 1} / ${imgs.length}',
                           style: TextStyle(
                             color: Colors.white,
                             fontSize: 12.0,

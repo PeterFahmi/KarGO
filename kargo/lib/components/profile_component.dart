@@ -3,17 +3,18 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:firebase_storage/firebase_storage.dart';
 
 class ProfileComponent extends StatefulWidget {
   String imagePath;
-  VoidCallback onClicked;
+  VoidCallback editProfileCallBack;
+  Function setUploadedImage;
   bool isEditable;
 
   ProfileComponent({
     Key? key,
     required this.imagePath,
-    required this.onClicked,
+    required this.editProfileCallBack,
+    required this.setUploadedImage,
     required this.isEditable,
   }) : super(key: key);
 
@@ -29,8 +30,11 @@ class _ProfileComponentState extends State<ProfileComponent> {
   //we can upload image from camera or from gallery based on parameter
   Future getImage(ImageSource media) async {
     XFile? img = await picker.pickImage(source: media);
+    if (img == null) {
+      return;
+    }
+    widget.setUploadedImage(img);
 
-//   copy the file to a new path
     setState(() {
       uploadedImage = img;
     });
@@ -92,7 +96,7 @@ class _ProfileComponentState extends State<ProfileComponent> {
                 8,
                 color,
                 GestureDetector(
-                  onTap: widget.onClicked,
+                  onTap: widget.editProfileCallBack,
                   child: Icon(
                     Icons.edit,
                     color: Colors.white,
@@ -124,6 +128,9 @@ class _ProfileComponentState extends State<ProfileComponent> {
               child: Column(
                 children: [
                   ElevatedButton(
+                    style: ButtonStyle(
+                        backgroundColor:
+                            MaterialStateProperty.all<Color>(Colors.black)),
                     //if user click this button, user can upload image from gallery
                     onPressed: () {
                       Navigator.pop(context);
@@ -137,6 +144,9 @@ class _ProfileComponentState extends State<ProfileComponent> {
                     ),
                   ),
                   ElevatedButton(
+                    style: ButtonStyle(
+                        backgroundColor:
+                            MaterialStateProperty.all<Color>(Colors.black)),
                     //if user click this button. user can upload image from camera
                     onPressed: () {
                       Navigator.pop(context);
