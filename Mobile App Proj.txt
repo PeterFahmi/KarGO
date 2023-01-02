@@ -57,6 +57,7 @@ TODOs:
 		1. Home page UI
 		2. dummy logo
 		3. routings
+		4. my ads screen doesnt update on changes
 		
 
 ----------------------------------------------------------------------------------------------------------
