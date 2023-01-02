@@ -1,33 +1,79 @@
 import 'package:flutter/material.dart';
 import 'package:kargo/components/CarouselWithDots.dart';
+import 'package:kargo/models/ad.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import '';
+import 'package:kargo/screens/ad_screen2.dart';
 import 'package:kargo/screens/home_page.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 
-class Ad_Card2 extends StatelessWidget {
-  var fav = 0;
-  var year;
-  var manufacturer;
-  var model;
-  var km;
-  var bid;
-  var ask;
-  List<String> imgUrls = [];
+class Ad_Card2 extends StatefulWidget {
+  var Ad;
 
-  Ad_Card2(
-      {required this.model,
-      required this.year,
-      required this.manufacturer,
-      required this.km,
-      required this.fav,
-      required this.imgUrls,
-      required this.bid,
-      required this.ask});
-  void onPressed() {}
+  Ad_Card2({required this.Ad});
+
+  @override
+  State<Ad_Card2> createState() => _Ad_Card2State();
+}
+
+class _Ad_Card2State extends State<Ad_Card2> {
+  void onPressedFav() async {
+    var userId = FirebaseAuth.instance.currentUser!.uid;
+    List favAds = List.empty(growable: true);
+    await FirebaseFirestore.instance
+        .collection('users')
+        .doc(userId)
+        .get()
+        .then((res) async {
+      final data = res.data() as Map<String, dynamic>;
+      favAds = data['favAds'];
+    });
+    favAds.add(widget.Ad.adId);
+    var ads = FirebaseFirestore.instance.collection('users');
+    ads
+        .doc(userId)
+        .update({'favAds': favAds}) // <-- Updated data
+        .then((_) => print(favAds))
+        .catchError((error) => print('Failed: $error'));
+    setState(() {
+      widget.Ad.fav = 1;
+    });
+  }
+
+  void onPressedUnFav() async {
+    var userId = FirebaseAuth.instance.currentUser!.uid;
+    List favAds = List.empty(growable: true);
+    await FirebaseFirestore.instance
+        .collection('users')
+        .doc(userId)
+        .get()
+        .then((res) async {
+      final data = res.data() as Map<String, dynamic>;
+      favAds = data['favAds'];
+    });
+    favAds.remove(widget.Ad.adId);
+    var ads = FirebaseFirestore.instance.collection('users');
+    ads
+        .doc(userId)
+        .update({'favAds': favAds}) // <-- Updated data
+        .then((_) => print(favAds))
+        .catchError((error) => print('Failed: $error'));
+    setState(() {
+      widget.Ad.fav = 0;
+    });
+  }
+
+  void adDetails(BuildContext context) {
+    Navigator.pushNamed(context, AdScreen.routeName, arguments: widget.Ad);
+  }
 
   @override
   Widget build(BuildContext context) {
+    //  var bidp = int.parse(widget.Ad.highestBid);
     return InkWell(
-      onTap: () => HomePage(),
+      onTap: () => adDetails(context),
       child: Card(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
         elevation: 4,
@@ -40,47 +86,48 @@ class Ad_Card2 extends StatelessWidget {
               children: [
 // child 1 of stack is the recipe image
 
-                CarouselWithDotsPage(imgList: imgUrls),
+                CarouselWithDotsPage(imgList: widget.Ad.imagePaths),
 // child 2 of stack is the recipe title
 
                 Positioned(
-                    right: 0,
-                    child: fav == 0
-                        ? Container(
-                            margin: EdgeInsets.all(3.5),
-                            width: 40.0,
-                            height: 40.0,
-                            decoration: new BoxDecoration(
-                              color: Colors.white60,
-                              shape: BoxShape.circle,
+                    right: 10,
+                    bottom: 0,
+                    child: SizedBox.fromSize(
+                      size: Size(50, 50), // button width and height
+                      child: ClipOval(
+                        child: Material(
+                          elevation: 60,
+                          color:
+                              Color.fromRGBO(239, 235, 235, 1), // button color
+                          child: InkWell(
+                            splashColor: Colors.green, // splash color
+                            onTap: widget.Ad.fav == 0
+                                ? onPressedFav
+                                : onPressedUnFav, // button pressed
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: <Widget>[
+                                widget.Ad.fav == 0
+                                    ? IconButton(
+                                        onPressed: onPressedFav,
+                                        icon: Icon(
+                                          Icons.favorite_border,
+                                          size: 30,
+                                          color: Colors.black,
+                                        ))
+                                    : IconButton(
+                                        onPressed: onPressedUnFav,
+                                        icon: Icon(
+                                          Icons.favorite,
+                                          size: 30,
+                                          color: Colors.black,
+                                        ))
+                              ],
                             ),
-                          )
-                        : Container(
-                            margin: EdgeInsets.all(3.5),
-                            width: 40.0,
-                            height: 40.0,
-                            decoration: new BoxDecoration(
-                              color: Colors.white60,
-                              shape: BoxShape.circle,
-                            ),
-                          )),
-                Positioned(
-                    right: 0,
-                    child: fav == 0
-                        ? IconButton(
-                            onPressed: onPressed,
-                            icon: Icon(
-                              Icons.favorite_border,
-                              size: 30,
-                              color: Colors.black,
-                            ))
-                        : IconButton(
-                            onPressed: onPressed,
-                            icon: Icon(
-                              Icons.favorite,
-                              size: 30,
-                              color: Colors.black,
-                            ))),
+                          ),
+                        ),
+                      ),
+                    ))
               ],
             ),
             // child 2 of column is the white row
@@ -105,7 +152,12 @@ class Ad_Card2 extends StatelessWidget {
                         Row(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text('$manufacturer $model $year',
+                            Text(
+                                widget.Ad.manufacturer.toUpperCase() +
+                                    '  ' +
+                                    widget.Ad.model.toUpperCase() +
+                                    '  ' +
+                                    widget.Ad.year,
                                 style: TextStyle(
                                   color: Colors.black,
                                   fontWeight: FontWeight.bold,
@@ -117,94 +169,95 @@ class Ad_Card2 extends StatelessWidget {
                     ),
                     SizedBox(height: 5),
                     Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceAround,
-                        children: [
-                          Column(
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              children: [
-                                Row(
-                                    mainAxisAlignment: MainAxisAlignment.start,
-                                    children: [
-                                      Text('EGP $ask',
-                                          style: TextStyle(
-                                            color: Colors.green,
-                                            fontWeight: FontWeight.bold,
-                                            fontSize: 15.0,
-                                          )),
-                                    ]),
-                              ]),
-                          Column(
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              children: [
-                                Row(
-                                    mainAxisAlignment: MainAxisAlignment.start,
-                                    children: [
-                                      Text('EGP $bid',
-                                          style: TextStyle(
-                                            color: Colors.green,
-                                            fontWeight: FontWeight.bold,
-                                            fontSize: 15.0,
-                                          )),
-                                    ]),
-                              ]),
-                        ]),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceAround,
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: [
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            Text('Ask Price',
-                                style: TextStyle(
-                                  color: Color.fromRGBO(150, 150, 150, 1),
-                                  fontSize: 13.0,
-                                  fontWeight: FontWeight.bold,
-                                )),
-                          ],
-                        ),
-                        Column(
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              Text('Highest Bid',
-                                  style: TextStyle(
-                                    color: Color.fromRGBO(150, 150, 150, 1),
-                                    fontSize: 13.0,
-                                    fontWeight: FontWeight.bold,
-                                  )),
-                            ]),
+                        Text(widget.Ad.auto == 0 ? 'AUTO' : 'Manual',
+                            style: TextStyle(
+                              color: Colors.black,
+                              fontSize: 13.0,
+                              fontWeight: FontWeight.bold,
+                            )),
+                        Container(
+                            height: 15,
+                            // margin: EdgeInsets.all(10),
+                            child: VerticalDivider(
+                                thickness: 2,
+                                color: Color.fromRGBO(150, 150, 150, 1))),
+                        Text(widget.Ad.km.toString() + ' km',
+                            style: TextStyle(
+                              color: Colors.black,
+                              fontSize: 13.0,
+                              fontWeight: FontWeight.bold,
+                            )),
+                        Container(
+                            height: 15,
+                            child: VerticalDivider(
+                                thickness: 2,
+                                color: Color.fromRGBO(150, 150, 150, 1))),
+                        Text(widget.Ad.cc + ' CC',
+                            style: TextStyle(
+                              color: Colors.black,
+                              fontSize: 13.0,
+                              fontWeight: FontWeight.bold,
+                            )),
                       ],
                     ),
                   ]),
             ),
+
+            Row(mainAxisAlignment: MainAxisAlignment.spaceAround, children: [
+              Column(crossAxisAlignment: CrossAxisAlignment.center, children: [
+                Row(mainAxisAlignment: MainAxisAlignment.start, children: [
+                  Text('EGP  ' + widget.Ad.askPrice.toString(),
+                      style: TextStyle(
+                        color: Colors.green,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 15.0,
+                      )),
+                ]),
+              ]),
+              Column(crossAxisAlignment: CrossAxisAlignment.center, children: [
+                Row(mainAxisAlignment: MainAxisAlignment.start, children: [
+                  widget.Ad.highestBid == 0
+                      ? (Text('No Bids Yet',
+                          style: TextStyle(
+                            color: Colors.green,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 15.0,
+                          )))
+                      : (Text('EGP ' + widget.Ad.highestBid.toString(),
+                          style: TextStyle(
+                            color: Colors.green,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 15.0,
+                          ))),
+                ]),
+              ]),
+            ]),
             Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
-                Text('AUTO',
-                    style: TextStyle(
-                      color: Colors.black,
-                      fontSize: 13.0,
-                      fontWeight: FontWeight.bold,
-                    )),
-                Container(
-                    height: 15,
-                    child: VerticalDivider(
-                        thickness: 2, color: Color.fromRGBO(150, 150, 150, 1))),
-                Text(km.toString() + ' km',
-                    style: TextStyle(
-                      color: Colors.black,
-                      fontSize: 13.0,
-                      fontWeight: FontWeight.bold,
-                    )),
-                Container(
-                    height: 15,
-                    child: VerticalDivider(
-                        thickness: 2, color: Color.fromRGBO(150, 150, 150, 1))),
-                Text('2000CC',
-                    style: TextStyle(
-                      color: Colors.black,
-                      fontSize: 13.0,
-                      fontWeight: FontWeight.bold,
-                    )),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Text('Ask Price',
+                        style: TextStyle(
+                          color: Color.fromRGBO(150, 150, 150, 1),
+                          fontSize: 13.0,
+                          fontWeight: FontWeight.bold,
+                        )),
+                  ],
+                ),
+                Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Text('Highest Bid',
+                          style: TextStyle(
+                            color: Color.fromRGBO(150, 150, 150, 1),
+                            fontSize: 13.0,
+                            fontWeight: FontWeight.bold,
+                          )),
+                    ]),
               ],
             ),
             SizedBox(height: 5),
