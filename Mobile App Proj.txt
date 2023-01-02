@@ -49,7 +49,6 @@ TODOs:
 		11. card: 3 hrs ago[fadel ad eh], 	✔
 				default pic if no pic, 		✔
 				cc-> color, 				✔
-				ADD TO favorite XX
 		12. error widget when internet disconnects in chat list
 	Philo:
 		1.backend logic ✔

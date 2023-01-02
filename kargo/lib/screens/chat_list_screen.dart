@@ -110,17 +110,17 @@ class _ChatListScreenState extends State<ChatListScreen> {
                           isSearchActivated = !isSearchActivated;
                         });
                       }),
-                  IconButton(
-                    onPressed: (() {
-                      // TODO: change this dummy id to the real other user id
-                      db.createChat("KUdrOdRj4jSH4VGOCxUyTlFfHNU2")
-                      .then((_){
-                        setState(() {
+                  // IconButton(
+                  //   onPressed: (() {
+                  //     // TODO: change this dummy id to the real other user id
+                  //     db.createChat("KUdrOdRj4jSH4VGOCxUyTlFfHNU2")
+                  //     .then((_){
+                  //       setState(() {
                           
-                        });
-                      });
-                    }), 
-                    icon: const Icon(Icons.add, color: Colors.black,))
+                  //       });
+                  //     });
+                  //   }), 
+                  //   icon: const Icon(Icons.add, color: Colors.black,))
                 ],
               ),
             )),
