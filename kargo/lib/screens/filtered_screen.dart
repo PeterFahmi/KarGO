@@ -153,7 +153,8 @@ String manufacturer=element["manufacturer"];
           Map<String, String> item = ads[index];
 
           // Turn the map object into a card widget
-          return Ad_Card2(ask: int.parse(item["askPrice"]!),
+          // TODO: id="" is a placeholder
+          return Ad_Card2(id: "placeholder", ask: int.parse(item["askPrice"]!),
          bid: int.parse(item["bid"]!), 
           fav: 0,
            imgUrls:item["url"]!.split(",") 

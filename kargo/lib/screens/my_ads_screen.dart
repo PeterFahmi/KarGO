@@ -69,6 +69,7 @@ class _MyAdsScreenState extends State<MyAdsScreen> {
     CollectionReference adsCollection =
         FirebaseFirestore.instance.collection('ads');
     for (var adId in adIds) {
+      String docId="";
       var askPrice;
       var title;
       var desc;
@@ -82,6 +83,7 @@ class _MyAdsScreenState extends State<MyAdsScreen> {
       var model;
       await adsCollection.doc(adId).get().then((res) async {
         final data = res.data() as Map<String, dynamic>;
+        docId = res.id;
         askPrice = data['ask_price'];
         title = data['title'];
         desc = data['desc'];
@@ -116,6 +118,7 @@ class _MyAdsScreenState extends State<MyAdsScreen> {
         var bidEndDate = (endDate as Timestamp).toDate();
         int daysLeft = bidEndDate.difference(DateTime.now()).inDays;
         ads.add(Ad_Card2(
+            id: docId,
             model: model,
             year: year,
             manufacturer: manufacturer,

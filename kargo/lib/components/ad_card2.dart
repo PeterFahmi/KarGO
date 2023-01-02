@@ -1,9 +1,12 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:kargo/components/CarouselWithDots.dart';
 import 'package:kargo/screens/home_page.dart';
 import 'package:carousel_slider/carousel_slider.dart';
+import 'package:kargo/services/database_services.dart';
 
 class Ad_Card2 extends StatelessWidget {
+  var id;
   var fav = 0;
   var year;
   var manufacturer;
@@ -16,7 +19,8 @@ class Ad_Card2 extends StatelessWidget {
   List<String> imgUrls = [];
 
   Ad_Card2(
-      {required this.model,
+      { required this.id,
+      required this.model,
       required this.year,
       required this.manufacturer,
       required this.km,
@@ -26,7 +30,7 @@ class Ad_Card2 extends StatelessWidget {
       required this.ask, 
       this.color="",
       this.daysRemaining=-1});
-  void onPressed() {}
+  onPressed(){}
 
   @override
   Widget build(BuildContext context) {
