@@ -1,9 +1,8 @@
-import 'dart:ffi';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:kargo/models/ad.dart';
 import 'package:flutter/src/widgets/basic.dart';
 import 'package:flutter/src/widgets/container.dart';
 import 'package:flutter/src/widgets/framework.dart';
@@ -39,7 +38,7 @@ class _MyAdsScreenState extends State<MyAdsScreen> {
   @override
   Widget build(BuildContext context) {
     for (var ad in ads) {
-      print(ad.imgUrls);
+      //  print(ad.);
     }
     return Container(
       child: Column(
@@ -71,23 +70,35 @@ class _MyAdsScreenState extends State<MyAdsScreen> {
     for (var adId in adIds) {
       var askPrice;
       var title;
+      var uId = FirebaseAuth.instance.currentUser!.uid;
       var desc;
       var endDate;
       var startDate;
       var color;
+      var fav;
       var km;
       List<String> photos = [];
       var year;
       var manufacturer;
       var model;
+      var carId;
+      var cc;
+      var auto;
+      var highestBid;
+      var typeId;
+      var highestBidderId;
       await adsCollection.doc(adId).get().then((res) async {
         final data = res.data() as Map<String, dynamic>;
         askPrice = data['ask_price'];
         title = data['title'];
         desc = data['desc'];
-        var carId = data['car_id'];
+        carId = data['car_id'];
         endDate = data['end_date'];
         startDate = data['start_date'];
+        auto = data['auto'];
+        cc = data['cc'];
+        highestBid = data['highest_bid'];
+        highestBidderId = data['highest_bidder_id'];
         await FirebaseFirestore.instance
             .collection('cars')
             .doc(carId)
@@ -99,7 +110,7 @@ class _MyAdsScreenState extends State<MyAdsScreen> {
           photos = (data['photos'] as List<dynamic>)
               .map((e) => e as String)
               .toList();
-          var typeId = data['type_id'];
+          typeId = data['type_id'];
           year = data['year'];
           await FirebaseFirestore.instance
               .collection('types')
@@ -110,18 +121,40 @@ class _MyAdsScreenState extends State<MyAdsScreen> {
             manufacturer = data['manufacturer'];
             model = data['model'];
           });
+          await FirebaseFirestore.instance
+              .collection('users')
+              .doc(uId)
+              .get()
+              .then((res) {
+            final data = res.data() as Map<String, dynamic>;
+            List favAds = data['favAds'];
+            favAds.contains(adId) ? fav = 1 : fav = 0;
+          });
         });
       });
       setState(() {
-        ads.add(Ad_Card2(
+        Ad adv = Ad(
+            adId: adId,
             model: model,
             year: year,
             manufacturer: manufacturer,
             km: km,
-            fav: 0,
-            imgUrls: photos,
-            bid: -1,
-            ask: askPrice));
+            fav: fav,
+            imagePaths: photos,
+            highestBid: highestBid,
+            askPrice: askPrice,
+            highestBidderId: highestBidderId,
+            ownerId: uId,
+            colour: color,
+            title: title,
+            desc: desc,
+            typeId: typeId,
+            startDate: startDate,
+            endDate: endDate,
+            carId: carId,
+            auto: auto,
+            cc: cc);
+        ads.add(Ad_Card2(Ad: adv));
         if (adIds.length == ads.length) isLoading = false;
       });
     }

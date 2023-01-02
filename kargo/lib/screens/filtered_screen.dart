@@ -5,166 +5,135 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_chat_ui/flutter_chat_ui.dart';
-import '../components/ad_card2.dart';
+import '../components/ad_card.dart';
 import '../components/multiChip.dart';
 import 'package:flutter/material.dart';
+
 class FilteredScreen extends StatefulWidget {
-    final List<String> values;
-    
-FilteredScreen({ required this.values});
+  final List<String> values;
+
+  FilteredScreen({required this.values});
   @override
   State<FilteredScreen> createState() => _FilteredScreenState();
 }
 
-
-
-
-
-
 class _FilteredScreenState extends State<FilteredScreen> {
-
-
   void initState() {
     super.initState();
     getCars();
   }
 
-List<Map<String, String>> ads=[];
-void getCars () async {
-List<Map<String, String>> CarADs=[];
-  List<String> carsIDs=widget.values;
+  List<Map<String, String>> ads = [];
+  void getCars() async {
+    List<Map<String, String>> CarADs = [];
+    List<String> carsIDs = widget.values;
 
- 
+    Set<String> set = new Set<String>.from(carsIDs);
 
-  Set<String> set = new Set<String>.from(carsIDs);
+    carsIDs = new List<String>.from(set);
 
+    print(carsIDs);
+    carsIDs.forEach((id) async {
+      Map<String, String> map = Map();
+      await FirebaseFirestore.instance
+          .collection('ads')
+          .where(FieldPath.documentId, isEqualTo: id)
+          .get()
+          .then((value) {
+        value.docs.forEach((element) async {
+          String askPrice = element["ask_price"].toString();
 
- carsIDs= new List<String>.from(set);
- 
-  print(carsIDs);
-   carsIDs.forEach((id) async {
+          String bid = "0";
+          // if(element["bid"]!=null)
+          //  bid=element["bid"].toString();
+          map['askPrice'] = askPrice;
 
-    Map<String, String> map = Map();
-     await FirebaseFirestore.instance
-  .collection('ads')
-  .where(FieldPath.documentId, isEqualTo:id )
-  .get()
-  .then((value) {
-    value.docs.forEach((element) async {
-      String askPrice=element["ask_price"].toString();
+          map['bid'] = bid;
 
-      String bid="0";
-      // if(element["bid"]!=null)
-      //  bid=element["bid"].toString();
-       map['askPrice'] = askPrice;
+          String carID = element["car_id"];
 
-  map['bid'] = bid;
+          print(map);
+          if (carID != "") {
+            await FirebaseFirestore.instance
+                .collection('cars')
+                .where(FieldPath.documentId, isEqualTo: carID)
+                .get()
+                .then((value) {
+              value.docs.forEach((element) async {
+                String km = element["km"].toString();
+                String url =
+                    "https://t3.ftcdn.net/jpg/04/62/93/66/360_F_462936689_BpEEcxfgMuYPfTaIAOC1tCDurmsno7Sp.jpg";
+                if (element["photos"] != null || !element["photos"].length == 0)
+                  url = element["photos"].join(',').length < 5
+                      ? url
+                      : element["photos"].join(',');
+                String year = element["year"].toString();
 
+                map['url'] = url;
+                map['year'] = year;
+                map['km'] = km;
 
+                print(map);
 
-  String carID=element["car_id"];
+                String typeID = element["type_id"];
 
-print(map);
-   if(carID!="")
-   {  await FirebaseFirestore.instance
-  .collection('cars')
-  .where(FieldPath.documentId, isEqualTo:carID )
-  .get()
-  .then((value) {
-    value.docs.forEach((element) async {
+                if (typeID != "") {
+                  await FirebaseFirestore.instance
+                      .collection('types')
+                      .where(FieldPath.documentId, isEqualTo: typeID)
+                      .get()
+                      .then((value) {
+                    value.docs.forEach((element) {
+                      String model = element["model"];
+                      String manufacturer = element["manufacturer"];
 
-String km=element["km"].toString();
-      String url="https://t3.ftcdn.net/jpg/04/62/93/66/360_F_462936689_BpEEcxfgMuYPfTaIAOC1tCDurmsno7Sp.jpg";
-      if(element["photos"]!=null ||!element["photos"].length==0)
-      url=element["photos"].join(',').length<5? url:element["photos"].join(',');
-String year=element["year"].toString();
+                      map['model'] = model;
+                      map['manufacturer'] = manufacturer;
 
-
-  map['url'] = url;
-    map['year'] = year;
-      map['km'] = km;
-      
-
-print(map);
-
-  String typeID=element["type_id"];
-
-if(typeID!="") {
-  
-
- await FirebaseFirestore.instance
-  .collection('types')
-  .where(FieldPath.documentId, isEqualTo:typeID )
-  .get()
-  .then((value) {
-    value.docs.forEach((element){
-
-String model=element["model"];
-String manufacturer=element["manufacturer"];
-
-  map['model'] = model;
-    map['manufacturer'] = manufacturer;
-
-
-      CarADs.add(map);
-      print("f $CarADs");
-          print("f2 $CarADs");
-     ads=CarADs;
-      setState(() {
- ads=CarADs;
- });
-     print("f3 $ads");
-     
-    }); 
- 
-     });
-    }
-
+                      CarADs.add(map);
+                      print("f $CarADs");
+                      print("f2 $CarADs");
+                      ads = CarADs;
+                      setState(() {
+                        ads = CarADs;
+                      });
+                      print("f3 $ads");
+                    });
+                  });
+                }
+              });
+            });
+          }
+        });
+      });
     });
+  }
 
+  Widget build(BuildContext context) {
+    print("f4 $ads");
+    return Scaffold(
+        appBar: AppBar(
+            title: Text('Filter Results'), backgroundColor: Colors.black),
+        body: ads.length == 0
+            ? Text("No results found")
+            : ListView.builder(
+                itemCount: ads.length,
+                itemBuilder: (context, index) {
+                  // Get the map object at the current index
+                  Map<String, String> item = ads[index];
 
-
-    });
-    }
-
-
-
-  });
-  });
-  
-  
-  
-  });
-
-
-}
- Widget build(BuildContext context) {
-   print("f4 $ads");
- return Scaffold(
-
-           appBar: AppBar(
-        title: Text('Filter Results'),
-        backgroundColor: Colors.black
-      ),
-           body: ads.length==0? Text("No results found"): ListView.builder(
-        itemCount: ads.length,
-        itemBuilder: (context, index) {
-          // Get the map object at the current index
-          Map<String, String> item = ads[index];
-
-          // Turn the map object into a card widget
-          return Ad_Card2(ask: int.parse(item["askPrice"]!),
-         bid: int.parse(item["bid"]!), 
-          fav: 0,
-           imgUrls:item["url"]!.split(",") 
-           , km: int.parse(item["km"]!),
-            year: int.parse(item["year"]!),
-             manufacturer: item["manufacturer"], model: item["model"],
-    
-          );      },
-      )
- );
-
- 
- }
+                  // Turn the map object into a card widget
+                  return Ad_Card(
+                    ask: int.parse(item["askPrice"]!),
+                    bid: int.parse(item["bid"]!),
+                    fav: 0,
+                    imgUrls: item["url"]!.split(","),
+                    km: int.parse(item["km"]!),
+                    year: int.parse(item["year"]!),
+                    manufacturer: item["manufacturer"],
+                    model: item["model"],
+                  );
+                },
+              ));
+  }
 }
