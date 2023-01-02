@@ -133,6 +133,8 @@ class _MyAdsScreenState extends State<MyAdsScreen> {
         });
       });
       setState(() {
+        var bidEndDate = (endDate as Timestamp).toDate();
+        int daysLeft = bidEndDate.difference(DateTime.now()).inDays;
         Ad adv = Ad(
             adId: adId,
             model: model,
@@ -153,7 +155,8 @@ class _MyAdsScreenState extends State<MyAdsScreen> {
             endDate: endDate,
             carId: carId,
             auto: auto,
-            cc: cc);
+            cc: cc,
+            daysRemaining: daysLeft);
         ads.add(Ad_Card2(Ad: adv));
         if (adIds.length == ads.length) isLoading = false;
       });

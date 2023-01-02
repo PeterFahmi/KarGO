@@ -141,7 +141,7 @@ class _Ad_Card2State extends State<Ad_Card2> {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.end,
                           children: [
-                            Text('3 hours ago',
+                            Text('${widget.Ad.daysRemaining} days remaining',
                                 style: TextStyle(
                                   color: Color.fromRGBO(150, 150, 150, 1),
                                   fontWeight: FontWeight.bold,
