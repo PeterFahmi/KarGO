@@ -140,13 +140,7 @@ String manufacturer=element["manufacturer"];
 }
  Widget build(BuildContext context) {
    print("f4 $ads");
- return Scaffold(
-
-           appBar: AppBar(
-        title: Text('Filter Results'),
-        backgroundColor: Colors.black
-      ),
-           body: ads.length==0? Text("No results found"): ListView.builder(
+ return  ads.length==0? Text("No results found"): ListView.builder(
         itemCount: ads.length,
         itemBuilder: (context, index) {
           // Get the map object at the current index
@@ -162,8 +156,8 @@ String manufacturer=element["manufacturer"];
              manufacturer: item["manufacturer"], model: item["model"],
     
           );      },
-      )
- );
+      );
+ 
 
  
  }
