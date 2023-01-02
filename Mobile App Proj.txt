@@ -65,6 +65,7 @@ TODOs:
 		3. routings		✔
 		4. post ad (form for ad creation) 
 		5. location (add as an attribute) 
+		6. my ad screen needs auto refresh
 
 ----------------------------------------------------------------------------------------------------------
 Screens
