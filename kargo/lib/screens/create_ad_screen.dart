@@ -281,9 +281,9 @@ class _CreateAdScreenState extends State<CreateAdScreen> {
         .where('manufacturer', isEqualTo: manufacturerDropdownCtrl.text)
         .where('model', isEqualTo: modelDropdownCtrl.text)
         .get()
-        .then((value) {
+        .then((value) async {
       if (value.docs.length == 0) {
-        types.add({
+        await types.add({
           'manufacturer': manufacturerDropdownCtrl.text,
           'model': modelDropdownCtrl.text
         }).then((value) {
