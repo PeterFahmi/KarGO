@@ -19,12 +19,16 @@ class _CarouselWithDotsPageState extends State<CarouselWithDotsPage> {
   late List<Image> imgs;
   @override
   void initState() {
-    if (widget.isURLList)
+    print("widget.imgList="+widget.imgList.toString());
+    if(widget.imgList.length == 0){
+      imgs = [Image.asset('assets/images/carPlaceHolder.jpg', fit: BoxFit.fill, width: double.infinity)];
+    }
+    else if (widget.isURLList) {
       imgs = widget.imgList
           .map(
               (e) => Image.network(e, fit: BoxFit.fill, width: double.infinity))
           .toList();
-    else
+    } else
       imgs = widget.imgList as List<Image>;
     super.initState();
   }
@@ -74,7 +78,7 @@ class _CarouselWithDotsPageState extends State<CarouselWithDotsPage> {
               ),
             ))
         .toList();
-
+    print("imagesliders="+imageSliders.toString());
     return Column(
       children: [
         CarouselSlider(

@@ -39,7 +39,7 @@ class _MyAdsScreenState extends State<MyAdsScreen> {
   @override
   Widget build(BuildContext context) {
     for (var ad in ads) {
-      print(ad.imgUrls);
+      print('imgUrls='+ad.imgUrls.toString());
     }
     return Container(
       child: Column(
@@ -113,6 +113,8 @@ class _MyAdsScreenState extends State<MyAdsScreen> {
         });
       });
       setState(() {
+        var bidEndDate = (endDate as Timestamp).toDate();
+        int daysLeft = bidEndDate.difference(DateTime.now()).inDays;
         ads.add(Ad_Card2(
             model: model,
             year: year,
@@ -121,7 +123,9 @@ class _MyAdsScreenState extends State<MyAdsScreen> {
             fav: 0,
             imgUrls: photos,
             bid: -1,
-            ask: askPrice));
+            ask: askPrice,
+            color: color, 
+            daysRemaining: daysLeft));
         if (adIds.length == ads.length) isLoading = false;
       });
     }

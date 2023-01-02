@@ -11,6 +11,8 @@ class Ad_Card2 extends StatelessWidget {
   var km;
   var bid;
   var ask;
+  String color;
+  int daysRemaining;
   List<String> imgUrls = [];
 
   Ad_Card2(
@@ -21,7 +23,9 @@ class Ad_Card2 extends StatelessWidget {
       required this.fav,
       required this.imgUrls,
       required this.bid,
-      required this.ask});
+      required this.ask, 
+      this.color="",
+      this.daysRemaining=-1});
   void onPressed() {}
 
   @override
@@ -94,7 +98,7 @@ class Ad_Card2 extends StatelessWidget {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.end,
                           children: [
-                            Text('3 hours ago',
+                            Text('${daysRemaining} days remaining',
                                 style: TextStyle(
                                   color: Color.fromRGBO(150, 150, 150, 1),
                                   fontWeight: FontWeight.bold,
@@ -139,7 +143,7 @@ class Ad_Card2 extends StatelessWidget {
                                 Row(
                                     mainAxisAlignment: MainAxisAlignment.start,
                                     children: [
-                                      Text('EGP $bid',
+                                      Text(bid == -1 ? "Be the first to bid!" : 'EGP $bid',
                                           style: TextStyle(
                                             color: Colors.green,
                                             fontWeight: FontWeight.bold,
@@ -165,7 +169,7 @@ class Ad_Card2 extends StatelessWidget {
                         Column(
                             crossAxisAlignment: CrossAxisAlignment.center,
                             children: [
-                              Text('Highest Bid',
+                              Text(bid == -1 ? "No bids yet" : 'Highest Bid',
                                   style: TextStyle(
                                     color: Color.fromRGBO(150, 150, 150, 1),
                                     fontSize: 13.0,
@@ -199,7 +203,7 @@ class Ad_Card2 extends StatelessWidget {
                     height: 15,
                     child: VerticalDivider(
                         thickness: 2, color: Color.fromRGBO(150, 150, 150, 1))),
-                Text('2000CC',
+                Text(color,
                     style: TextStyle(
                       color: Colors.black,
                       fontSize: 13.0,
