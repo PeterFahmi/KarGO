@@ -311,10 +311,10 @@ class _CreateAdScreenState extends State<CreateAdScreen> {
     List<String> images = await getImagesUrl(imgsXfiles);
     await cars.add({
       'color': colorCtrl.text,
-      'km': kmCtrl.text,
+      'km':int.parse( kmCtrl.text),
       'type_id': typeId,
-      'cc': ccCtrl.text,
-      'year': yearCtrl.text,
+      'cc':int.parse( ccCtrl.text),
+      'year': int.parse( yearCtrl.text),
       'photos': images
     }).then((value) {
       res = value.id;

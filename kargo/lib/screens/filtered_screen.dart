@@ -87,53 +87,55 @@ class _FilteredScreenState extends State<FilteredScreen> {
                       String model = element["model"];
                       String manufacturer = element["manufacturer"];
 
-                      map['model'] = model;
-                      map['manufacturer'] = manufacturer;
+  map['model'] = model;
+    map['manufacturer'] = manufacturer;
 
-                      CarADs.add(map);
-                      print("f $CarADs");
-                      print("f2 $CarADs");
-                      ads = CarADs;
-                      setState(() {
-                        ads = CarADs;
-                      });
-                      print("f3 $ads");
-                    });
-                  });
-                }
-              });
-            });
-          }
-        });
-      });
+
+      CarADs.add(map);
+      print("f $CarADs");
+          print("f2 $CarADs");
+     ads=CarADs;
+      setState(() {
+ ads=CarADs;
+ });
+     print("f3 $ads");
+     
+    }); 
+ 
+     });
+    }
+
     });
-  }
 
-  Widget build(BuildContext context) {
-    print("f4 $ads");
-    return Scaffold(
-        appBar: AppBar(
-            title: Text('Filter Results'), backgroundColor: Colors.black),
-        body: ads.length == 0
-            ? Text("No results found")
-            : ListView.builder(
-                itemCount: ads.length,
-                itemBuilder: (context, index) {
-                  // Get the map object at the current index
-                  Map<String, String> item = ads[index];
 
-                  // Turn the map object into a card widget
-                  return Ad_Card(
-                    ask: int.parse(item["askPrice"]!),
-                    bid: int.parse(item["bid"]!),
-                    fav: 0,
-                    imgUrls: item["url"]!.split(","),
-                    km: int.parse(item["km"]!),
-                    year: int.parse(item["year"]!),
-                    manufacturer: item["manufacturer"],
-                    model: item["model"],
-                  );
-                },
-              ));
-  }
+
+    });
+    }
+
+
+
+  });
+  });
+  
+  
+  
+  });
+
+
+}
+ Widget build(BuildContext context) {
+   print("f4 $ads");
+ return  ads.length==0? Text("No results found"): ListView.builder(
+        itemCount: ads.length,
+        itemBuilder: (context, index) {
+          // Get the map object at the current index
+          Map<String, String> item = ads[index];
+
+          // Turn the map object into a card widget
+          return Text("data");},
+      );
+ 
+
+ 
+ }
 }
