@@ -278,8 +278,8 @@ class _AdScreenState extends State<AdScreen> {
                         ),
                       ),
                     ),
-                    ad.ownerId == userId
-                        ? (Positioned(
+                    if(ad.ownerId == userId)
+                         (Positioned(
                             right: 80,
                             bottom: 0,
                             child: SizedBox.fromSize(
@@ -309,7 +309,7 @@ class _AdScreenState extends State<AdScreen> {
                                 ),
                               ),
                             )))
-                        : (widget)
+                       
                   ],
                 ),
                 // child 2 of column is the white row

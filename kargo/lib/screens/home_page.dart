@@ -140,29 +140,26 @@ return;
       isLoading=true;
       isLoadingf=true;
       isLoadingm=true;
-      if(index==2){
-getmyBids();
 
-      }
-      else{
-      getAllAds();}
+     
+      getAllAds();
       _selectedTabIndex = index;
     });
   }
-getmyBids() async {
-          await FirebaseFirestore.instance
-              .collection('users')
-              .doc(FirebaseAuth.instance.currentUser!.uid)
-              .get()
-              .then((res) async {
-            final data = res.data() as Map<String, dynamic>;
-            setState(() {
-                    searchResults=data['myBids'].cast<String>();
-            print("bids: $searchResults");
-            loadAds();
-            });
-      });
-}
+// getmyBids() async {
+//           await FirebaseFirestore.instance
+//               .collection('users')
+//               .doc(FirebaseAuth.instance.currentUser!.uid)
+//               .get()
+//               .then((res) async {
+//             final data = res.data() as Map<String, dynamic>;
+//             setState(() {
+//                     mybidResults=data['myBids'].cast<String>();
+//             print("bids: $searchResults");
+//             loadAds();
+//             });
+//       });
+// }
   Widget showTab(selectedTabIndex) {
     switch (selectedTabIndex) {
       case 0:
@@ -196,12 +193,12 @@ getmyBids() async {
           );      },
       ))]);
       case 2:
-        return isLoading? ShimmerCard():Column( children:[
-                        Expanded( child: ads.length==0? Text("No results found"): ListView.builder(
-        itemCount: ads.length,
+        return isLoadingm? ShimmerCard():
+                        Column( children:[Expanded( child: myAds.length==0? Text("No bids found"): ListView.builder(
+        itemCount: myAds.length,
         itemBuilder: (context, index) {
           // Get the map object at the current index
-          Ad item = ads[index];
+          Ad item = myAds[index];
 
           // Turn the map object into a card widget
           return Ad_Card2(Ad: item,
@@ -716,6 +713,7 @@ loadAds();
 ads=[];
         List<Ad> CarADs=[];
         favoriteAds=[];
+        myAds=[];
   List<String> carsIDs=searchResults;
 
  
@@ -741,7 +739,7 @@ ads=[];
               .then((res) async {
             final data = res.data() as Map<String, dynamic>;
             favAds = data['favAds'];
-            mAds=data['myAds'];
+            mAds=data['myBids'];
          
          
     for (var adId in carsIDs) {
@@ -837,10 +835,11 @@ p=true;
         ads.add(adv);
         if(adv.fav>0)
 favoriteAds.add(adv);
-if(adv.ownerId==FirebaseAuth.instance.currentUser!.uid){
+if(mAds.contains(adv.adId)){
 myAds.add(adv);
 }
 }
+print(myAds);
         print("IDS:$carsIDs");
         print(ads);
         print("aa");
