@@ -825,7 +825,9 @@ ads=[];
             endDate: endDate,
             carId: carId,
             auto: auto,
-            cc: cc);
+            cc: cc, 
+            daysRemaining: DateTime.now().difference(endDate.toDate()).inDays*-1
+);
             bool p=false;
          for (var ad in ads) {
 if(adv.adId==ad.adId)
