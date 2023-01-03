@@ -23,6 +23,7 @@ class Ad {
   Timestamp endDate;
   String cc;
   int auto;
+  int daysRemaining;
   Ad(
       {required this.imagePaths,
       required this.adId,
@@ -43,5 +44,6 @@ class Ad {
       required this.carId,
       required this.startDate,
       required this.endDate,
+      required this.daysRemaining,
       required this.fav});
 }

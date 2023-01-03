@@ -17,10 +17,15 @@ class AdScreen extends StatefulWidget {
 }
 
 class _AdScreenState extends State<AdScreen> {
+  var bidPrice = 0;
+  bool initialB = true;
   @override
   Widget build(BuildContext context) {
     var ad = ModalRoute.of(context)!.settings.arguments as Ad;
-
+    if (initialB) {
+      bidPrice = ad.highestBid == 0 ? (ad.askPrice + 1) : (ad.highestBid + 1);
+      initialB = false;
+    }
     void onPressedFav() async {
       var userId = FirebaseAuth.instance.currentUser!.uid;
       List favAds = List.empty(growable: true);
@@ -56,8 +61,8 @@ class _AdScreenState extends State<AdScreen> {
         favAds = data['favAds'];
       });
       favAds.remove(ad.adId);
-      var ads = FirebaseFirestore.instance.collection('users');
-      ads
+      var users = FirebaseFirestore.instance.collection('users');
+      users
           .doc(userId)
           .update({'favAds': favAds}) // <-- Updated data
           .then((_) => print(favAds))
@@ -65,6 +70,163 @@ class _AdScreenState extends State<AdScreen> {
       setState(() {
         ad.fav = 0;
       });
+    }
+
+    void showLoading() {
+      showDialog<void>(
+        context: context,
+        barrierDismissible: false,
+        builder: (BuildContext context) {
+          return const SimpleDialog(
+            elevation: 0.0,
+            backgroundColor:
+                Colors.transparent, // can change this to your prefered color
+            children: <Widget>[
+              Center(
+                child: CircularProgressIndicator(
+                  color: Colors.white,
+                ),
+              )
+            ],
+          );
+        },
+      );
+    }
+
+    void submit() async {
+      showLoading();
+      List bidAds = List.empty(growable: true);
+      var userId = FirebaseAuth.instance.currentUser!.uid;
+      var ads = FirebaseFirestore.instance.collection('ads');
+      ads
+          .doc(ad.adId)
+          .update({
+            'highest_bid': bidPrice,
+            'highest_bidder_id': userId
+          }) // <-- Updated data
+          .then((_) => print(bidPrice))
+          .catchError((error) => print('Failed: $error'));
+
+      await FirebaseFirestore.instance
+          .collection('users')
+          .doc(userId)
+          .get()
+          .then((res) async {
+        final data = res.data() as Map<String, dynamic>;
+        bidAds = data['myBids'];
+      });
+      if (!bidAds.contains(ad.adId)) {
+        bidAds.add(ad.adId);
+        var users = FirebaseFirestore.instance.collection('users');
+        users
+            .doc(userId)
+            .update({'myBids': bidAds}) // <-- Updated data
+            .then((_) => print(bidAds))
+            .catchError((error) => print('Failed: $error'));
+      }
+      Navigator.pop(context);
+      Navigator.pop(context);
+    }
+
+    showBidSheet() {
+      showModalBottomSheet<dynamic>(
+          backgroundColor: Colors.transparent,
+          isScrollControlled: true,
+          context: context,
+          builder: (BuildContext bc) {
+            return StatefulBuilder(builder: (BuildContext context,
+                void Function(void Function()) setState) {
+              return Wrap(children: <Widget>[
+                Container(
+                  decoration: new BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: new BorderRadius.only(
+                          topLeft: const Radius.circular(25.0),
+                          topRight: const Radius.circular(25.0))),
+                  width: double.infinity,
+                  child: Column(
+                    children: [
+                      Container(
+                        width: double.infinity,
+                        height: 60,
+                        decoration: new BoxDecoration(
+                            color: Colors.black,
+                            borderRadius: new BorderRadius.only(
+                                topLeft: const Radius.circular(25.0),
+                                topRight: const Radius.circular(25.0))),
+                        child: Center(
+                          child: Text('Place Bid',
+                              style: TextStyle(
+                                  fontWeight: FontWeight.w600,
+                                  color: Colors.white,
+                                  fontSize: 20)),
+                        ),
+                      ),
+                      Container(
+                        width: double.infinity,
+                        padding: EdgeInsets.all(15),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Slider(
+                              activeColor: Colors.green,
+                              inactiveColor: Colors.green[100],
+                              label: "Select Bidding Price",
+                              value: bidPrice.toDouble(),
+                              min: ad.highestBid == 0
+                                  ? (ad.askPrice.floorToDouble() + 1)
+                                  : (ad.highestBid.floorToDouble() + 1),
+                              max: ad.highestBid == 0
+                                  ? ((ad.askPrice + 100000).floorToDouble())
+                                  : ((ad.highestBid + 100000).floorToDouble()),
+                              onChanged: (value) {
+                                setState(() {
+                                  print(bidPrice);
+                                  bidPrice = value.toInt();
+                                });
+                              },
+                            ),
+                            SizedBox(height: 10),
+                            Row(
+                              children: [
+                                Text("Your Bidding Price : ",
+                                    style: const TextStyle(
+                                      fontSize: 15.0,
+                                      fontWeight: FontWeight.bold,
+                                    )),
+                                Text(
+                                  'EGP ' + bidPrice.toString(),
+                                  style: const TextStyle(
+                                    fontSize: 15.0,
+                                    color: Colors.green,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ],
+                            )
+                          ],
+                        ),
+                      ),
+                      SizedBox(height: 20),
+                      Center(
+                        child: ElevatedButton(
+                          onPressed: submit,
+                          child: Text('Bid'),
+                          style: ButtonStyle(
+                            backgroundColor:
+                                MaterialStateProperty.all<Color>(Colors.black),
+                            foregroundColor:
+                                MaterialStateProperty.all<Color>(Colors.white),
+                          ),
+                        ),
+                      ),
+                      SizedBox(height: 20)
+                    ],
+                  ),
+                ),
+              ]);
+            });
+          });
     }
 
     return new Scaffold(
@@ -126,7 +288,7 @@ class _AdScreenState extends State<AdScreen> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.end,
                         children: [
-                          Text('3 hours ago',
+                          Text(ad.daysRemaining.toString() + ' days remaining',
                               style: TextStyle(
                                 color: Color.fromRGBO(150, 150, 150, 1),
                                 fontWeight: FontWeight.bold,
@@ -134,8 +296,6 @@ class _AdScreenState extends State<AdScreen> {
                               )),
                         ],
                       ),
-
-                      //SizedBox(height: 10),
                       Row(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
@@ -152,6 +312,77 @@ class _AdScreenState extends State<AdScreen> {
                               )),
                         ],
                       ),
+                      SizedBox(height: 15),
+                      Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceAround,
+                          children: [
+                            Column(
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.start,
+                                      children: [
+                                        Text('EGP  ' + ad.askPrice.toString(),
+                                            style: TextStyle(
+                                              color: Colors.green,
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: 15.0,
+                                            )),
+                                      ]),
+                                ]),
+                            Column(
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.start,
+                                      children: [
+                                        ad.highestBid == 0
+                                            ? (Text('No Bids Yet',
+                                                style: TextStyle(
+                                                  color: Colors.green,
+                                                  fontWeight: FontWeight.bold,
+                                                  fontSize: 15.0,
+                                                )))
+                                            : (Text(
+                                                'EGP ' +
+                                                    ad.highestBid.toString(),
+                                                style: TextStyle(
+                                                  color: Colors.green,
+                                                  fontWeight: FontWeight.bold,
+                                                  fontSize: 15.0,
+                                                ))),
+                                      ]),
+                                ]),
+                          ]),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceAround,
+                        children: [
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              Text('Ask Price',
+                                  style: TextStyle(
+                                    color: Color.fromRGBO(150, 150, 150, 1),
+                                    fontSize: 13.0,
+                                    fontWeight: FontWeight.bold,
+                                  )),
+                            ],
+                          ),
+                          Column(
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                Text('Highest Bid',
+                                    style: TextStyle(
+                                      color: Color.fromRGBO(150, 150, 150, 1),
+                                      fontSize: 13.0,
+                                      fontWeight: FontWeight.bold,
+                                    )),
+                              ]),
+                        ],
+                      ),
+                      SizedBox(height: 7),
                       Divider(
                           thickness: 1,
                           color: Color.fromRGBO(150, 150, 150, 1)),
@@ -204,7 +435,6 @@ class _AdScreenState extends State<AdScreen> {
                       Divider(
                           thickness: 1,
                           color: Color.fromARGB(255, 195, 193, 193)),
-
                       Row(
                           mainAxisAlignment: MainAxisAlignment.spaceAround,
                           children: [
@@ -242,7 +472,6 @@ class _AdScreenState extends State<AdScreen> {
                       Divider(
                           thickness: 1,
                           color: Color.fromARGB(255, 195, 193, 193)),
-
                       Row(
                           mainAxisAlignment: MainAxisAlignment.spaceAround,
                           children: [
@@ -280,7 +509,6 @@ class _AdScreenState extends State<AdScreen> {
                       Divider(
                           thickness: 1,
                           color: Color.fromARGB(255, 195, 193, 193)),
-
                       Row(
                           mainAxisAlignment: MainAxisAlignment.spaceAround,
                           children: [
@@ -318,7 +546,6 @@ class _AdScreenState extends State<AdScreen> {
                       Divider(
                           thickness: 1,
                           color: Color.fromARGB(255, 195, 193, 193)),
-
                       Row(
                           mainAxisAlignment: MainAxisAlignment.spaceAround,
                           children: [
@@ -356,7 +583,6 @@ class _AdScreenState extends State<AdScreen> {
                       Divider(
                           thickness: 1,
                           color: Color.fromARGB(255, 195, 193, 193)),
-
                       Row(
                           mainAxisAlignment: MainAxisAlignment.spaceAround,
                           children: [
@@ -391,11 +617,9 @@ class _AdScreenState extends State<AdScreen> {
                               ],
                             ),
                           ]),
-
                       Divider(
                           thickness: 1,
                           color: Color.fromARGB(255, 195, 193, 193)),
-
                       Row(
                           mainAxisAlignment: MainAxisAlignment.spaceAround,
                           children: [
@@ -455,7 +679,7 @@ class _AdScreenState extends State<AdScreen> {
                                   )))
                         ],
                       ),
-                      SizedBox(height: 30),
+                      SizedBox(height: 150),
                     ],
                   ))
             ]))
@@ -496,7 +720,7 @@ class _AdScreenState extends State<AdScreen> {
               child: Padding(
                 padding: const EdgeInsets.all(10.0),
                 child: Image(
-                  image: AssetImage('assets/images/chatsNoBck.png'),
+                  image: AssetImage("assets/images/chatsNoBck.png"),
                   width: 30,
                 ),
               ),
@@ -509,9 +733,7 @@ class _AdScreenState extends State<AdScreen> {
               backgroundColor: Colors.green[400],
               elevation: 60,
               heroTag: 'btn3',
-              onPressed: () {
-                Navigator.of(context).pushNamed('/Chats');
-              },
+              onPressed: showBidSheet,
               child: Padding(
                 padding: const EdgeInsets.all(10.0),
                 child: Image(
