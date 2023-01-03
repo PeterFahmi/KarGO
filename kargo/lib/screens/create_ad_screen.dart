@@ -311,10 +311,10 @@ class _CreateAdScreenState extends State<CreateAdScreen> {
     List<String> images = await getImagesUrl(imgsXfiles);
     await cars.add({
       'color': colorCtrl.text,
-      'km': kmCtrl.text,
+      'km':int.parse( kmCtrl.text),
       'type_id': typeId,
-      'cc': ccCtrl.text,
-      'year': yearCtrl.text,
+      'cc':int.parse( ccCtrl.text),
+      'year': int.parse( yearCtrl.text),
       'photos': images
     }).then((value) {
       res = value.id;
@@ -340,7 +340,7 @@ class _CreateAdScreenState extends State<CreateAdScreen> {
       'highest_bid': 0,
       'auto': 0, //NEEDS FIX
       'highest_bidder_id': "",
-      'ownerId': uid,
+
       'end_date':
           DateTime.now().add(Duration(days: int.parse(adDuration.text))),
       'owner_id': uid,

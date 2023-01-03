@@ -66,7 +66,13 @@ class _Ad_Card2State extends State<Ad_Card2> {
   }
 
   void adDetails(BuildContext context) {
-    Navigator.pushNamed(context, AdScreen.routeName, arguments: widget.Ad);
+    Navigator.pushNamed(context, AdScreen.routeName, arguments: widget.Ad).then((_){
+      String? path= ModalRoute.of(context)!.settings.name;
+      Navigator.popAndPushNamed(context, path!);
+   print( "aloooo");
+    print( ModalRoute.of(context)!.settings.name);});
+    
+    
   }
 
   @override
@@ -85,7 +91,6 @@ class _Ad_Card2State extends State<Ad_Card2> {
             Stack(
               children: [
 // child 1 of stack is the recipe image
-
                 CarouselWithDotsPage(imgList: widget.Ad.imagePaths),
 // child 2 of stack is the recipe title
 
@@ -141,7 +146,9 @@ class _Ad_Card2State extends State<Ad_Card2> {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.end,
                           children: [
-                            Text('3 hours ago',
+                            Text(
+                                widget.Ad.daysRemaining.toString() +
+                                    ' days remaining',
                                 style: TextStyle(
                                   color: Color.fromRGBO(150, 150, 150, 1),
                                   fontWeight: FontWeight.bold,
@@ -157,7 +164,7 @@ class _Ad_Card2State extends State<Ad_Card2> {
                                     '  ' +
                                     widget.Ad.model.toUpperCase() +
                                     '  ' +
-                                    widget.Ad.year,
+                                    widget.Ad.year.toString() ,
                                 style: TextStyle(
                                   color: Colors.black,
                                   fontWeight: FontWeight.bold,
@@ -171,7 +178,7 @@ class _Ad_Card2State extends State<Ad_Card2> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: [
-                        Text(widget.Ad.auto == 0 ? 'AUTO' : 'Manual',
+                        Text(widget.Ad.auto == 0 ? 'AUTO' : 'MANUAL',
                             style: TextStyle(
                               color: Colors.black,
                               fontSize: 13.0,
@@ -194,7 +201,7 @@ class _Ad_Card2State extends State<Ad_Card2> {
                             child: VerticalDivider(
                                 thickness: 2,
                                 color: Color.fromRGBO(150, 150, 150, 1))),
-                        Text(widget.Ad.cc + ' CC',
+                        Text(widget.Ad.cc.toString() + ' CC',
                             style: TextStyle(
                               color: Colors.black,
                               fontSize: 13.0,
