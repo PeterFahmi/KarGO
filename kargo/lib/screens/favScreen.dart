@@ -25,45 +25,43 @@ class FaveScreen extends StatefulWidget {
 }
 
 class _FaveScreenState extends State<FaveScreen> {
-
   @override
   void initState() {
     super.initState();
-       
-loadAds() ;
-    final fbm = FirebaseMessaging.instance;
-    fbm.getToken().then((value) => print(value));
-    fbm.requestPermission();
+    loadAds();
   }
 
-  var _selectedTabIndex = 0;
-  List<String> imgUrls = [
-    'https://www.hdcarwallpapers.com/download/abt_sportsline_audi_tt-2880x1800.jpg',
-    'https://th.bing.com/th/id/OIP.zpu1nHs3RCyeRXikR-nFGgHaFj?pid=ImgDet&w=1600&h=1200&rs=1'
-  ];
-
-List <Ad>favoriteAds=[];
-
   var currentUser = getCurrentUser();
-  List<String> searchResults=[];
 
-bool isLoadingf=true;
+  List<Ad> favoriteAds = [];
+  List favAdsIds = [];
 
-
+  bool isLoading = true;
 
   @override
   Widget build(BuildContext context) {
-    return  isLoadingf? ShimmerCard():
-                        Column( children:[Expanded( child: favoriteAds.length==0? Text("No favourites found"): ListView.builder(
-        itemCount: favoriteAds.length,
-        itemBuilder: (context, index) {
-          // Get the map object at the current index
-          Ad item = favoriteAds[index];
-
-          // Turn the map object into a card widget
-          return Ad_Card2(Ad: item,
-          );      },
-      ))]);
+    return Container(
+      child: Column(
+        children: [
+          if (isLoading)
+            LinearProgressIndicator(
+              minHeight: 5,
+              value: favoriteAds.length / (favAdsIds.length + 0.1),
+              backgroundColor: Colors.white,
+              color: Colors.black,
+            ),
+          Expanded(
+            child: ListView(
+              reverse: false,
+              children: [
+                ...favoriteAds.map((e) => Ad_Card2(Ad: e)),
+                if (isLoading) ShimmerCard(),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
   void updateUserProfile(UserModel.User updatedUser) async {
@@ -78,167 +76,115 @@ bool isLoadingf=true;
     });
   }
 
-  getSnapShotData(mySnapShot) {
-    return mySnapShot.data!.data();
-  }
-
-  createCurrentUserModel(mySnapShot) {
-    var snapShotData = getSnapShotData(mySnapShot);
-    var curUserModel = UserModel.User(
-        email: snapShotData['email'],
-        name: snapShotData['name'],
-        imagePath: snapShotData['photoURL']);
-    return curUserModel;
-  }
-
-
-
-
-
- void loadAds() async {
+  void loadAds() async {
     CollectionReference adsCollection =
         FirebaseFirestore.instance.collection('ads');
+    await FirebaseFirestore.instance
+        .collection('users')
+        .doc(FirebaseAuth.instance.currentUser!.uid)
+        .get()
+        .then((res) async {
+      final data = res.data() as Map<String, dynamic>;
+      setState(() {
+        favAdsIds = data['favAds'];
+      });
+      if (favAdsIds.isEmpty) {
+        setState(() {
+          isLoading = false;
+        });
+      }
+      print(favAdsIds);
+      for (var adId in favAdsIds) {
+        int askPrice = 0;
+        var title = "";
+        var uId = "";
+        var desc = "";
+        var endDate = Timestamp.fromDate(DateTime.now());
+        var startDate = Timestamp.fromDate(DateTime.now());
+        var color = "";
+        var fav;
+        var km = 0;
+        List<String> photos = [];
+        var year = 0;
+        var manufacturer = "";
+        var model = "";
+        var carId = "";
+        var cc = 0;
+        var auto = 0;
+        var highestBid = 0;
+        var typeId = "";
+        var highestBidderId = "";
+        await adsCollection.doc(adId).get().then((res) async {
+          final data = res.data() as Map<String, dynamic>;
+          askPrice = data['ask_price'];
+          title = data['title'];
+          desc = data['desc'];
+          carId = data['car_id'];
+          uId = data['owner_id'];
+          favAdsIds.contains(adId) ? fav = 1 : fav = 0;
+          endDate = data['end_date'] ?? endDate;
+          startDate = data['start_date'] ?? startDate;
+          auto = data['auto'] ?? 0;
 
-        
-        favoriteAds=[];
-
- List favAds=[];
-  List mAds=[];
-  print("loading ");
-
-           await FirebaseFirestore.instance
-              .collection('users')
-              .doc(FirebaseAuth.instance.currentUser!.uid)
+          highestBid = data['highest_bid'] ?? 0;
+          highestBidderId = data['highest_bidder_id'] ?? "";
+          await FirebaseFirestore.instance
+              .collection('cars')
+              .doc(carId)
               .get()
               .then((res) async {
             final data = res.data() as Map<String, dynamic>;
-            favAds = data['favAds'];
-            mAds=data['myBids'];
-          if(favAds.isEmpty){
-        setState(() {
-
-  isLoadingf=false;
- 
- });} 
-         
-    for (var adId in favAds) {
-      int askPrice=0;
-      var title="";
-      var uId = "";
-      var desc="";
-      var endDate=Timestamp.fromDate(DateTime.now());
-      var startDate=Timestamp.fromDate(DateTime.now());
-      var color="";
-      var fav;
-      var km=0;
-      List<String> photos = [];
-      var year=0;
-      var manufacturer="";
-      var model="";
-      var carId="";
-      var cc=0;
-      var auto=0;
-      var highestBid=0;
-      var typeId="";
-      var highestBidderId="";
-      await adsCollection.doc(adId).get().then((res) async {
-        final data = res.data() as Map<String, dynamic>;
-        askPrice = data['ask_price'];
-        title = data['title'];
-        desc = data['desc'];
-        carId = data['car_id'];
-        uId = data['owner_id'];
-           favAds.contains(adId) ? fav = 1 : fav = 0;
-        endDate = data['end_date']==null?endDate:data['end_date'];;
-        startDate = data['start_date']==null?startDate:data['start_date'];
-        auto = data['auto']==null?0:data['auto'];
-       
-        highestBid = data['highest_bid']==null?0:data['highest_bid'];
-        highestBidderId = data['highest_bidder_id']==null?"":data['highest_bidder_id'];
-        await FirebaseFirestore.instance
-            .collection('cars')
-            .doc(carId)
-            .get()
-            .then((res) async {
-          final data = res.data() as Map<String, dynamic>;
-          color = data['color'];
-          km = data['km'];
-           cc = data['cc']==null?0:data['cc'];
-          photos = (data['photos'] as List<dynamic>)
-              .map((e) => e as String)
-              .toList();
-          typeId = data['type_id'];
-          year = data['year'];
-          await FirebaseFirestore.instance
-              .collection('types')
-              .doc(typeId)
-              .get()
-              .then((res) {
-            final data = res.data() as Map<String, dynamic>;
-            manufacturer = data['manufacturer'];
-            model = data['model'];
+            color = data['color'];
+            km = data['km'];
+            cc = data['cc'] ?? 0;
+            photos = (data['photos'] as List<dynamic>)
+                .map((e) => e as String)
+                .toList();
+            typeId = data['type_id'];
+            year = data['year'];
+            await FirebaseFirestore.instance
+                .collection('types')
+                .doc(typeId)
+                .get()
+                .then((res) {
+              final data = res.data() as Map<String, dynamic>;
+              manufacturer = data['manufacturer'];
+              model = data['model'];
+            });
           });
-
+          Ad adModel = Ad(
+              adId: adId,
+              model: model,
+              year: year,
+              manufacturer: manufacturer,
+              km: km,
+              fav: fav,
+              imagePaths: photos,
+              highestBid: highestBid,
+              askPrice: askPrice,
+              highestBidderId: highestBidderId,
+              ownerId: uId,
+              colour: color,
+              title: title,
+              desc: desc,
+              typeId: typeId,
+              startDate: startDate,
+              endDate: endDate,
+              carId: carId,
+              auto: auto,
+              cc: cc,
+              daysRemaining:
+                  DateTime.now().difference(endDate.toDate()).inDays * -1);
+          setState(() {
+            favoriteAds.add(adModel);
+            if (favoriteAds.length == favAdsIds.length) isLoading = false;
+          });
         });
-      
-            setState(() {
-        Ad adv = Ad(
-            adId: adId,
-            model: model,
-            year: year,
-            manufacturer: manufacturer,
-            km: km,
-            fav: fav,
-            imagePaths: photos,
-            highestBid: highestBid,
-            askPrice: askPrice,
-            highestBidderId: highestBidderId,
-            ownerId: uId,
-            colour: color,
-            title: title,
-            desc: desc,
-            typeId: typeId,
-            startDate: startDate,
-            endDate: endDate,
-            carId: carId,
-            auto: auto,
-            cc: cc, 
-            daysRemaining: DateTime.now().difference(endDate.toDate()).inDays*-1
-);
-            bool p=false;
-         for (var ad in favoriteAds) {
-if(adv.adId==ad.adId)
-p=true;
-         }
-         if(!p){
- 
-        if(adv.fav>0)
-favoriteAds.add(adv);
-
-}
-print(favoriteAds);
-        print("IDS:$favAds");
-        
-        print("aa");
-        if(favoriteAds.length==favAds.length)
-        isLoadingf=false;
-     ;
-
-      });
-      
-      });
-
-    
+      }
+    });
   }
-
-
-
-
-//ss
-
-   });
 }
-}
+
 Future<DocumentSnapshot<Map<String, dynamic>>> getCurrentUser() async {
   final currentUserUid = FirebaseAuth.instance.currentUser!.uid;
   return FirebaseFirestore.instance
