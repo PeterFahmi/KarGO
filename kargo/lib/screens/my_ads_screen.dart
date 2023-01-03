@@ -40,26 +40,57 @@ class _MyAdsScreenState extends State<MyAdsScreen> {
     for (var ad in ads) {
       //  print(ad.);
     }
-    return Container(
-      child: Column(
-        children: [
-          if (isLoading)
-            LinearProgressIndicator(
-              minHeight: 5,
-              value: ads.length / (adIds.length + 0.1),
-              backgroundColor: Colors.white,
-              color: Colors.black,
+    return NestedScrollView(
+      headerSliverBuilder: (context, innerBoxIsScrolled) {
+        return [
+          SliverAppBar(
+            backgroundColor: Color.fromRGBO(0, 0, 0, 0.2),
+            floating: true,
+            title: Text("Have a new car to offer"),
+            actions: [
+              Padding(
+                padding: EdgeInsets.all(10),
+                child: ElevatedButton(
+                  onPressed: () {
+                    Navigator.of(context)
+                        .pushNamed('/create_ad')
+                        .then((_) => {Navigator.popAndPushNamed(context, '/')});
+                  },
+                  child: Text('Add'),
+                  style: ButtonStyle(
+                    backgroundColor:
+                        MaterialStateProperty.all<Color>(Colors.green),
+                    foregroundColor:
+                        MaterialStateProperty.all<Color>(Colors.white),
+                  ),
+                ),
+              ),
+            ],
+          )
+        ];
+      },
+      floatHeaderSlivers: true,
+      body: Container(
+        child: Column(
+          children: [
+            if (isLoading)
+              LinearProgressIndicator(
+                minHeight: 5,
+                value: ads.length / (adIds.length + 0.1),
+                backgroundColor: Colors.white,
+                color: Colors.black,
+              ),
+            Expanded(
+              child: ListView(
+                reverse: false,
+                children: [
+                  ...ads,
+                  if (isLoading) ShimmerCard(),
+                ],
+              ),
             ),
-          Expanded(
-            child: ListView(
-              reverse: false,
-              children: [
-                ...ads,
-                if (isLoading) ShimmerCard(),
-              ],
-            ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
