@@ -54,7 +54,7 @@ class ChatCardState extends State<ChatCard> {
             ),
           );
         }
-        final userData = (snapshot.data as DocumentSnapshot).data();
+        final userData = snapshot.data as Map;
         // print("user photo url = " + widget.user.imageUrl.toString());
         return ListTile(
           onTap: () {
