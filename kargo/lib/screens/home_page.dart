@@ -12,6 +12,7 @@ import 'package:kargo/components/my_scaffold.dart';
 import 'package:kargo/components/my_shimmering_card.dart';
 import 'package:kargo/screens/loading_screen.dart';
 import '../components/multiChip.dart';
+import '../models/ad.dart';
 import '../models/user.dart' as UserModel;
 import 'filtered_screen.dart';
 import 'my_ads_screen.dart';
@@ -28,6 +29,8 @@ class _HomePageState extends State<HomePage> {
   @override
   void initState() {
     super.initState();
+       
+getAllAds() ;
     final fbm = FirebaseMessaging.instance;
     fbm.getToken().then((value) => print(value));
     fbm.requestPermission();
@@ -38,20 +41,20 @@ class _HomePageState extends State<HomePage> {
     'https://www.hdcarwallpapers.com/download/abt_sportsline_audi_tt-2880x1800.jpg',
     'https://th.bing.com/th/id/OIP.zpu1nHs3RCyeRXikR-nFGgHaFj?pid=ImgDet&w=1600&h=1200&rs=1'
   ];
-List<Map<String, String>> ads=[];
+List <Ad>ads=[];
+List <Ad>favoriteAds=[];
+List <Ad>myAds=[];
   var currentUser = getCurrentUser();
   List<String> searchResults=[];
   int _maxyear2=2000;
 int _minyear2=0;
+  int _maxcc=2000;
+int _mincc=0;
    late double _minPrice2=0;
   late double _maxPrice2=100;
-      void initState() {
-    super.initState();
-getAllAds() ;
-
-    
-    }
-
+bool isLoading=true;
+bool isLoadingf=true;
+bool isLoadingm=true;
 void getAllAds() async {
   
 
@@ -71,7 +74,7 @@ querySnapshot.docs.forEach((carAdDoc) {
 String k=carAdDoc.id;
 setState(() {
   searchResults.add(k);
-  getCars();
+  loadAds();
 });
 
 
@@ -134,64 +137,79 @@ return;
 
   onNavigationBarChanged(index) {
     setState(() {
+      isLoading=true;
+      isLoadingf=true;
+      isLoadingm=true;
+      if(index==2){
+getmyBids();
+
+      }
+      else{
+      getAllAds();}
       _selectedTabIndex = index;
     });
   }
-
+getmyBids() async {
+          await FirebaseFirestore.instance
+              .collection('users')
+              .doc(FirebaseAuth.instance.currentUser!.uid)
+              .get()
+              .then((res) async {
+            final data = res.data() as Map<String, dynamic>;
+            setState(() {
+                    searchResults=data['myBids'].cast<String>();
+            print("bids: $searchResults");
+            loadAds();
+            });
+      });
+}
   Widget showTab(selectedTabIndex) {
     switch (selectedTabIndex) {
       case 0:
 
-        return Column( children:[TextButton(
+        return isLoading? ShimmerCard():Column( children:[TextButton(
                         onPressed: Adfilter,
                         child: Text(
-                          "Next",
+                          "Filter",
                         
                         )),
                         Expanded( child: ads.length==0? Text("No results found"): ListView.builder(
         itemCount: ads.length,
         itemBuilder: (context, index) {
           // Get the map object at the current index
-          Map<String, String> item = ads[index];
+          Ad item = ads[index];
 
           // Turn the map object into a card widget
-          return Ad_Card2(ask: int.parse(item["askPrice"]!),
-         bid: int.parse(item["bid"]!), 
-          fav: 0,
-           imgUrls:item["url"]!.split(",") 
-           , km: int.parse(item["km"]!),
-            year: int.parse(item["year"]!),
-             manufacturer: item["manufacturer"], model: item["model"],
-    
+          return Ad_Card2(Ad: item,
           );      },
       ))]);
       case 1:
-        return Text("fav");
+        return isLoadingf? ShimmerCard():
+                        Column( children:[Expanded( child: favoriteAds.length==0? Text("No favourites found"): ListView.builder(
+        itemCount: favoriteAds.length,
+        itemBuilder: (context, index) {
+          // Get the map object at the current index
+          Ad item = favoriteAds[index];
+
+          // Turn the map object into a card widget
+          return Ad_Card2(Ad: item,
+          );      },
+      ))]);
       case 2:
-        return Text("bid");
+        return isLoading? ShimmerCard():Column( children:[
+                        Expanded( child: ads.length==0? Text("No results found"): ListView.builder(
+        itemCount: ads.length,
+        itemBuilder: (context, index) {
+          // Get the map object at the current index
+          Ad item = ads[index];
+
+          // Turn the map object into a card widget
+          return Ad_Card2(Ad: item,
+          );      },
+      ))]);
       case 3:
         return MyAdsScreen();
-      // return Column(children: [
-      //   Ad_Card2(
-      //     imgUrls: imgUrls,
-      //     manufacturer: "Audi",
-      //     model: "RS7",
-      //     year: "2021",
-      //     km: "9000",
-      //     fav: 1,
-      //     bid: "1,290,000",
-      //     ask: "1,200,000",
-      //   ),
-      //   Ad_Card2(
-      //       imgUrls: imgUrls,
-      //       manufacturer: "Audi",
-      //       model: "RS7",
-      //       year: "2021",
-      //       km: "9000",
-      //       fav: 0,
-      //       bid: "1,290,000",
-      //       ask: "1,200,000")
-      // ]);
+
       default:
         return Text("");
     }
@@ -214,6 +232,8 @@ double maxp=0;
 
 int miny=10000;
 int maxy=0;
+int mincc=10000;
+int maxcc=0;
 
 // Iterate through the car ad documents and get the models for each manufacturer
 querySnapshot.docs.forEach((carAdDoc) {
@@ -241,10 +261,13 @@ querySnapshot.docs.forEach((carAdDoc) {
       maxp=element["max_price"].toDouble();
       miny=element["min_year"];
       maxy=element["max_year"];
+      mincc=element["min_cc"];
+      maxcc=element["max_cc"];
     });
   });
 models1["price"]=[maxp.toString(),minp.toString()];
 models1["year"]=[maxy.toString(),miny.toString()];
+models1["cc"]=[maxcc.toString(),mincc.toString()];
 
 return models1;
   }
@@ -265,6 +288,8 @@ double minp=1000;
 double maxp=0;
 int miny=10000;
 int maxy=0;
+int mincc=10000;
+int maxcc=0;
 Map<String, List<String>> models={};
 getModels().then((newModels) {
       // update the models map and trigger a rebuild
@@ -283,12 +308,22 @@ getModels().then((newModels) {
           _minyear2=miny;
         _maxyear2=maxy;
         }
+
+
+                mincc=int.parse((newModels["cc"]![1]));
+        maxcc=int.parse((newModels["cc"]![0]));
+        if(_mincc==0){
+          _mincc=mincc;
+        _maxcc=maxcc;
+        }
                         print(minp);
                 print(maxp);
         newModels.remove("price");
         models.remove("price");
         newModels.remove("year");
         models.remove("year");
+                newModels.remove("cc");
+        models.remove("cc");
         availableModels=models.values.toList().expand((i) => i).toList();
 
       });
@@ -434,6 +469,44 @@ Row(
 
 
 
+ ,SizedBox(height: 10),
+
+Row(
+              children: [SizedBox(width: 5),Text("CC: "),SizedBox(width: 5),
+
+
+
+  Expanded( child:
+    RangeSlider(
+        activeColor: Colors.black,
+  inactiveColor: Color.fromARGB(255, 191, 190, 190),
+            values: RangeValues(_mincc.toDouble(), _maxcc.toDouble()),
+            min:mincc>maxcc?maxcc.toDouble():mincc.toDouble(),
+            max: mincc>maxcc?mincc.toDouble():maxcc.toDouble(),
+            divisions: 100,
+            labels: RangeLabels(_mincc.toString(),_maxcc.toString() ),
+            onChanged: (values) {
+              setState1(() {
+                _mincc = values.start.toInt();
+                _maxcc = values.end.toInt();
+            
+              });
+            },
+          ))])
+
+
+,
+   Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text('Min: '+_mincc.toString()),
+              SizedBox(width: 10),
+              Text('Max: '+_maxcc.toString()),
+            ],
+          )
+
+
+
 
 
 
@@ -448,6 +521,7 @@ Row(
               onPressed: () {
                 if (_formKey.currentState!.validate()) {
                   _formKey.currentState!.save();
+                  isLoading=true;
                   CollectionReference carAdsRef = FirebaseFirestore.instance.collection('types');
                   Query query = carAdsRef;
                   if (_manufacturers.isNotEmpty) {
@@ -502,7 +576,7 @@ int len=subList.length;
 if(cars.isEmpty){
       setState(() {
  searchResults=cars3;
-  getCars();
+ loadAds();
  });
 }
 subList.forEach((element) {
@@ -514,6 +588,14 @@ if (!(_minyear2==miny)) {
 if (!(_maxyear2==maxy)) {
   query = query.where('year', isLessThanOrEqualTo: _maxyear2);
 }
+
+if (!(_mincc==mincc)) {
+  query = query.where('cc', isGreaterThanOrEqualTo: _mincc);
+}
+if (!(_maxcc==maxcc)) {
+  query = query.where('cc', isLessThanOrEqualTo: _mincc);
+}
+
                   if (_manufacturers.isNotEmpty||_models.isNotEmpty) {
                     query = query.where("type_id", whereIn: element);
                   }
@@ -534,7 +616,7 @@ int c2=0;
 if(cars2.isEmpty){
       setState(() {
  searchResults=cars3;
- getCars();
+loadAds();
  });
 }
 for (var i = 0; i < cars2.length; i += 10) {
@@ -545,10 +627,10 @@ subList2.forEach((element2) async {
 Query query = carRef2;
 
 if (!(_minPrice2==minp)  ) {
-  query = query.where('price', isGreaterThanOrEqualTo: _minPrice2);
+  query = query.where('ask_price', isGreaterThanOrEqualTo: _minPrice2);
 }
 if (!( _maxPrice2==maxp) ) {
-  query = query.where('price', isLessThanOrEqualTo: _maxPrice2);
+  query = query.where('ask_price', isLessThanOrEqualTo: _maxPrice2);
 }
 
 if(!element2.isEmpty)
@@ -561,7 +643,10 @@ carAds.forEach((document) {
 String k=document.id;
 c2=c2+1;
 cars3.add(k);
-
+          setState(() {
+ searchResults=cars3;
+loadAds();
+ });
     });
  
     });
@@ -571,15 +656,15 @@ cars3.add(k);
         
         if(c2==cars2.length && sub1==len)
        {
-      setState(() {
- searchResults=cars3;
-  getCars();
- });
+//       setState(() {
+//  searchResults=cars3;
+// loadAds();
+//  });
        }
         
          print("cars3 $cars3");});//batch2
   
-    
+
 
 
     });
@@ -625,16 +710,12 @@ cars3.add(k);
 
 
 
-
-
-
-
-
-
-
-
-void getCars () async {
-List<Map<String, String>> CarADs=[];
+ void loadAds() async {
+    CollectionReference adsCollection =
+        FirebaseFirestore.instance.collection('ads');
+ads=[];
+        List<Ad> CarADs=[];
+        favoriteAds=[];
   List<String> carsIDs=searchResults;
 
  
@@ -643,113 +724,144 @@ List<Map<String, String>> CarADs=[];
 
 
  carsIDs= new List<String>.from(set);
- 
-  print(carsIDs);
+ List favAds=[];
+  List mAds=[];
+  print("loading $carsIDs");
   if(carsIDs.isEmpty){
         setState(() {
  ads=CarADs;
+ isLoading=false;
+  isLoadingf=false;
+   isLoadingm=false;
  });}
-   carsIDs.forEach((id) async {
+           await FirebaseFirestore.instance
+              .collection('users')
+              .doc(FirebaseAuth.instance.currentUser!.uid)
+              .get()
+              .then((res) async {
+            final data = res.data() as Map<String, dynamic>;
+            favAds = data['favAds'];
+            mAds=data['myAds'];
+         
+         
+    for (var adId in carsIDs) {
+      int askPrice=0;
+      var title="";
+      var uId = "";
+      var desc="";
+      var endDate=Timestamp.fromDate(DateTime.now());
+      var startDate=Timestamp.fromDate(DateTime.now());
+      var color="";
+      var fav;
+      var km=0;
+      List<String> photos = [];
+      var year=0;
+      var manufacturer="";
+      var model="";
+      var carId="";
+      var cc=0;
+      var auto=0;
+      var highestBid=0;
+      var typeId="";
+      var highestBidderId="";
+      await adsCollection.doc(adId).get().then((res) async {
+        final data = res.data() as Map<String, dynamic>;
+        askPrice = data['ask_price'];
+        title = data['title'];
+        desc = data['desc'];
+        carId = data['car_id'];
+        uId = data['owner_id'];
+           favAds.contains(adId) ? fav = 1 : fav = 0;
+        endDate = data['end_date']==null?endDate:data['end_date'];;
+        startDate = data['start_date']==null?startDate:data['start_date'];
+        auto = data['auto']==null?0:data['auto'];
+       
+        highestBid = data['highest_bid']==null?0:data['highest_bid'];
+        highestBidderId = data['highest_bidder_id']==null?"":data['highest_bidder_id'];
+        await FirebaseFirestore.instance
+            .collection('cars')
+            .doc(carId)
+            .get()
+            .then((res) async {
+          final data = res.data() as Map<String, dynamic>;
+          color = data['color'];
+          km = data['km'];
+           cc = data['cc']==null?0:data['cc'];
+          photos = (data['photos'] as List<dynamic>)
+              .map((e) => e as String)
+              .toList();
+          typeId = data['type_id'];
+          year = data['year'];
+          await FirebaseFirestore.instance
+              .collection('types')
+              .doc(typeId)
+              .get()
+              .then((res) {
+            final data = res.data() as Map<String, dynamic>;
+            manufacturer = data['manufacturer'];
+            model = data['model'];
+          });
 
-    Map<String, String> map = Map();
-     await FirebaseFirestore.instance
-  .collection('ads')
-  .where(FieldPath.documentId, isEqualTo:id )
-  .get()
-  .then((value) {
-    value.docs.forEach((element) async {
-      String askPrice=element["ask_price"].toString();
-
-      String bid="0";
-      // if(element["bid"]!=null)
-      //  bid=element["bid"].toString();
-       map['askPrice'] = askPrice;
-
-  map['bid'] = bid;
-
-
-
-  String carID=element["car_id"];
-
-print(map);
-   if(carID!="")
-   {  await FirebaseFirestore.instance
-  .collection('cars')
-  .where(FieldPath.documentId, isEqualTo:carID )
-  .get()
-  .then((value) {
-    value.docs.forEach((element) async {
-
-String km=element["km"].toString();
-      String url="https://t3.ftcdn.net/jpg/04/62/93/66/360_F_462936689_BpEEcxfgMuYPfTaIAOC1tCDurmsno7Sp.jpg";
-      if(element["photos"]!=null ||!element["photos"].length==0)
-      url=element["photos"].join(',').length<5? url:element["photos"].join(',');
-String year=element["year"].toString();
-
-
-  map['url'] = url;
-    map['year'] = year;
-      map['km'] = km;
+        });
       
-
-print(map);
-
-  String typeID=element["type_id"];
-
-if(typeID!="") {
-  
-
- await FirebaseFirestore.instance
-  .collection('types')
-  .where(FieldPath.documentId, isEqualTo:typeID )
-  .get()
-  .then((value) {
-    value.docs.forEach((element){
-
-String model=element["model"];
-String manufacturer=element["manufacturer"];
-
-  map['model'] = model;
-    map['manufacturer'] = manufacturer;
-
-
-      CarADs.add(map);
-      print("f $CarADs");
-          print("f2 $CarADs");
-     ads=CarADs;
-      setState(() {
- ads=CarADs;
- });
-     print("f3 $ads");
-     
-    }); 
- 
-     });
-    }
-
-    });
-
-
-
-    });
-    }
-
-
-
-  });
-  });
-  
-  
-  
-  });
-
-
+            setState(() {
+        Ad adv = Ad(
+            adId: adId,
+            model: model,
+            year: year,
+            manufacturer: manufacturer,
+            km: km,
+            fav: fav,
+            imagePaths: photos,
+            highestBid: highestBid,
+            askPrice: askPrice,
+            highestBidderId: highestBidderId,
+            ownerId: uId,
+            colour: color,
+            title: title,
+            desc: desc,
+            typeId: typeId,
+            startDate: startDate,
+            endDate: endDate,
+            carId: carId,
+            auto: auto,
+            cc: cc);
+            bool p=false;
+         for (var ad in ads) {
+if(adv.adId==ad.adId)
+p=true;
+         }
+         if(!p){
+        ads.add(adv);
+        if(adv.fav>0)
+favoriteAds.add(adv);
+if(adv.ownerId==FirebaseAuth.instance.currentUser!.uid){
+myAds.add(adv);
 }
-
-
-  
 }
+        print("IDS:$carsIDs");
+        print(ads);
+        print("aa");
+        if(favoriteAds.length==favAds.length)
+        isLoadingf=false;
+                if(myAds.length==mAds.length)
+        isLoadingm=false;
+        if (carsIDs.length == ads.length||searchResults.length==ads.length) isLoading = false;
+      });
+      
+      });
 
+    
+  }
+
+
+
+
+//ss
+
+   });
+}
+}
 Future<DocumentSnapshot<Map<String, dynamic>>> getCurrentUser() async {
   final currentUserUid = FirebaseAuth.instance.currentUser!.uid;
   return FirebaseFirestore.instance

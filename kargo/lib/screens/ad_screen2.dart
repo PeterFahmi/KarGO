@@ -144,7 +144,7 @@ class _AdScreenState extends State<AdScreen> {
                                   ' ' +
                                   ad.model.toUpperCase() +
                                   ' ' +
-                                  ad.year,
+                                  ad.year.toString(),
                               style: TextStyle(
                                 color: Colors.black,
                                 fontWeight: FontWeight.bold,
@@ -269,7 +269,7 @@ class _AdScreenState extends State<AdScreen> {
                             Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Text(ad.year,
+                                Text(ad.year.toString(),
                                     style: TextStyle(
                                       color: Colors.black87,
                                       fontSize: 15.0,
@@ -307,7 +307,7 @@ class _AdScreenState extends State<AdScreen> {
                             Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Text(ad.cc + ' CC',
+                                Text(ad.cc.toString() + ' CC',
                                     style: TextStyle(
                                       color: Colors.black87,
                                       fontSize: 15.0,
@@ -345,7 +345,7 @@ class _AdScreenState extends State<AdScreen> {
                             Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Text(ad.km + ' KM',
+                                Text(ad.km.toString() + ' KM',
                                     style: TextStyle(
                                       color: Colors.black87,
                                       fontSize: 15.0,

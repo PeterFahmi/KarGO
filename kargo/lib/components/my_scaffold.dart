@@ -48,10 +48,6 @@ class MyScaffold extends StatelessWidget {
               ),
               actions: [
                 IconButton(
-                    onPressed: () {
-                      Navigator.of(context).pushNamed('/filter');
- },
- icon: Icon(Icons.filter_alt_rounded, color: Colors.black)),IconButton(
  onPressed: () {
  FirebaseAuth.instance.signOut();
                     },
@@ -70,7 +66,7 @@ class MyScaffold extends StatelessWidget {
                 ),
                 IconButton(
                     onPressed: () {
-                      Navigator.of(context).pushNamed('/create_ad');
+                      Navigator.of(context).pushNamed('/create_ad').then((_) =>{Navigator.popAndPushNamed(context, '/')});
                     },
                     icon: Icon(Icons.add, color: Colors.black)),
               ],

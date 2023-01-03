@@ -11,17 +11,17 @@ class Ad {
   String model;
   int askPrice;
   int highestBid;
-  String year;
+  int year;
   String typeId;
   int fav;
   String colour;
-  String km;
+  int km;
   String title;
   String desc;
   String carId;
   Timestamp startDate;
   Timestamp endDate;
-  String cc;
+  int cc;
   int auto;
   Ad(
       {required this.imagePaths,
