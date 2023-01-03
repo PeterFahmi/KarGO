@@ -48,8 +48,8 @@ class MyScaffold extends StatelessWidget {
               ),
               actions: [
                 IconButton(
- onPressed: () {
- FirebaseAuth.instance.signOut();
+                    onPressed: () {
+                      FirebaseAuth.instance.signOut();
                     },
                     icon: Icon(Icons.logout_outlined, color: Colors.black)),
                 GestureDetector(
@@ -64,11 +64,6 @@ class MyScaffold extends StatelessWidget {
                     ),
                   ),
                 ),
-                IconButton(
-                    onPressed: () {
-                      Navigator.of(context).pushNamed('/create_ad').then((_) =>{Navigator.popAndPushNamed(context, '/')});
-                    },
-                    icon: Icon(Icons.add, color: Colors.black)),
               ],
             ),
           )),
