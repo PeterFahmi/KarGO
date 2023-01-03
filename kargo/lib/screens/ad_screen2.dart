@@ -22,12 +22,12 @@ class _AdScreenState extends State<AdScreen> {
   @override
   Widget build(BuildContext context) {
     var ad = ModalRoute.of(context)!.settings.arguments as Ad;
+    var userId = FirebaseAuth.instance.currentUser!.uid;
     if (initialB) {
       bidPrice = ad.highestBid == 0 ? (ad.askPrice + 1) : (ad.highestBid + 1);
       initialB = false;
     }
     void onPressedFav() async {
-      var userId = FirebaseAuth.instance.currentUser!.uid;
       List favAds = List.empty(growable: true);
       await FirebaseFirestore.instance
           .collection('users')
@@ -50,7 +50,6 @@ class _AdScreenState extends State<AdScreen> {
     }
 
     void onPressedUnFav() async {
-      var userId = FirebaseAuth.instance.currentUser!.uid;
       List favAds = List.empty(growable: true);
       await FirebaseFirestore.instance
           .collection('users')
@@ -96,7 +95,6 @@ class _AdScreenState extends State<AdScreen> {
     void submit() async {
       showLoading();
       List bidAds = List.empty(growable: true);
-      var userId = FirebaseAuth.instance.currentUser!.uid;
       var ads = FirebaseFirestore.instance.collection('ads');
       ads
           .doc(ad.adId)
@@ -127,6 +125,8 @@ class _AdScreenState extends State<AdScreen> {
       Navigator.pop(context);
       Navigator.pop(context);
     }
+
+    void onPressedEdit() {}
 
     showBidSheet() {
       showModalBottomSheet<dynamic>(
@@ -230,15 +230,15 @@ class _AdScreenState extends State<AdScreen> {
     }
 
     return new Scaffold(
-      body: Material(
-          child: ListView(children: <Widget>[
-        Container(
-            color: Colors.white,
-            child: Column(children: [
-              Stack(
-                children: [
-                  CarouselBig(imgList: ad.imagePaths),
-                  Positioned(
+        body: Material(
+            child: ListView(children: <Widget>[
+          Container(
+              color: Colors.white,
+              child: Column(children: [
+                Stack(
+                  children: [
+                    CarouselBig(imgList: ad.imagePaths),
+                    Positioned(
                       right: 20,
                       bottom: 0,
                       child: SizedBox.fromSize(
@@ -276,475 +276,510 @@ class _AdScreenState extends State<AdScreen> {
                             ),
                           ),
                         ),
-                      ))
-                ],
-              ),
-              // child 2 of column is the white row
-              Container(
-                  margin: EdgeInsets.all(10),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        children: [
-                          Text(ad.daysRemaining.toString() + ' days remaining',
-                              style: TextStyle(
-                                color: Color.fromRGBO(150, 150, 150, 1),
-                                fontWeight: FontWeight.bold,
-                                fontSize: 13.0,
-                              )),
-                        ],
                       ),
-                      Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                              ad.manufacturer.toUpperCase() +
-                                  ' ' +
-                                  ad.model.toUpperCase() +
-                                  ' ' +
-                                  ad.year,
-                              style: TextStyle(
-                                color: Colors.black,
-                                fontWeight: FontWeight.bold,
-                                fontSize: 18.0,
-                              )),
-                        ],
-                      ),
-                      SizedBox(height: 15),
-                      Row(
+                    ),
+                    ad.ownerId == userId
+                        ? (Positioned(
+                            right: 80,
+                            bottom: 0,
+                            child: SizedBox.fromSize(
+                              size: Size(50, 50), // button width and height
+                              child: ClipOval(
+                                child: Material(
+                                  elevation: 60,
+                                  color: Color.fromRGBO(
+                                      239, 235, 235, 1), // button color
+                                  child: InkWell(
+                                    splashColor: Colors.green, // splash color
+                                    onTap: onPressedEdit, // button pressed
+                                    child: Column(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      children: <Widget>[
+                                        IconButton(
+                                            onPressed: onPressedFav,
+                                            icon: Icon(
+                                              Icons.edit,
+                                              size: 30,
+                                              color: Colors.black,
+                                            ))
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            )))
+                        : (widget)
+                  ],
+                ),
+                // child 2 of column is the white row
+                Container(
+                    margin: EdgeInsets.all(10),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: [
+                            Text(
+                                ad.daysRemaining.toString() + ' days remaining',
+                                style: TextStyle(
+                                  color: Color.fromRGBO(150, 150, 150, 1),
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 13.0,
+                                )),
+                          ],
+                        ),
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                                ad.manufacturer.toUpperCase() +
+                                    ' ' +
+                                    ad.model.toUpperCase() +
+                                    ' ' +
+                                    ad.year,
+                                style: TextStyle(
+                                  color: Colors.black,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 18.0,
+                                )),
+                          ],
+                        ),
+                        SizedBox(height: 15),
+                        Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceAround,
+                            children: [
+                              Column(
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  children: [
+                                    Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.start,
+                                        children: [
+                                          Text('EGP  ' + ad.askPrice.toString(),
+                                              style: TextStyle(
+                                                color: Colors.green,
+                                                fontWeight: FontWeight.bold,
+                                                fontSize: 15.0,
+                                              )),
+                                        ]),
+                                  ]),
+                              Column(
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  children: [
+                                    Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.start,
+                                        children: [
+                                          ad.highestBid == 0
+                                              ? (Text('No Bids Yet',
+                                                  style: TextStyle(
+                                                    color: Colors.green,
+                                                    fontWeight: FontWeight.bold,
+                                                    fontSize: 15.0,
+                                                  )))
+                                              : (Text(
+                                                  'EGP ' +
+                                                      ad.highestBid.toString(),
+                                                  style: TextStyle(
+                                                    color: Colors.green,
+                                                    fontWeight: FontWeight.bold,
+                                                    fontSize: 15.0,
+                                                  ))),
+                                        ]),
+                                  ]),
+                            ]),
+                        Row(
                           mainAxisAlignment: MainAxisAlignment.spaceAround,
                           children: [
                             Column(
-                                crossAxisAlignment: CrossAxisAlignment.center,
-                                children: [
-                                  Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.start,
-                                      children: [
-                                        Text('EGP  ' + ad.askPrice.toString(),
-                                            style: TextStyle(
-                                              color: Colors.green,
-                                              fontWeight: FontWeight.bold,
-                                              fontSize: 15.0,
-                                            )),
-                                      ]),
-                                ]),
-                            Column(
-                                crossAxisAlignment: CrossAxisAlignment.center,
-                                children: [
-                                  Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.start,
-                                      children: [
-                                        ad.highestBid == 0
-                                            ? (Text('No Bids Yet',
-                                                style: TextStyle(
-                                                  color: Colors.green,
-                                                  fontWeight: FontWeight.bold,
-                                                  fontSize: 15.0,
-                                                )))
-                                            : (Text(
-                                                'EGP ' +
-                                                    ad.highestBid.toString(),
-                                                style: TextStyle(
-                                                  color: Colors.green,
-                                                  fontWeight: FontWeight.bold,
-                                                  fontSize: 15.0,
-                                                ))),
-                                      ]),
-                                ]),
-                          ]),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceAround,
-                        children: [
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              Text('Ask Price',
-                                  style: TextStyle(
-                                    color: Color.fromRGBO(150, 150, 150, 1),
-                                    fontSize: 13.0,
-                                    fontWeight: FontWeight.bold,
-                                  )),
-                            ],
-                          ),
-                          Column(
                               crossAxisAlignment: CrossAxisAlignment.center,
                               children: [
-                                Text('Highest Bid',
+                                Text('Ask Price',
                                     style: TextStyle(
                                       color: Color.fromRGBO(150, 150, 150, 1),
                                       fontSize: 13.0,
                                       fontWeight: FontWeight.bold,
                                     )),
-                              ]),
-                        ],
-                      ),
-                      SizedBox(height: 7),
-                      Divider(
-                          thickness: 1,
-                          color: Color.fromRGBO(150, 150, 150, 1)),
-                      SizedBox(height: 20),
-                      Row(
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          children: [
-                            Text('Details',
-                                style: TextStyle(
-                                  color: Colors.black,
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 18.0,
-                                )),
-                          ]),
-                      SizedBox(height: 20),
-                      Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceAround,
-                          children: [
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text('Car Manufacturer',
-                                    style: TextStyle(
-                                      color: Colors.black,
-                                      fontSize: 15.0,
-                                    )),
                               ],
                             ),
                             Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(' ',
-                                    style: TextStyle(
-                                      color: Colors.black,
-                                      fontSize: 15.0,
-                                    )),
-                              ],
-                            ),
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(ad.manufacturer.toUpperCase(),
-                                    style: TextStyle(
-                                      color: Colors.black87,
-                                      fontSize: 15.0,
-                                    )),
-                              ],
-                            )
-                          ]),
-                      Divider(
-                          thickness: 1,
-                          color: Color.fromARGB(255, 195, 193, 193)),
-                      Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceAround,
-                          children: [
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text('Car Model',
-                                    style: TextStyle(
-                                      color: Colors.black,
-                                      fontSize: 15.0,
-                                    )),
-                              ],
-                            ),
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(' ',
-                                    style: TextStyle(
-                                      color: Colors.black,
-                                      fontSize: 15.0,
-                                    )),
-                              ],
-                            ),
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(ad.model.toUpperCase(),
-                                    style: TextStyle(
-                                      color: Colors.black87,
-                                      fontSize: 15.0,
-                                    )),
-                              ],
-                            )
-                          ]),
-                      Divider(
-                          thickness: 1,
-                          color: Color.fromARGB(255, 195, 193, 193)),
-                      Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceAround,
-                          children: [
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text('Year',
-                                    style: TextStyle(
-                                      color: Colors.black,
-                                      fontSize: 15.0,
-                                    )),
-                              ],
-                            ),
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(' ',
-                                    style: TextStyle(
-                                      color: Colors.black,
-                                      fontSize: 15.0,
-                                    )),
-                              ],
-                            ),
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(ad.year,
-                                    style: TextStyle(
-                                      color: Colors.black87,
-                                      fontSize: 15.0,
-                                    )),
-                              ],
-                            )
-                          ]),
-                      Divider(
-                          thickness: 1,
-                          color: Color.fromARGB(255, 195, 193, 193)),
-                      Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceAround,
-                          children: [
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text('Capacity',
-                                    style: TextStyle(
-                                      color: Colors.black,
-                                      fontSize: 15.0,
-                                    )),
-                              ],
-                            ),
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(' ',
-                                    style: TextStyle(
-                                      color: Colors.black,
-                                      fontSize: 15.0,
-                                    )),
-                              ],
-                            ),
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(ad.cc + ' CC',
-                                    style: TextStyle(
-                                      color: Colors.black87,
-                                      fontSize: 15.0,
-                                    )),
-                              ],
-                            )
-                          ]),
-                      Divider(
-                          thickness: 1,
-                          color: Color.fromARGB(255, 195, 193, 193)),
-                      Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceAround,
-                          children: [
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text('KM',
-                                    style: TextStyle(
-                                      color: Colors.black,
-                                      fontSize: 15.0,
-                                    )),
-                              ],
-                            ),
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(' ',
-                                    style: TextStyle(
-                                      color: Colors.black,
-                                      fontSize: 15.0,
-                                    )),
-                              ],
-                            ),
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(ad.km + ' KM',
-                                    style: TextStyle(
-                                      color: Colors.black87,
-                                      fontSize: 15.0,
-                                    )),
-                              ],
-                            )
-                          ]),
-                      Divider(
-                          thickness: 1,
-                          color: Color.fromARGB(255, 195, 193, 193)),
-                      Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceAround,
-                          children: [
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text('Gear',
-                                    style: TextStyle(
-                                      color: Colors.black,
-                                      fontSize: 15.0,
-                                    )),
-                              ],
-                            ),
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(' ',
-                                    style: TextStyle(
-                                      color: Colors.black,
-                                      fontSize: 15.0,
-                                    )),
-                              ],
-                            ),
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(ad.auto == 0 ? 'AUTO' : 'Manual',
-                                    style: TextStyle(
-                                      color: Colors.black87,
-                                      fontSize: 15.0,
-                                    )),
-                              ],
-                            ),
-                          ]),
-                      Divider(
-                          thickness: 1,
-                          color: Color.fromARGB(255, 195, 193, 193)),
-                      Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceAround,
-                          children: [
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text('Color',
-                                    style: TextStyle(
-                                      color: Colors.black,
-                                      fontSize: 15.0,
-                                    )),
-                              ],
-                            ),
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(' ',
-                                    style: TextStyle(
-                                      color: Colors.black,
-                                      fontSize: 15.0,
-                                    )),
-                              ],
-                            ),
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(ad.colour.toUpperCase(),
-                                    style: TextStyle(
-                                      color: Colors.black87,
-                                      fontSize: 15.0,
-                                    )),
-                              ],
-                            )
-                          ]),
-                      Divider(
-                          thickness: 1,
-                          color: Color.fromRGBO(150, 150, 150, 1)),
-                      SizedBox(height: 20),
-                      Row(
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          children: [
-                            Text('Description',
-                                style: TextStyle(
-                                  color: Colors.black,
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 18.0,
-                                )),
-                          ]),
-                      SizedBox(height: 20),
-                      Row(
-                        children: [
-                          Expanded(
-                              child: Text(ad.desc,
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  Text('Highest Bid',
+                                      style: TextStyle(
+                                        color: Color.fromRGBO(150, 150, 150, 1),
+                                        fontSize: 13.0,
+                                        fontWeight: FontWeight.bold,
+                                      )),
+                                ]),
+                          ],
+                        ),
+                        SizedBox(height: 7),
+                        Divider(
+                            thickness: 1,
+                            color: Color.fromRGBO(150, 150, 150, 1)),
+                        SizedBox(height: 20),
+                        Row(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            children: [
+                              Text('Details',
                                   style: TextStyle(
-                                    color: Colors.black87,
-                                    fontSize: 15.0,
-                                  )))
-                        ],
+                                    color: Colors.black,
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 18.0,
+                                  )),
+                            ]),
+                        SizedBox(height: 20),
+                        Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceAround,
+                            children: [
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text('Car Manufacturer',
+                                      style: TextStyle(
+                                        color: Colors.black,
+                                        fontSize: 15.0,
+                                      )),
+                                ],
+                              ),
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(' ',
+                                      style: TextStyle(
+                                        color: Colors.black,
+                                        fontSize: 15.0,
+                                      )),
+                                ],
+                              ),
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(ad.manufacturer.toUpperCase(),
+                                      style: TextStyle(
+                                        color: Colors.black87,
+                                        fontSize: 15.0,
+                                      )),
+                                ],
+                              )
+                            ]),
+                        Divider(
+                            thickness: 1,
+                            color: Color.fromARGB(255, 195, 193, 193)),
+                        Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceAround,
+                            children: [
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text('Car Model',
+                                      style: TextStyle(
+                                        color: Colors.black,
+                                        fontSize: 15.0,
+                                      )),
+                                ],
+                              ),
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(' ',
+                                      style: TextStyle(
+                                        color: Colors.black,
+                                        fontSize: 15.0,
+                                      )),
+                                ],
+                              ),
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(ad.model.toUpperCase(),
+                                      style: TextStyle(
+                                        color: Colors.black87,
+                                        fontSize: 15.0,
+                                      )),
+                                ],
+                              )
+                            ]),
+                        Divider(
+                            thickness: 1,
+                            color: Color.fromARGB(255, 195, 193, 193)),
+                        Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceAround,
+                            children: [
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text('Year',
+                                      style: TextStyle(
+                                        color: Colors.black,
+                                        fontSize: 15.0,
+                                      )),
+                                ],
+                              ),
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(' ',
+                                      style: TextStyle(
+                                        color: Colors.black,
+                                        fontSize: 15.0,
+                                      )),
+                                ],
+                              ),
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(ad.year,
+                                      style: TextStyle(
+                                        color: Colors.black87,
+                                        fontSize: 15.0,
+                                      )),
+                                ],
+                              )
+                            ]),
+                        Divider(
+                            thickness: 1,
+                            color: Color.fromARGB(255, 195, 193, 193)),
+                        Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceAround,
+                            children: [
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text('Capacity',
+                                      style: TextStyle(
+                                        color: Colors.black,
+                                        fontSize: 15.0,
+                                      )),
+                                ],
+                              ),
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(' ',
+                                      style: TextStyle(
+                                        color: Colors.black,
+                                        fontSize: 15.0,
+                                      )),
+                                ],
+                              ),
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(ad.cc + ' CC',
+                                      style: TextStyle(
+                                        color: Colors.black87,
+                                        fontSize: 15.0,
+                                      )),
+                                ],
+                              )
+                            ]),
+                        Divider(
+                            thickness: 1,
+                            color: Color.fromARGB(255, 195, 193, 193)),
+                        Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceAround,
+                            children: [
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text('KM',
+                                      style: TextStyle(
+                                        color: Colors.black,
+                                        fontSize: 15.0,
+                                      )),
+                                ],
+                              ),
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(' ',
+                                      style: TextStyle(
+                                        color: Colors.black,
+                                        fontSize: 15.0,
+                                      )),
+                                ],
+                              ),
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(ad.km + ' KM',
+                                      style: TextStyle(
+                                        color: Colors.black87,
+                                        fontSize: 15.0,
+                                      )),
+                                ],
+                              )
+                            ]),
+                        Divider(
+                            thickness: 1,
+                            color: Color.fromARGB(255, 195, 193, 193)),
+                        Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceAround,
+                            children: [
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text('Gear',
+                                      style: TextStyle(
+                                        color: Colors.black,
+                                        fontSize: 15.0,
+                                      )),
+                                ],
+                              ),
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(' ',
+                                      style: TextStyle(
+                                        color: Colors.black,
+                                        fontSize: 15.0,
+                                      )),
+                                ],
+                              ),
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(ad.auto == 0 ? 'AUTO' : 'Manual',
+                                      style: TextStyle(
+                                        color: Colors.black87,
+                                        fontSize: 15.0,
+                                      )),
+                                ],
+                              ),
+                            ]),
+                        Divider(
+                            thickness: 1,
+                            color: Color.fromARGB(255, 195, 193, 193)),
+                        Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceAround,
+                            children: [
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text('Color',
+                                      style: TextStyle(
+                                        color: Colors.black,
+                                        fontSize: 15.0,
+                                      )),
+                                ],
+                              ),
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(' ',
+                                      style: TextStyle(
+                                        color: Colors.black,
+                                        fontSize: 15.0,
+                                      )),
+                                ],
+                              ),
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(ad.colour.toUpperCase(),
+                                      style: TextStyle(
+                                        color: Colors.black87,
+                                        fontSize: 15.0,
+                                      )),
+                                ],
+                              )
+                            ]),
+                        Divider(
+                            thickness: 1,
+                            color: Color.fromRGBO(150, 150, 150, 1)),
+                        SizedBox(height: 20),
+                        Row(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            children: [
+                              Text('Description',
+                                  style: TextStyle(
+                                    color: Colors.black,
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 18.0,
+                                  )),
+                            ]),
+                        SizedBox(height: 20),
+                        Row(
+                          children: [
+                            Expanded(
+                                child: Text(ad.desc,
+                                    style: TextStyle(
+                                      color: Colors.black87,
+                                      fontSize: 15.0,
+                                    )))
+                          ],
+                        ),
+                        SizedBox(height: 150),
+                      ],
+                    ))
+              ]))
+        ])),
+        floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
+        floatingActionButton: Visibility(
+            visible: ad.ownerId != userId ? (true) : (false),
+            child: Stack(
+              fit: StackFit.expand,
+              children: [
+                Positioned(
+                  bottom: 20,
+                  right: 30,
+                  child: FloatingActionButton(
+                    backgroundColor: Colors.green[400],
+                    heroTag: 'btn1',
+                    elevation: 60,
+                    onPressed: () {},
+                    child: Padding(
+                      padding: const EdgeInsets.all(10.0),
+                      child: const Icon(
+                        Icons.phone,
+                        color: Colors.black,
+                        size: 20,
                       ),
-                      SizedBox(height: 150),
-                    ],
-                  ))
-            ]))
-      ])),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
-      floatingActionButton: Stack(
-        fit: StackFit.expand,
-        children: [
-          Positioned(
-            bottom: 20,
-            right: 30,
-            child: FloatingActionButton(
-              backgroundColor: Colors.green[400],
-              heroTag: 'btn1',
-              elevation: 60,
-              onPressed: () {},
-              child: Padding(
-                padding: const EdgeInsets.all(10.0),
-                child: const Icon(
-                  Icons.phone,
-                  color: Colors.black,
-                  size: 20,
+                    ),
+                  ),
                 ),
-              ),
-            ),
-          ),
-          Positioned(
-            bottom: 20,
-            right: 100,
-            child: FloatingActionButton(
-              backgroundColor: Colors.green[400],
-              heroTag: 'btn2',
-              // Color.fromRGBO(239, 235, 235, 1),
-              elevation: 60,
-              onPressed: () {
-                Navigator.of(context).pushNamed('/Chats');
-              },
-              child: Padding(
-                padding: const EdgeInsets.all(10.0),
-                child: Image(
-                  image: AssetImage("assets/images/chatsNoBck.png"),
-                  width: 30,
+                Positioned(
+                  bottom: 20,
+                  right: 100,
+                  child: FloatingActionButton(
+                    backgroundColor: Colors.green[400],
+                    heroTag: 'btn2',
+                    // Color.fromRGBO(239, 235, 235, 1),
+                    elevation: 60,
+                    onPressed: () {
+                      Navigator.of(context).pushNamed('/Chats');
+                    },
+                    child: Padding(
+                      padding: const EdgeInsets.all(10.0),
+                      child: Image(
+                        image: AssetImage("assets/images/chatsNoBck.png"),
+                        width: 30,
+                      ),
+                    ),
+                  ),
                 ),
-              ),
-            ),
-          ),
-          Positioned(
-            bottom: 20,
-            right: 170,
-            child: FloatingActionButton(
-              backgroundColor: Colors.green[400],
-              elevation: 60,
-              heroTag: 'btn3',
-              onPressed: showBidSheet,
-              child: Padding(
-                padding: const EdgeInsets.all(10.0),
-                child: Image(
-                  image: AssetImage('assets/images/bid.png'),
-                  width: 30,
-                ),
-              ),
-            ),
-          )
-        ],
-      ),
-    );
+                Positioned(
+                  bottom: 20,
+                  right: 170,
+                  child: FloatingActionButton(
+                    backgroundColor: Colors.green[400],
+                    elevation: 60,
+                    heroTag: 'btn3',
+                    onPressed: showBidSheet,
+                    child: Padding(
+                      padding: const EdgeInsets.all(10.0),
+                      child: Image(
+                        image: AssetImage('assets/images/bid.png'),
+                        width: 30,
+                      ),
+                    ),
+                  ),
+                )
+              ],
+            )));
   }
 }
