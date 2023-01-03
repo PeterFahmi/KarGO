@@ -340,7 +340,7 @@ class _CreateAdScreenState extends State<CreateAdScreen> {
       'highest_bid': 0,
       'auto': 0, //NEEDS FIX
       'highest_bidder_id': "",
-      'ownerId': uid,
+
       'end_date':
           DateTime.now().add(Duration(days: int.parse(adDuration.text))),
       'owner_id': uid,

@@ -87,7 +87,6 @@ class _Ad_Card2State extends State<Ad_Card2> {
             Stack(
               children: [
 // child 1 of stack is the recipe image
-
                 CarouselWithDotsPage(imgList: widget.Ad.imagePaths),
 // child 2 of stack is the recipe title
 
@@ -143,7 +142,9 @@ class _Ad_Card2State extends State<Ad_Card2> {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.end,
                           children: [
-                            Text('${widget.Ad.daysRemaining} days remaining',
+                            Text(
+                                widget.Ad.daysRemaining.toString() +
+                                    ' days remaining',
                                 style: TextStyle(
                                   color: Color.fromRGBO(150, 150, 150, 1),
                                   fontWeight: FontWeight.bold,
@@ -173,7 +174,7 @@ class _Ad_Card2State extends State<Ad_Card2> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: [
-                        Text(widget.Ad.auto == 0 ? 'AUTO' : 'Manual',
+                        Text(widget.Ad.auto == 0 ? 'AUTO' : 'MANUAL',
                             style: TextStyle(
                               color: Colors.black,
                               fontSize: 13.0,

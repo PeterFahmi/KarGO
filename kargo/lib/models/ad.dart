@@ -44,6 +44,6 @@ class Ad {
       required this.carId,
       required this.startDate,
       required this.endDate,
-      required this.fav, 
-      required this.daysRemaining});
+      required this.daysRemaining,
+      required this.fav});
 }

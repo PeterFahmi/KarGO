@@ -98,7 +98,6 @@ class _MyAdsScreenState extends State<MyAdsScreen> {
         endDate = data['end_date'];
         startDate = data['start_date'];
         auto = data['auto'];
-        cc = data['cc'];
         highestBid = data['highest_bid'];
         highestBidderId = data['highest_bidder_id'];
         await FirebaseFirestore.instance
@@ -109,6 +108,7 @@ class _MyAdsScreenState extends State<MyAdsScreen> {
           final data = res.data() as Map<String, dynamic>;
           color = data['color'];
           km = data['km'];
+          cc = data['cc'];
           photos = (data['photos'] as List<dynamic>)
               .map((e) => e as String)
               .toList();
@@ -165,3 +165,8 @@ class _MyAdsScreenState extends State<MyAdsScreen> {
     }
   }
 }
+     //   var bidEndDate = (endDate as Timestamp).toDate();
+      //  int daysLeft = bidEndDate.difference(DateTime.now()).inDays;
+
+     //     daysRemaining: daysLeft,
+      
