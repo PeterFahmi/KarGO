@@ -68,6 +68,7 @@ class _MyAdsScreenState extends State<MyAdsScreen> {
     CollectionReference adsCollection =
         FirebaseFirestore.instance.collection('ads');
     for (var adId in adIds) {
+      String docId="";
       var askPrice;
       var title;
       var uId = FirebaseAuth.instance.currentUser!.uid;
@@ -89,6 +90,7 @@ class _MyAdsScreenState extends State<MyAdsScreen> {
       var highestBidderId;
       await adsCollection.doc(adId).get().then((res) async {
         final data = res.data() as Map<String, dynamic>;
+        docId = res.id;
         askPrice = data['ask_price'];
         title = data['title'];
         desc = data['desc'];

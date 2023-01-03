@@ -21,6 +21,64 @@ class DatabaseService {
     // print("userdata = " + snapshot.data().toString());
     return snapshot;
   }
+
+  // This method takes in a user id and returns the corresponding chat document reference
+  // if exists, else returns null.
+  Future<DocumentReference?> checkChatExists(String otherUserId) async {
+    DocumentReference? correspondingChat = null;
+    DocumentReference otherUserRef = userCollection.doc(otherUserId);
+    // print("other user ref=" + otherUserRef.toString());
+    await userCollection.doc(uid).get()
+      .then((snapshot) async {
+        final data = snapshot.data() as Map;
+        final chats = data['chats'] as List;
+        // print("chatsList" + chats.toString());
+        for (var chatRef in chats) { 
+          // print("chatRef="+chatRef.toString());
+          await chatRef.get()
+            .then((DocumentSnapshot snapshot) {
+              final chatData = snapshot.data() as Map;
+              final chatUsers = chatData['users'] as List;
+              // print("chatsList="+chatUsers.toString());
+              if(chatUsers.contains(otherUserRef)){
+                correspondingChat = chatRef;
+                return;
+              }
+            });
+        }
+      });
+    return correspondingChat;
+  }
+  
+  createChat(String otherUserId) async {
+    DocumentReference? exists = await checkChatExists(otherUserId);
+    print("Chat already exists?" + exists.toString());
+    if(exists != null){
+      return;
+    }
+
+    DocumentReference curUserRef = userCollection.doc(uid);
+    DocumentReference otherUserRef = userCollection.doc(otherUserId);
+    await chatCollection.add({
+      "users": [
+        curUserRef, 
+        otherUserRef
+      ],
+      "recentMessage": "",
+      "recentMessageSender": "",
+      "recentMessageTime": Timestamp.now()
+    })
+    .then((DocumentReference chatRef) {
+      print("chat then value = " + chatRef.toString());
+      userCollection.doc(uid).update({
+        "chats": FieldValue.arrayUnion([chatRef as DocumentReference])
+      });
+      userCollection.doc(otherUserId).update({
+        "chats": FieldValue.arrayUnion([chatRef])
+      });
+    });
+  }
+
   getUserChats() async {
     return userCollection.doc(uid).snapshots();
   }
@@ -39,7 +97,6 @@ class DatabaseService {
       "recentMessageSender": messageData['sender'],
       "recentMessageTime": messageData['date']
     });
-    //TODO: add most recent message functionality to code & schema
   }
 
   Map<String, dynamic> reformatMessageJson(Map<String, dynamic> message){
@@ -76,14 +133,15 @@ class DatabaseService {
     return newMsg;
   }
 
-  /**
-    I/flutter ( 7835): image message json = {
-      author: {id: dspuAgOXFcRcXIUwiDYbLBX3jEx2}, 
-      createdAt: 1672403324368, id: 2022-12-30 14:28:44.368769, 
-      type: image, 
-      name: scaled_image_picker2774617387038099389.jpg, 
-      size: 27, 
-      uri: /data/user/0/com.example.kargo/cache/scaled_image_picker2774617387038099389.jpg
-    }
-   */
+  // addAdToFavorites(id) async{
+  //   await userCollection.doc(uid).update({
+  //     "favAds": FieldValue.arrayUnion(id)
+  //   });
+  // }
+
+  // removeAdFromFavorites(id) async{
+  //   await userCollection.doc(uid).update({
+  //     "favAds": FieldValue.arrayRemove(id)
+  //   });
+  // }
 }

@@ -70,12 +70,14 @@ class _ChatListScreenState extends State<ChatListScreen> {
     // TODO: implement initState
     super.initState();
     getCurrentUserData();
-    chatSearchBar.searchCtrl.addListener(() {setState(() {});});
+    chatSearchBar.searchCtrl.addListener(() {
+      setState(() {});
+    });
   }
 
   @override
   Widget build(BuildContext context) {
-    print("search val="+chatSearchBar.searchCtrl.text);
+    // print("search val=" + chatSearchBar.searchCtrl.text);
     return Scaffold(
         appBar: PreferredSize(
             preferredSize: const Size.fromHeight(80.0),
@@ -107,7 +109,18 @@ class _ChatListScreenState extends State<ChatListScreen> {
                         setState(() {
                           isSearchActivated = !isSearchActivated;
                         });
-                      })
+                      }),
+                  // IconButton(
+                  //   onPressed: (() {
+                  //     // TODO: change this dummy id to the real other user id
+                  //     db.createChat("KUdrOdRj4jSH4VGOCxUyTlFfHNU2")
+                  //     .then((_){
+                  //       setState(() {
+                          
+                  //       });
+                  //     });
+                  //   }), 
+                  //   icon: const Icon(Icons.add, color: Colors.black,))
                 ],
               ),
             )),
@@ -118,14 +131,15 @@ class _ChatListScreenState extends State<ChatListScreen> {
               height: 15,
             ),
             Expanded(
-              child: RefreshIndicator(
-                onRefresh: () {
-                  setState(() {});
-                  return Future<void>(() {},);
-                },
-                child: buildChatList(),
-              ) 
-            )
+                child: RefreshIndicator(
+              onRefresh: () {
+                setState(() {});
+                return Future<void>(
+                  () {},
+                );
+              },
+              child: buildChatList(),
+            ))
           ],
         ));
   }
@@ -145,7 +159,7 @@ class _ChatListScreenState extends State<ChatListScreen> {
         }
 
         var chatsList = snapshot.data['chats'];
-        
+
         return ListView.builder(
           itemCount: chatsList.length,
           itemBuilder: (context, index) {
@@ -165,7 +179,8 @@ class _ChatListScreenState extends State<ChatListScreen> {
                 }
                 // print("snapshot.data=" + (snapshot.data as ChatUser).id);
                 ChatUser chatUser = snapshot.data as ChatUser;
-                if(isSearchActivated && !chatUser.name!.contains(chatSearchBar.searchCtrl.text)){
+                if (isSearchActivated &&
+                    !chatUser.name!.contains(chatSearchBar.searchCtrl.text)) {
                   return Container();
                 }
                 return ChatCard(

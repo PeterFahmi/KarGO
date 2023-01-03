@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:kargo/components/CarouselWithDots.dart';
 import 'package:kargo/models/ad.dart';
@@ -8,6 +9,7 @@ import 'package:kargo/screens/home_page.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:carousel_slider/carousel_slider.dart';
+import 'package:kargo/services/database_services.dart';
 
 class Ad_Card2 extends StatefulWidget {
   var Ad;
