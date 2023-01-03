@@ -318,13 +318,6 @@ CollectionReference carRef = FirebaseFirestore.instance.collection('cars');
 List<String> cars3=[];
 int sub1=0;
 int len=subList.length;
-if(cars.isEmpty){
-           Navigator.of(context).push(
-              MaterialPageRoute(
-                builder: (context) => FilteredScreen(values: cars3 ),
-              ),
-            );
-}
 subList.forEach((element) {
 
 Query query = carRef;
@@ -351,13 +344,6 @@ cars2.add(k);
 CollectionReference carRef2 = FirebaseFirestore.instance.collection('ads');
 List<List<String>> subList2 = [];
 int c2=0;
-if(cars2.isEmpty){
-           Navigator.of(context).push(
-              MaterialPageRoute(
-                builder: (context) => FilteredScreen(values: cars3 ),
-              ),
-            );
-}
 for (var i = 0; i < cars2.length; i += 10) {
     subList2.add(
         cars2.sublist(i, i + 10> cars2.length ? cars2.length : i + 10));
@@ -386,8 +372,7 @@ cars3.add(k);
     });
  
     });
-   } print(c2);
-    print( sub1);
+   } 
        if(c2==cars2.length){ sub1=sub1+1;}
         
         if(c2==cars2.length && sub1==len)
@@ -419,3 +404,18 @@ cars3.add(k);
     );
   }
 }
+class Car_ad {
+  final String manufacturer;
+  final String model;
+  final int year;
+final int price;
+  Car_ad({required this.manufacturer,  required this.model,required this.year,required this.price});
+
+  factory Car_ad.fromJson(Map<String, dynamic> json) {
+    return Car_ad(
+      manufacturer: json['manufacturer'],
+      model: json['model'],
+      year: int.parse(json['year']),
+       price: int.parse(json['price']),
+    );
+  }}

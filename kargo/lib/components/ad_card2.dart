@@ -68,13 +68,7 @@ class _Ad_Card2State extends State<Ad_Card2> {
   }
 
   void adDetails(BuildContext context) {
-    Navigator.pushNamed(context, AdScreen.routeName, arguments: widget.Ad).then((_){
-      String? path= ModalRoute.of(context)!.settings.name;
-      Navigator.popAndPushNamed(context, path!);
-   print( "aloooo");
-    print( ModalRoute.of(context)!.settings.name);});
-    
-    
+    Navigator.pushNamed(context, AdScreen.routeName, arguments: widget.Ad);
   }
 
   @override
@@ -166,7 +160,7 @@ class _Ad_Card2State extends State<Ad_Card2> {
                                     '  ' +
                                     widget.Ad.model.toUpperCase() +
                                     '  ' +
-                                    widget.Ad.year.toString() ,
+                                    widget.Ad.year,
                                 style: TextStyle(
                                   color: Colors.black,
                                   fontWeight: FontWeight.bold,
@@ -203,7 +197,7 @@ class _Ad_Card2State extends State<Ad_Card2> {
                             child: VerticalDivider(
                                 thickness: 2,
                                 color: Color.fromRGBO(150, 150, 150, 1))),
-                        Text(widget.Ad.cc.toString() + ' CC',
+                        Text(widget.Ad.cc + ' CC',
                             style: TextStyle(
                               color: Colors.black,
                               fontSize: 13.0,

@@ -11,17 +11,17 @@ class Ad {
   String model;
   int askPrice;
   int highestBid;
-  int year;
+  String year;
   String typeId;
   int fav;
   String colour;
-  int km;
+  String km;
   String title;
   String desc;
   String carId;
   Timestamp startDate;
   Timestamp endDate;
-  int cc;
+  String cc;
   int auto;
   int daysRemaining;
   Ad(

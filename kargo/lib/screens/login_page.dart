@@ -16,7 +16,6 @@ class _LoginScreenState extends State<LoginScreen> {
   List<Country> _countries = [];
  var emailController = TextEditingController();
  var passwordController = TextEditingController();
-  var passwordController1 = TextEditingController();
  var usernameController = TextEditingController();
   var phoneNumberController = TextEditingController();
   final authenticationInstance = FirebaseAuth.instance;
@@ -102,8 +101,6 @@ Widget build(BuildContext context) {
                     if (value!.isEmpty) {
                       return 'Please enter a password';
                     }
-                    if(value.length<6 &&authenticationMode == 1)
-                    return 'Password is too short';
                     return null;
                   },
                 ),
@@ -170,28 +167,6 @@ Widget build(BuildContext context) {
                 child: Text("Forgot Password", style: TextStyle(color: Colors.black)),
               ),
               if (authenticationMode == 1) ...[
-
-
-SizedBox(height: 10),
-              Expanded(
-                child: TextFormField(
-                  decoration: InputDecoration(labelText: "Reenter Password"),
-                  controller: passwordController1,
-                  obscureText: true,
-                  validator: (value) {
-                    if (value!.isEmpty) {
-                      return 'Please reenter the password';
-                    }
-                    if(value!=passwordController.text.trim())
-                     return 'Password does not match';
-                    return null;
-                  },
-                ),
-              ),
-
-
-
-
                 SizedBox(height: 10),
                 Expanded(
                   child: TextFormField(
@@ -281,7 +256,7 @@ SizedBox(height: 10),
  var email = emailController.text.trim();
  var password = passwordController.text.trim();
  var username = usernameController.text.trim();
-  var phoneNumber ="+"+_selectedCountry.code+" "+ phoneNumberController.text.trim();
+  var phoneNumber =""+_selectedCountry.code+ phoneNumberController.text.trim();
  UserCredential authResult;
 try {
  if (authenticationMode == 1) // sign up
@@ -297,7 +272,7 @@ try {
  .set({
  'name': username,
  'email': email,
- 'phoneNumber': phoneNumber,
+ 'phoneNumber': int.parse(phoneNumber),
 
 'photoURL':
     'https://firebasestorage.googleapis.com/v0/b/mobileapp-18909.appspot.com/o/profile_pictures%2Fimage_picker6613525771089450064.jpg?alt=media&token=b89b540f-341f-4f04-81ed-c7d0be17e960',
