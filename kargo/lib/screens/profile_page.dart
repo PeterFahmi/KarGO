@@ -107,15 +107,11 @@ class _ProfilePageState extends State<ProfilePage>
               ? getSettingsList(curUser, context)
               : tabIndex == 1
                   ? Center(
-                      child: Text(
-                        "No Bids",
-                        style: TextStyle(color: Colors.black),
-                      ),
+                      child: getListTile("BMW X3", false),
                     )
                   : Center(
-                      child: Text(
-                        "No Ads",
-                        style: TextStyle(color: Colors.black),
+                      child: Center(
+                        child: getListTile("Mercedes E", true),
                       ),
                     )
           // myExpansionTile(
@@ -272,7 +268,10 @@ Widget getSettingsList(UserModel.User curUser, context) {
         height: 50,
       ),
       TextButton(
-          onPressed: (() {}),
+          onPressed: (() {
+            FirebaseAuth.instance.signOut();
+            Navigator.of(context).pop();
+          }),
           child: Text(
             "Log out",
             style: TextStyle(color: Colors.red),
@@ -281,15 +280,17 @@ Widget getSettingsList(UserModel.User curUser, context) {
   );
 }
 
-Widget getListTile(elem) {
-  File image = File('./assets/images/default.png');
-  return ListTile(
-    title: Text(elem),
-    leading: CircleAvatar(backgroundImage: FileImage(image)),
-    subtitle: Text('subtitle'),
-    trailing: IconButton(
-      icon: Icon(Icons.delete),
-      onPressed: () {},
-    ),
-  );
+Widget getListTile(elem, isAd) {
+  return Dismissible(
+      onDismissed: (res) {},
+      key: Key("0"),
+      child: ListTile(
+        title: Text(elem),
+        leading: CircleAvatar(
+            radius: 30,
+            foregroundImage: NetworkImage(
+                "https://firebasestorage.googleapis.com/v0/b/mobileapp-18909.appspot.com/o/car_images%2Fold%20Mercedes%20e.jpg?alt=media&token=7bf7fc84-298e-4638-8de4-e673c65f440e")),
+        subtitle: Text("Highest bid ${isAd ? 50000 : 900000}"),
+        onTap: () {},
+      ));
 }

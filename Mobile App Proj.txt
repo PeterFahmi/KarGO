@@ -40,11 +40,14 @@ TODOs:
 		5. complete profile screen
 		6. help philo with search
 	Tito:
-		1.chat model  ✔
-		2.Chat screen ✔
-		3.messages UI ✔
-		4. chat backend
+		4. chat backend [merge w/ Farah]
 		5. chat search
+		6. same time zone for chats X
+		7. image picker component ya Peter
+		8. sort chats by recent message time SX
+		9. chat deletion?
+		10. PUSH NOTIFICATION FOR CHAT [sa3ed peter b3d el card] X
+		11. card: 3 hrs ago[fadel ad eh], default pic if no pic, cc-> color, ADD TO favorite XX
 	Philo:
 		1.backend logic ✔
 		2.login screen ui ✔
@@ -65,6 +68,7 @@ TODOs:
 		3. routings		✔
 		4. post ad (form for ad creation) 
 		5. location (add as an attribute) 
+		6. my ad screen needs auto refresh
 
 ----------------------------------------------------------------------------------------------------------
 Screens

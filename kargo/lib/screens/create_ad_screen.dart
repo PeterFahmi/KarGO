@@ -32,6 +32,7 @@ class _CreateAdScreenState extends State<CreateAdScreen> {
 
   final yearCtrl = TextEditingController(),
       kmCtrl = TextEditingController(),
+      ccCtrl = TextEditingController(),
       colorCtrl = TextEditingController(),
       manufacturerDropdownCtrl = TextEditingController(),
       modelDropdownCtrl = TextEditingController(),
@@ -56,6 +57,7 @@ class _CreateAdScreenState extends State<CreateAdScreen> {
         imgsXFile: imgsXfiles,
         yearCtrl: yearCtrl,
         kmCtrl: kmCtrl,
+        ccCtrl: ccCtrl,
         colorCtrl: colorCtrl,
         noImages: noImages,
         onChange: setCanGoNext,
@@ -234,6 +236,7 @@ class _CreateAdScreenState extends State<CreateAdScreen> {
                         ...getAdDetailsEntry('Model', modelDropdownCtrl.text),
                         ...getAdDetailsEntry('Year', yearCtrl.text),
                         ...getAdDetailsEntry('Car Km', kmCtrl.text),
+                        ...getAdDetailsEntry('Car CC', ccCtrl.text),
                         ...getAdDetailsEntry('Car color', colorCtrl.text),
                         ...getAdDetailsEntry('Ask price', askPrice.text),
                         ...getAdDetailsEntry('Ad duration', adDuration.text,
@@ -281,9 +284,9 @@ class _CreateAdScreenState extends State<CreateAdScreen> {
         .where('manufacturer', isEqualTo: manufacturerDropdownCtrl.text)
         .where('model', isEqualTo: modelDropdownCtrl.text)
         .get()
-        .then((value) {
+        .then((value) async {
       if (value.docs.length == 0) {
-        types.add({
+        await types.add({
           'manufacturer': manufacturerDropdownCtrl.text,
           'model': modelDropdownCtrl.text
         }).then((value) {
@@ -310,6 +313,7 @@ class _CreateAdScreenState extends State<CreateAdScreen> {
       'color': colorCtrl.text,
       'km': kmCtrl.text,
       'type_id': typeId,
+      'cc': ccCtrl.text,
       'year': yearCtrl.text,
       'photos': images
     }).then((value) {
@@ -329,10 +333,14 @@ class _CreateAdScreenState extends State<CreateAdScreen> {
     String uid = FirebaseAuth.instance.currentUser!.uid;
     CollectionReference ads = FirebaseFirestore.instance.collection('ads');
     await ads.add({
-      'ask_price': askPrice.text,
+      'ask_price': int.parse(askPrice.text),
       'title': adTitle.text,
       'desc': adDescription.text,
       'car_id': carId,
+      'highest_bid': 0,
+      'auto': 0, //NEEDS FIX
+      'highest_bidder_id': "",
+      'ownerId': uid,
       'end_date':
           DateTime.now().add(Duration(days: int.parse(adDuration.text))),
       'owner_id': uid,

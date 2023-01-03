@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/date_symbol_data_local.dart';
+import 'package:kargo/screens/ad_screen2.dart';
 import 'package:kargo/screens/chat_list_screen.dart';
 import 'package:kargo/screens/chat_screen.dart';
 import 'package:kargo/screens/create_ad_screen.dart';
@@ -11,7 +12,6 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:kargo/screens/loading_screen.dart';
 import 'package:kargo/screens/login_page.dart';
 import './screens/change_password_screen.dart';
-
 
 void main() {
   initializeDateFormatting().then((_) {
@@ -65,7 +65,7 @@ class _MyAppState extends State<MyApp> {
         '/update_password_screen': (ctx) => UpdatePasswordScreen(),
         '/create_ad': (context) => CreateAdScreen(),
         '/filter': (ctx) => FilterPage(),
-        
+        '/ad': (ctx) => AdScreen(),
       },
     );
   }

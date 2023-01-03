@@ -49,6 +49,7 @@ dependencies:
   intl: ^0.17.0
   animated_custom_dropdown: ^1.2.2
   stepper_counter_swipe: ^1.0.2
+  firebase_messaging: ^14.2.1
 
 dev_dependencies:
   flutter_test:

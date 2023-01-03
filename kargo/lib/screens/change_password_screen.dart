@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../components/my_text_field.dart';
 import '../models/user.dart' as UserModel;
+import 'package:firebase_auth/firebase_auth.dart';
 
 class UpdatePasswordScreen extends StatefulWidget {
   const UpdatePasswordScreen({super.key});
@@ -14,6 +15,10 @@ class _UpdatePasswordScreenState extends State<UpdatePasswordScreen> {
   TextEditingController curPasswordController = TextEditingController();
   TextEditingController newPasswordController = TextEditingController();
   TextEditingController confirmPasswordController = TextEditingController();
+  bool wrongPass = false;
+  bool passMismatch = false;
+  bool passChanged = false;
+  bool loading = false;
   void onChanged() {
     if (curPasswordController.text == "" ||
         newPasswordController.text == "" ||
@@ -26,6 +31,31 @@ class _UpdatePasswordScreenState extends State<UpdatePasswordScreen> {
         allFilled = true;
       });
     }
+  }
+
+  void updatePassStatus(wrong, mis, succ, prog) {
+    setState(() {
+      wrongPass = wrong;
+      passMismatch = mis;
+      passChanged = succ;
+      loading = prog;
+    });
+  }
+
+  void updatePassword() async {
+    updatePassStatus(false, false, false, true);
+    User user = FirebaseAuth.instance.currentUser!;
+    AuthCredential credential = EmailAuthProvider.credential(
+        email: user.email!, password: curPasswordController.text);
+    user.reauthenticateWithCredential(credential).then((res) {
+      user.updatePassword(newPasswordController.text).then((res) {
+        updatePassStatus(false, false, true, false);
+      }).catchError((err) {
+        updatePassStatus(false, true, false, false);
+      });
+    }).catchError((err) {
+      updatePassStatus(true, false, false, false);
+    });
   }
 
   @override
@@ -47,7 +77,7 @@ class _UpdatePasswordScreenState extends State<UpdatePasswordScreen> {
           actions: [
             allFilled
                 ? TextButton(
-                    onPressed: () async {},
+                    onPressed: updatePassword,
                     child: Text(
                       "Done",
                       style: TextStyle(color: Colors.black, fontSize: 17),
@@ -68,6 +98,19 @@ class _UpdatePasswordScreenState extends State<UpdatePasswordScreen> {
               obscureText: true,
               onChanged: onChanged,
             ),
+            if (wrongPass)
+              Row(
+                children: [
+                  SizedBox(
+                    width: 15,
+                  ),
+                  Text(
+                    "Password is incorrect",
+                    style: TextStyle(
+                        color: Colors.red, fontWeight: FontWeight.bold),
+                  )
+                ],
+              ),
             MyTextField(
               inset: 10,
               label: "New password",
@@ -82,6 +125,40 @@ class _UpdatePasswordScreenState extends State<UpdatePasswordScreen> {
               onChanged: onChanged,
               obscureText: true,
             ),
+            if (passMismatch)
+              Row(
+                children: [
+                  SizedBox(
+                    width: 15,
+                  ),
+                  Text(
+                    "Password does not match",
+                    style: TextStyle(
+                        color: Colors.red, fontWeight: FontWeight.bold),
+                  )
+                ],
+              ),
+            if (passChanged)
+              Column(
+                children: [
+                  Icon(
+                    Icons.check_circle,
+                    size: 60,
+                    color: Colors.green,
+                  ),
+                  SizedBox(
+                    height: 10,
+                  ),
+                  Text(
+                    "Password has been changed successfully",
+                    style: TextStyle(
+                        color: Colors.green, fontWeight: FontWeight.bold),
+                  )
+                ],
+              ),
+            SizedBox(height: 30),
+            if (loading)
+              Center(child: Container(child: CircularProgressIndicator()))
           ],
         ));
   }
