@@ -66,7 +66,7 @@ class _Ad_Card2State extends State<Ad_Card2> {
   }
 
   void adDetails(BuildContext context) {
-    Navigator.pushNamed(context, AdScreen.routeName, arguments: widget.Ad);
+    Navigator.pushNamed(context, AdScreen.routeName, arguments: widget.Ad).then((value) => setState(() {}));
   }
 
   @override
