@@ -97,7 +97,7 @@ class _ChatListScreenState extends State<ChatListScreen> {
   @override
   Widget build(BuildContext context) {
     checkConnectitivy();
-    print("search val=" + chatSearchBar.searchCtrl.text);
+    // print("search val=" + chatSearchBar.searchCtrl.text);
     return internetConnection
         ? (Scaffold(
             appBar: PreferredSize(
@@ -190,8 +190,7 @@ class _ChatListScreenState extends State<ChatListScreen> {
                 }
                 // print("snapshot.data=" + (snapshot.data as ChatUser).id);
                 ChatUser chatUser = snapshot.data as ChatUser;
-                if (isSearchActivated &&
-                    !chatUser.name!.contains(chatSearchBar.searchCtrl.text)) {
+                if(isSearchActivated && !chatUser.name!.toUpperCase().contains(chatSearchBar.searchCtrl.text.toUpperCase())){
                   return Container();
                 }
                 return ChatCard(
