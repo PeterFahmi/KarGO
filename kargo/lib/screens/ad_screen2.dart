@@ -20,7 +20,8 @@ class AdScreen extends StatefulWidget {
 class _AdScreenState extends State<AdScreen> {
   var bidPrice = 0;
   bool initialB = true;
-  DatabaseService db = DatabaseService(uid: FirebaseAuth.instance.currentUser!.uid);
+  DatabaseService db =
+      DatabaseService(uid: FirebaseAuth.instance.currentUser!.uid);
   @override
   Widget build(BuildContext context) {
     var ad = ModalRoute.of(context)!.settings.arguments as Ad;
@@ -128,7 +129,10 @@ class _AdScreenState extends State<AdScreen> {
       Navigator.pop(context);
     }
 
-    void onPressedEdit() {}
+    void onPressedEdit() {
+      Navigator.of(context)
+          .pushNamed('/create_ad', arguments: {'ad': ad, 'isEditable': true});
+    }
 
     showBidSheet() {
       showModalBottomSheet<dynamic>(
@@ -235,10 +239,8 @@ class _AdScreenState extends State<AdScreen> {
       Map ownerData = (await db.getUserDataFromId(ad.ownerId)) as Map;
       String ownerName = ownerData['name'];
       DocumentReference? chatRef = await db.createChat(ad.ownerId);
-      Navigator.of(context).pushNamed('/ChatDetail', arguments: {
-                'username': ownerName,
-                'chatRef': chatRef
-              });
+      Navigator.of(context).pushNamed('/ChatDetail',
+          arguments: {'username': ownerName, 'chatRef': chatRef});
     }
 
     return new Scaffold(
@@ -290,38 +292,36 @@ class _AdScreenState extends State<AdScreen> {
                         ),
                       ),
                     ),
-                    if(ad.ownerId == userId)
-                         (Positioned(
-                            right: 80,
-                            bottom: 0,
-                            child: SizedBox.fromSize(
-                              size: Size(50, 50), // button width and height
-                              child: ClipOval(
-                                child: Material(
-                                  elevation: 60,
-                                  color: Color.fromRGBO(
-                                      239, 235, 235, 1), // button color
-                                  child: InkWell(
-                                    splashColor: Colors.green, // splash color
-                                    onTap: onPressedEdit, // button pressed
-                                    child: Column(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.center,
-                                      children: <Widget>[
-                                        IconButton(
-                                            onPressed: onPressedFav,
-                                            icon: Icon(
-                                              Icons.edit,
-                                              size: 30,
-                                              color: Colors.black,
-                                            ))
-                                      ],
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            )))
-                       
+                    // if (ad.ownerId == userId)
+                    //   (Positioned(
+                    //       right: 80,
+                    //       bottom: 0,
+                    //       child: SizedBox.fromSize(
+                    //         size: Size(50, 50), // button width and height
+                    //         child: ClipOval(
+                    //           child: Material(
+                    //             elevation: 60,
+                    //             color: Color.fromRGBO(
+                    //                 239, 235, 235, 1), // button color
+                    //             child: InkWell(
+                    //               splashColor: Colors.green, // splash color
+                    //               onTap: onPressedEdit, // button pressed
+                    //               child: Column(
+                    //                 mainAxisAlignment: MainAxisAlignment.center,
+                    //                 children: <Widget>[
+                    //                   IconButton(
+                    //                       onPressed: onPressedFav,
+                    //                       icon: Icon(
+                    //                         Icons.edit,
+                    //                         size: 30,
+                    //                         color: Colors.black,
+                    //                       ))
+                    //                 ],
+                    //               ),
+                    //             ),
+                    //           ),
+                    //         ),
+                    //       )))
                   ],
                 ),
                 // child 2 of column is the white row
@@ -330,32 +330,63 @@ class _AdScreenState extends State<AdScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.end,
-                          children: [
-                            Text(
-                                ad.daysRemaining.toString() + ' days remaining',
-                                style: TextStyle(
-                                  color: Color.fromRGBO(150, 150, 150, 1),
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 13.0,
-                                )),
-                          ],
+                        ad.ownerId == userId
+                            ? SizedBox(
+                                height: 5,
+                              )
+                            : Container(),
+                        ad.ownerId == userId
+                            ? Row(
+                                mainAxisAlignment: MainAxisAlignment.end,
+                                children: [
+                                  OutlinedButton(
+                                      style: ButtonStyle(
+                                        side: MaterialStateProperty.all(
+                                            BorderSide(width: 1)),
+                                        shape: MaterialStateProperty.all(
+                                            RoundedRectangleBorder(
+                                                borderRadius:
+                                                    BorderRadius.circular(
+                                                        30.0))),
+                                      ),
+                                      onPressed: onPressedEdit,
+                                      child: Text(
+                                        "Edit ad",
+                                        style: TextStyle(color: Colors.black),
+                                      ))
+                                ],
+                              )
+                            : Container(),
+                        SizedBox(
+                          height: 20,
                         ),
                         Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisAlignment: MainAxisAlignment.spaceAround,
                           children: [
-                            Text(
-                                ad.manufacturer.toUpperCase() +
-                                    ' ' +
-                                    ad.model.toUpperCase() +
-                                    ' ' +
-                                    ad.year.toString(),
-                                style: TextStyle(
-                                  color: Colors.black,
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 18.0,
-                                )),
+                            Container(
+                              child: Text(
+                                  ad.manufacturer.toUpperCase() +
+                                      ' ' +
+                                      ad.model.toUpperCase() +
+                                      ' ' +
+                                      ad.year.toString(),
+                                  style: TextStyle(
+                                    color: Colors.black,
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 18.0,
+                                  )),
+                            ),
+                            Container(
+                              padding: EdgeInsets.only(top: 3),
+                              child: Text(
+                                  ad.daysRemaining.toString() +
+                                      ' days remaining',
+                                  style: TextStyle(
+                                    color: Color.fromRGBO(90, 90, 90, 1),
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 13.0,
+                                  )),
+                            ),
                           ],
                         ),
                         SizedBox(height: 15),
@@ -725,7 +756,28 @@ class _AdScreenState extends State<AdScreen> {
                                     )))
                           ],
                         ),
-                        SizedBox(height: 150),
+                        SizedBox(height: 50),
+                        Center(
+                          child: MaterialButton(
+                              shape: RoundedRectangleBorder(
+                                  borderRadius:
+                                      BorderRadius.all(Radius.circular(9))),
+                              height: 50,
+                              minWidth: 150,
+                              color: Colors.red[400],
+                              onPressed: () async {
+                                await FirebaseFirestore.instance
+                                    .collection('ads')
+                                    .doc(ad.adId)
+                                    .delete();
+                                Navigator.of(context).popAndPushNamed('/');
+                              },
+                              child: Icon(
+                                Icons.delete,
+                                color: Colors.white,
+                              )),
+                        ),
+                        SizedBox(height: 30),
                       ],
                     ))
               ]))
@@ -792,7 +844,4 @@ class _AdScreenState extends State<AdScreen> {
               ],
             )));
   }
-
-
-  
 }

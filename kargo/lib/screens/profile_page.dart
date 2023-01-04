@@ -99,27 +99,31 @@ class _ProfilePageState extends State<ProfilePage>
           const SizedBox(height: 24),
           buildName(curUser),
           const SizedBox(height: 24),
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: TabBar(
-              onTap: (value) => setState(() {
-                tabIndex = value;
-              }),
-              controller: _tabController,
-              tabs: _tabs,
-              unselectedLabelColor: Colors.black,
-              labelColor: _selectedColor,
-              indicator: BoxDecoration(
-                borderRadius: BorderRadius.circular(80.0),
-                color: _selectedColor.withOpacity(0.2),
-              ),
-            ),
-          ),
-          tabIndex == 2
-              ? getSettingsList(curUser, context)
-              : tabIndex == 1
-                  ? dispayBids(context)
-                  : displayAds(context)
+          !isEditable
+              ? Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: TabBar(
+                    onTap: (value) => setState(() {
+                      tabIndex = value;
+                    }),
+                    controller: _tabController,
+                    tabs: _tabs,
+                    unselectedLabelColor: Colors.black,
+                    labelColor: _selectedColor,
+                    indicator: BoxDecoration(
+                      borderRadius: BorderRadius.circular(80.0),
+                      color: _selectedColor.withOpacity(0.2),
+                    ),
+                  ),
+                )
+              : Container(),
+          !isEditable
+              ? (tabIndex == 2
+                  ? getSettingsList(curUser, context)
+                  : tabIndex == 1
+                      ? dispayBids(context)
+                      : displayAds(context))
+              : Container()
         ],
       ),
     );
@@ -313,7 +317,8 @@ class _ProfilePageState extends State<ProfilePage>
                     color: Colors.black,
                     child: Text("Create a new ad"),
                     onPressed: () {
-                      Navigator.of(context).pushNamed('/create_ad');
+                      Navigator.of(context)
+                          .pushNamed('/create_ad', arguments: {'ad': null});
                     },
                   )
                 ],
