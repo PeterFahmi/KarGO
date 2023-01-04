@@ -40,7 +40,9 @@ class _CreateAdScreenState extends State<CreateAdScreen> {
       adDescription = TextEditingController(),
       askPrice = TextEditingController(),
       adDuration = TextEditingController(),
-      transmissionCtrl = TextEditingController();
+      transmissionCtrl = TextEditingController(),
+      manufacturerOtherCtrl = TextEditingController(),
+      modelOtherCtrl = TextEditingController();
 
   bool noImages = true;
   bool nextEnabled = false;
@@ -52,6 +54,8 @@ class _CreateAdScreenState extends State<CreateAdScreen> {
         manufacturerDropdownCtrl: manufacturerDropdownCtrl,
         modelDropdownCtrl: modelDropdownCtrl,
         transmissionCtrl: transmissionCtrl,
+        manufacturerOtherCtrl: manufacturerOtherCtrl,
+        modelOtherCtrl: modelOtherCtrl,
         onChanged: setCanGoNext,
       ),
       CarPage(
@@ -173,7 +177,13 @@ class _CreateAdScreenState extends State<CreateAdScreen> {
     bool canGoNext = true;
     if (index == 0) {
       canGoNext &= manufacturerDropdownCtrl.text.isNotEmpty;
+      canGoNext &= (manufacturerDropdownCtrl.text == "other...")
+          ? manufacturerOtherCtrl.text.isNotEmpty
+          : true;
       canGoNext &= modelDropdownCtrl.text.isNotEmpty;
+      canGoNext &= (modelDropdownCtrl.text == "other...")
+          ? modelOtherCtrl.text.isNotEmpty
+          : true;
       canGoNext &= transmissionCtrl.text.isNotEmpty;
     } else if (index == 1) {
       canGoNext &= yearCtrl.text.isNotEmpty;
@@ -283,16 +293,22 @@ class _CreateAdScreenState extends State<CreateAdScreen> {
 
   Future<String> createType() async {
     String res = '';
+    String manufacturer = (manufacturerDropdownCtrl.text == "other...")
+        ? manufacturerOtherCtrl.text
+        : manufacturerDropdownCtrl.text;
+    String model = (modelDropdownCtrl.text == "other...")
+        ? modelOtherCtrl.text
+        : modelDropdownCtrl.text;
     CollectionReference types = FirebaseFirestore.instance.collection('types');
     await types
-        .where('manufacturer', isEqualTo: manufacturerDropdownCtrl.text)
-        .where('model', isEqualTo: modelDropdownCtrl.text)
+        .where('manufacturer', isEqualTo: manufacturer)
+        .where('model', isEqualTo: model)
         .get()
         .then((value) async {
       if (value.docs.length == 0) {
         await types.add({
-          'manufacturer': manufacturerDropdownCtrl.text,
-          'model': modelDropdownCtrl.text
+          'manufacturer': manufacturer,
+          'model': model,
         }).then((value) {
           res = value.id;
         }).catchError((err) {
