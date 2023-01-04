@@ -59,9 +59,6 @@ class _MyAdsScreenState extends State<MyAdsScreen> {
   @override
   Widget build(BuildContext context) {
     checkConnectitivy();
-    for (var ad in ads) {
-      //  print(ad.);
-    }
     return internetConnection
         ? (NestedScrollView(
             headerSliverBuilder: (context, innerBoxIsScrolled) {
@@ -103,7 +100,7 @@ class _MyAdsScreenState extends State<MyAdsScreen> {
                       color: Colors.black,
                     ),
                   Expanded(
-                    child: ads.length == 0
+                    child: ads.length == 0 && !isLoading
                         ? EmptyScreen()
                         : ListView(
                             reverse: false,
