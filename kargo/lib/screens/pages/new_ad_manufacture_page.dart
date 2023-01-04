@@ -56,11 +56,13 @@ class _ManufacturePageState extends State<ManufacturePage> {
         height: 55,
         padding: EdgeInsets.all(5),
         width: double.infinity,
-        color: Color.fromRGBO(0, 0, 0, 0.2),
-        child: const Text(
-          'Manufacture details',
-          style: TextStyle(
-              color: Colors.white, fontSize: 40, fontWeight: FontWeight.w700),
+        color: Colors.green[400],
+        child: Center(
+          child: const Text(
+            'Manufacture details',
+            style: TextStyle(
+                color: Colors.white, fontSize: 20, fontWeight: FontWeight.w700),
+          ),
         ),
       ),
       Expanded(

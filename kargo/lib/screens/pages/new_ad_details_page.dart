@@ -33,11 +33,13 @@ class _AdDetailsPageState extends State<AdDetailsPage> {
         height: 55,
         padding: EdgeInsets.all(5),
         width: double.infinity,
-        color: Color.fromRGBO(0, 0, 0, 0.2),
-        child: const Text(
-          'Ad. details',
-          style: TextStyle(
-              color: Colors.white, fontSize: 40, fontWeight: FontWeight.w700),
+        color: Colors.green[400],
+        child: Center(
+          child: const Text(
+            'Ad. details',
+            style: TextStyle(
+                color: Colors.white, fontSize: 20, fontWeight: FontWeight.w700),
+          ),
         ),
       ),
       Expanded(

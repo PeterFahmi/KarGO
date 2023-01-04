@@ -289,8 +289,8 @@ class _CreateAdScreenState extends State<CreateAdScreen> {
                       onPressed: submit,
                       child: Text('Submit'),
                       style: ButtonStyle(
-                        backgroundColor:
-                            MaterialStateProperty.all<Color>(Colors.black),
+                        backgroundColor: MaterialStateProperty.all<Color>(
+                            Colors.green[400]!),
                         foregroundColor:
                             MaterialStateProperty.all<Color>(Colors.white),
                       ),
