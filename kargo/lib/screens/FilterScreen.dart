@@ -17,6 +17,7 @@ import '../components/multiChip.dart';
 import '../models/ad.dart';
 import '../models/user.dart' as UserModel;
 
+import 'empty_screen.dart';
 import 'my_ads_screen.dart';
 
 class FilterScreen extends StatefulWidget {
@@ -52,10 +53,6 @@ class _FilterScreenState extends State<FilterScreen> {
   }
 
   var _selectedTabIndex = 0;
-  List<String> imgUrls = [
-    'https://www.hdcarwallpapers.com/download/abt_sportsline_audi_tt-2880x1800.jpg',
-    'https://th.bing.com/th/id/OIP.zpu1nHs3RCyeRXikR-nFGgHaFj?pid=ImgDet&w=1600&h=1200&rs=1'
-  ];
   List<Ad> ads = [];
   List<Ad> favoriteAds = [];
   List<Ad> myAds = [];
@@ -126,7 +123,7 @@ class _FilterScreenState extends State<FilterScreen> {
             floatHeaderSlivers: true,
             body: (Container(
                 child: ads.length == 0
-                    ? Text("No results found")
+                    ? EmptyScreen()
                     : ListView(
                         reverse: false,
                         children: [
