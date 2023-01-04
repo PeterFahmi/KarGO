@@ -224,6 +224,12 @@ class _CreateAdScreenState extends State<CreateAdScreen> {
   }
 
   void showBottomSheet() {
+    String manufacturer = (manufacturerDropdownCtrl.text == "other...")
+        ? manufacturerOtherCtrl.text
+        : manufacturerDropdownCtrl.text;
+    String model = (modelDropdownCtrl.text == "other...")
+        ? modelOtherCtrl.text
+        : modelDropdownCtrl.text;
     if (!nextEnabled) return;
     showModalBottomSheet<dynamic>(
         backgroundColor: Colors.transparent,
@@ -266,9 +272,8 @@ class _CreateAdScreenState extends State<CreateAdScreen> {
                             style: TextStyle(fontWeight: FontWeight.w600)),
                         UploadedPhotosRow(imgs: imgs, removeCallback: null),
                         ...getAdDetailsEntry('Title', adTitle.text),
-                        ...getAdDetailsEntry(
-                            'Manufacturer', manufacturerDropdownCtrl.text),
-                        ...getAdDetailsEntry('Model', modelDropdownCtrl.text),
+                        ...getAdDetailsEntry('Manufacturer', manufacturer),
+                        ...getAdDetailsEntry('Model', model),
                         ...getAdDetailsEntry('Year', yearCtrl.text),
                         ...getAdDetailsEntry('Car Km', kmCtrl.text),
                         ...getAdDetailsEntry('Car CC', ccCtrl.text),

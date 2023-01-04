@@ -41,9 +41,7 @@ class _ManufacturePageState extends State<ManufacturePage> {
       for (var doc in value.docs) {
         final data = doc.data() as Map<String, dynamic>;
         final manufacturer = data['manufacturer'];
-        final model = data['model'];
         if (!carList.contains(manufacturer)) carList.add(manufacturer);
-        if (!modelList.contains(model)) modelList.add(model);
       }
     }).catchError((err) {
       print("err");
@@ -75,7 +73,7 @@ class _ManufacturePageState extends State<ManufacturePage> {
             controller: widget.manufacturerDropdownCtrl,
             excludeSelected: false,
             onChanged: (_) {
-              widget.onChanged();
+              chooseManufacturer();
             },
           ),
           if (widget.manufacturerDropdownCtrl.text == "other...")
@@ -84,15 +82,19 @@ class _ManufacturePageState extends State<ManufacturePage> {
               labelText: "Specify manufacturer",
               onSubmitted: widget.onChanged,
             ),
-          const Divider(height: 24),
-          const Text('Car model', style: ManufacturePage._subheader),
-          CustomDropdown.search(
-            hintText: 'Select model',
-            items: modelList,
-            controller: widget.modelDropdownCtrl,
-            excludeSelected: false,
-            onChanged: (_) => widget.onChanged(),
-          ),
+          if (widget.manufacturerDropdownCtrl.text.isNotEmpty &&
+              (widget.manufacturerDropdownCtrl.text != 'other...' ||
+                  widget.manufacturerOtherCtrl.text.isNotEmpty)) ...[
+            const Divider(height: 24),
+            const Text('Car model', style: ManufacturePage._subheader),
+            CustomDropdown.search(
+              hintText: 'Select model',
+              items: modelList,
+              controller: widget.modelDropdownCtrl,
+              excludeSelected: false,
+              onChanged: (_) => widget.onChanged(),
+            ),
+          ],
           if (widget.modelDropdownCtrl.text == "other...")
             MyTextField(
               controller: widget.modelOtherCtrl,
@@ -111,5 +113,27 @@ class _ManufacturePageState extends State<ManufacturePage> {
         ]),
       ))
     ]);
+  }
+
+  void chooseManufacturer() {
+    FirebaseFirestore.instance
+        .collection('types')
+        .where('manufacturer', isEqualTo: widget.manufacturerDropdownCtrl.text)
+        .get()
+        .then((value) {
+      setState(() {
+        modelList = ['other...'];
+      });
+      for (var doc in value.docs) {
+        final data = doc.data() as Map<String, dynamic>;
+        final model = data['model'];
+        if (!modelList.contains(model)) {
+          setState(() {
+            modelList.add(model);
+          });
+        }
+      }
+    });
+    widget.onChanged();
   }
 }
