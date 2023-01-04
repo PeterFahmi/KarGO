@@ -2,6 +2,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:connectivity_plus/connectivity_plus.dart';
+import 'package:kargo/components/no_Internet.dart';
 import 'package:kargo/models/ad.dart';
 import 'package:flutter/src/widgets/basic.dart';
 import 'package:flutter/src/widgets/container.dart';
@@ -20,79 +22,99 @@ class MyAdsScreen extends StatefulWidget {
 class _MyAdsScreenState extends State<MyAdsScreen> {
   List<String> adIds = [];
   List<Ad_Card2> ads = [];
+  bool internetConnection = true;
   bool isLoading = true;
+  void checkConnectitivy() async {
+    var result = await Connectivity().checkConnectivity();
+
+    if (result.name == "none") {
+      setState(() {
+        internetConnection = false;
+      });
+    } else {
+      setState(() {
+        internetConnection = true;
+      });
+    }
+  }
+
   @override
   void initState() {
     String uid = FirebaseAuth.instance.currentUser!.uid;
-    FirebaseFirestore.instance.collection('users').doc(uid).get().then((res) {
-      final data = res.data() as Map<String, dynamic>;
-      setState(() {
-        adIds =
-            (data['myAds'] as List<dynamic>).map((e) => e as String).toList();
+    if (internetConnection) {
+      FirebaseFirestore.instance.collection('users').doc(uid).get().then((res) {
+        final data = res.data() as Map<String, dynamic>;
+        setState(() {
+          adIds =
+              (data['myAds'] as List<dynamic>).map((e) => e as String).toList();
+        });
+        loadAds();
       });
-      loadAds();
-    });
+    }
+
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
+    checkConnectitivy();
     for (var ad in ads) {
       //  print(ad.);
     }
-    return NestedScrollView(
-      headerSliverBuilder: (context, innerBoxIsScrolled) {
-        return [
-          SliverAppBar(
-            backgroundColor: Color.fromRGBO(0, 0, 0, 0.2),
-            floating: true,
-            title: Text("Have a new car to offer"),
-            actions: [
-              Padding(
-                padding: EdgeInsets.all(10),
-                child: ElevatedButton(
-                  onPressed: () {
-                    Navigator.of(context)
-                        .pushNamed('/create_ad')
-                        .then((_) => {Navigator.popAndPushNamed(context, '/')});
-                  },
-                  child: Text('Add'),
-                  style: ButtonStyle(
-                    backgroundColor:
-                        MaterialStateProperty.all<Color>(Colors.green),
-                    foregroundColor:
-                        MaterialStateProperty.all<Color>(Colors.white),
-                  ),
-                ),
-              ),
-            ],
-          )
-        ];
-      },
-      floatHeaderSlivers: true,
-      body: Container(
-        child: Column(
-          children: [
-            if (isLoading)
-              LinearProgressIndicator(
-                minHeight: 5,
-                value: ads.length / (adIds.length + 0.1),
-                backgroundColor: Colors.white,
-                color: Colors.black,
-              ),
-            Expanded(
-              child: ListView(
-                reverse: false,
+    return internetConnection
+        ? (NestedScrollView(
+            headerSliverBuilder: (context, innerBoxIsScrolled) {
+              return [
+                SliverAppBar(
+                  backgroundColor: Color.fromRGBO(0, 0, 0, 0.2),
+                  floating: true,
+                  title: Text("Have a new car to offer"),
+                  actions: [
+                    Padding(
+                      padding: EdgeInsets.all(10),
+                      child: ElevatedButton(
+                        onPressed: () {
+                          Navigator.of(context).pushNamed('/create_ad').then(
+                              (_) => {Navigator.popAndPushNamed(context, '/')});
+                        },
+                        child: Text('Add'),
+                        style: ButtonStyle(
+                          backgroundColor:
+                              MaterialStateProperty.all<Color>(Colors.green),
+                          foregroundColor:
+                              MaterialStateProperty.all<Color>(Colors.white),
+                        ),
+                      ),
+                    ),
+                  ],
+                )
+              ];
+            },
+            floatHeaderSlivers: true,
+            body: Container(
+              child: Column(
                 children: [
-                  ...ads,
-                  if (isLoading) ShimmerCard(),
+                  if (isLoading)
+                    LinearProgressIndicator(
+                      minHeight: 5,
+                      value: ads.length / (adIds.length + 0.1),
+                      backgroundColor: Colors.white,
+                      color: Colors.black,
+                    ),
+                  Expanded(
+                    child: ListView(
+                      reverse: false,
+                      children: [
+                        ...ads,
+                        if (isLoading) ShimmerCard(),
+                      ],
+                    ),
+                  ),
                 ],
               ),
             ),
-          ],
-        ),
-      ),
-    );
+          ))
+        : (noInternet());
   }
 
   void loadAds() async {

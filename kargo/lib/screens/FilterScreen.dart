@@ -7,9 +7,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/container.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:kargo/components/ad_card2.dart';
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:kargo/components/my_bottom_navigator.dart';
 import 'package:kargo/components/my_scaffold.dart';
 import 'package:kargo/components/my_shimmering_card.dart';
+import 'package:kargo/components/no_Internet.dart';
 import 'package:kargo/screens/loading_screen.dart';
 import '../components/multiChip.dart';
 import '../models/ad.dart';
@@ -25,12 +27,28 @@ class FilterScreen extends StatefulWidget {
 }
 
 class _FilterScreenState extends State<FilterScreen> {
+  bool internetConnection = true;
+  void checkConnectitivy() async {
+    var result = await Connectivity().checkConnectivity();
+
+    if (result.name == "none") {
+      setState(() {
+        internetConnection = false;
+      });
+    } else {
+      setState(() {
+        internetConnection = true;
+      });
+    }
+  }
+
   @override
   void initState() {
     super.initState();
-
-    getAllAds();
-
+    checkConnectitivy();
+    if (internetConnection) {
+      getAllAds();
+    }
   }
 
   var _selectedTabIndex = 0;
@@ -77,30 +95,34 @@ class _FilterScreenState extends State<FilterScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return isLoading
-        ? ShimmerCard()
-        : Column(children: [
-            TextButton(
-                onPressed: Adfilter,
-                child: Text(
-                  "Filter",
-                )),
-            Expanded(
-                child: ads.length == 0
-                    ? Text("No results found")
-                    : ListView.builder(
-                        itemCount: ads.length,
-                        itemBuilder: (context, index) {
-                          // Get the map object at the current index
-                          Ad item = ads[index];
+    checkConnectitivy();
 
-                          // Turn the map object into a card widget
-                          return Ad_Card2(
-                            Ad: item,
-                          );
-                        },
-                      ))
-          ]);
+    return internetConnection
+        ? (isLoading
+            ? ShimmerCard()
+            : Column(children: [
+                TextButton(
+                    onPressed: Adfilter,
+                    child: Text(
+                      "Filter",
+                    )),
+                Expanded(
+                    child: ads.length == 0
+                        ? Text("No results found")
+                        : ListView.builder(
+                            itemCount: ads.length,
+                            itemBuilder: (context, index) {
+                              // Get the map object at the current index
+                              Ad item = ads[index];
+
+                              // Turn the map object into a card widget
+                              return Ad_Card2(
+                                Ad: item,
+                              );
+                            },
+                          ))
+              ]))
+        : (noInternet());
   }
 
   void updateUserProfile(UserModel.User updatedUser) async {

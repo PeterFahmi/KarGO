@@ -3,12 +3,14 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:kargo/components/CarouselWithDots.dart';
 import 'package:kargo/components/CarouselBig.dart';
+import 'package:kargo/components/no_Internet.dart';
 import 'package:kargo/screens/home_page.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:kargo/models/ad.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:kargo/screens/ad_screen2.dart';
 import 'package:kargo/services/database_services.dart';
+import 'package:connectivity_plus/connectivity_plus.dart';
 
 class AdScreen extends StatefulWidget {
   const AdScreen({super.key});
@@ -20,6 +22,7 @@ class AdScreen extends StatefulWidget {
 }
 
 class _AdScreenState extends State<AdScreen> {
+  bool internetConnection = true;
   var bidPrice = 0;
   List userNames = List.empty(growable: true);
   List userBidPrices = List.empty(growable: true);
@@ -28,8 +31,29 @@ class _AdScreenState extends State<AdScreen> {
   bool initialB = true;
   DatabaseService db =
       DatabaseService(uid: FirebaseAuth.instance.currentUser!.uid);
+  void checkConnectitivy() async {
+    var result = await Connectivity().checkConnectivity();
+
+    if (result.name == "none") {
+      setState(() {
+        internetConnection = false;
+      });
+    } else {
+      setState(() {
+        internetConnection = true;
+      });
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    checkConnectitivy();
+  }
+
   @override
   Widget build(BuildContext context) {
+    checkConnectitivy();
     var ad = ModalRoute.of(context)!.settings.arguments as Ad;
     var userId = FirebaseAuth.instance.currentUser!.uid;
 
@@ -69,7 +93,9 @@ class _AdScreenState extends State<AdScreen> {
     if (initialB) {
       bidPrice = ad.highestBid == 0 ? (ad.askPrice + 1) : (ad.highestBid + 1);
       initialB = false;
-      fetchAllBids();
+      if (internetConnection) {
+        fetchAllBids();
+      }
     }
     void onPressedFav() async {
       List favAds = List.empty(growable: true);
@@ -190,35 +216,6 @@ class _AdScreenState extends State<AdScreen> {
       ad.highestBid = bidPrice;
       Navigator.pushNamed(context, "/ad", arguments: ad); // push it back in
     }
-
-    // void fetchads() async {
-    //   List userBids = List.empty(growable: true);
-
-    //   List userNames = List.empty(growable: true);
-
-    //   // QuerySnapshot userSnap =
-    //   //     await FirebaseFirestore.instance.collection('collection').get();
-    //   // final allData = userSnap.docs.map((doc) => doc.data()).toList();
-    //   // for (dynamic item in allData) {
-
-    //   // }
-
-    //   await FirebaseFirestore.instance
-    //       .collection('users')
-    //       .doc()
-    //       .get()
-    //       .then((res) async {
-    //     final data = res.data() as Map<dynamic, dynamic>;
-    //     userBids = data['myBids'];
-    //     for (Map<String, dynamic> item in userBids) {
-    //       var adIdCurrent = item['ad_id'];
-    //       if (adIdCurrent == ad.adId) {
-    //         userBids.add(item['bid_price']);
-    //         userNames.add(data['id']);
-    //       }
-    //     }
-    //   });
-    // }
 
     void onPressedEdit() {}
 
@@ -485,99 +482,60 @@ class _AdScreenState extends State<AdScreen> {
           });
     }
 
-    return new Scaffold(
-        appBar: PreferredSize(
-            preferredSize: const Size.fromHeight(80.0),
-            child: Container(
-              padding: const EdgeInsets.only(top: 10),
-              child: AppBar(
-                backgroundColor: Colors.white,
-                titleSpacing: 0,
-                leading: IconButton(
-                  icon: const Icon(Icons.arrow_back, color: Colors.black),
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                  },
-                ),
-                actions: <Widget>[
-                  // IconButton(
-                  //   icon: const Icon(Icons.phone, color: Colors.black),
-                  //   tooltip: 'Call',
-                  //   onPressed: () {},
-                  // ),
-                  GestureDetector(
-                    onTap: ad.ownerId == userId
-                        ? ((() => Navigator.of(context).pushNamed('/Chats')))
-                        : (handleOnPressChat),
-                    child: Padding(
-                      padding: const EdgeInsets.all(10.0),
-                      child: Image(
-                        image: AssetImage('assets/images/chats.png'),
-                        width: 30,
-                      ),
+    return internetConnection
+        ? (new Scaffold(
+            appBar: PreferredSize(
+                preferredSize: const Size.fromHeight(80.0),
+                child: Container(
+                  padding: const EdgeInsets.only(top: 10),
+                  child: AppBar(
+                    backgroundColor: Colors.white,
+                    titleSpacing: 0,
+                    leading: IconButton(
+                      icon: const Icon(Icons.arrow_back, color: Colors.black),
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                      },
                     ),
-                  ),
-                ], //<Widget>[]
-                title: Text(
-                  ad.title.toUpperCase(),
-                  style: const TextStyle(
-                      fontSize: 28,
-                      color: Colors.black,
-                      fontWeight: FontWeight.bold),
-                ),
-              ),
-            )),
-        body: Material(
-            child: ListView(children: <Widget>[
-          Container(
-              color: Colors.white,
-              child: Column(children: [
-                Stack(
-                  children: [
-                    CarouselBig(imgList: ad.imagePaths),
-                    Positioned(
-                      right: 20,
-                      bottom: 0,
-                      child: SizedBox.fromSize(
-                        size: Size(50, 50), // button width and height
-                        child: ClipOval(
-                          child: Material(
-                            elevation: 60,
-                            color: Color.fromRGBO(
-                                239, 235, 235, 1), // button color
-                            child: InkWell(
-                              splashColor: Colors.green, // splash color
-                              onTap: ad.fav == 0
-                                  ? onPressedFav
-                                  : onPressedUnFav, // button pressed
-                              child: Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: <Widget>[
-                                  ad.fav == 0
-                                      ? IconButton(
-                                          onPressed: onPressedFav,
-                                          icon: Icon(
-                                            Icons.favorite_border,
-                                            size: 30,
-                                            color: Colors.black,
-                                          ))
-                                      : IconButton(
-                                          onPressed: onPressedUnFav,
-                                          icon: Icon(
-                                            Icons.favorite,
-                                            size: 30,
-                                            color: Colors.black,
-                                          ))
-                                ],
-                              ),
-                            ),
+                    actions: <Widget>[
+                      // IconButton(
+                      //   icon: const Icon(Icons.phone, color: Colors.black),
+                      //   tooltip: 'Call',
+                      //   onPressed: () {},
+                      // ),
+                      GestureDetector(
+                        onTap: ad.ownerId == userId
+                            ? ((() =>
+                                Navigator.of(context).pushNamed('/Chats')))
+                            : (handleOnPressChat),
+                        child: Padding(
+                          padding: const EdgeInsets.all(10.0),
+                          child: Image(
+                            image: AssetImage('assets/images/chats.png'),
+                            width: 30,
                           ),
                         ),
                       ),
+                    ], //<Widget>[]
+                    title: Text(
+                      ad.title.toUpperCase(),
+                      style: const TextStyle(
+                          fontSize: 28,
+                          color: Colors.black,
+                          fontWeight: FontWeight.bold),
                     ),
-                    if (ad.ownerId == userId)
-                      (Positioned(
-                          right: 80,
+                  ),
+                )),
+            body: Material(
+                child: ListView(children: <Widget>[
+              Container(
+                  color: Colors.white,
+                  child: Column(children: [
+                    Stack(
+                      children: [
+                        CarouselBig(imgList: ad.imagePaths),
+                        Positioned(
+                          right: 20,
                           bottom: 0,
                           child: SizedBox.fromSize(
                             size: Size(50, 50), // button width and height
@@ -588,475 +546,545 @@ class _AdScreenState extends State<AdScreen> {
                                     239, 235, 235, 1), // button color
                                 child: InkWell(
                                   splashColor: Colors.green, // splash color
-                                  onTap: onPressedEdit, // button pressed
+                                  onTap: ad.fav == 0
+                                      ? onPressedFav
+                                      : onPressedUnFav, // button pressed
                                   child: Column(
                                     mainAxisAlignment: MainAxisAlignment.center,
                                     children: <Widget>[
-                                      IconButton(
-                                          onPressed: onPressedEdit,
-                                          icon: Icon(
-                                            Icons.edit,
-                                            size: 30,
-                                            color: Colors.black,
-                                          ))
+                                      ad.fav == 0
+                                          ? IconButton(
+                                              onPressed: onPressedFav,
+                                              icon: Icon(
+                                                Icons.favorite_border,
+                                                size: 30,
+                                                color: Colors.black,
+                                              ))
+                                          : IconButton(
+                                              onPressed: onPressedUnFav,
+                                              icon: Icon(
+                                                Icons.favorite,
+                                                size: 30,
+                                                color: Colors.black,
+                                              ))
                                     ],
                                   ),
                                 ),
                               ),
                             ),
-                          )))
-                  ],
-                ),
-                // child 2 of column is the white row
-                Container(
-                    margin: EdgeInsets.all(10),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.end,
-                          children: [
-                            Text(
-                                ad.daysRemaining.toString() + ' days remaining',
-                                style: TextStyle(
-                                  color: Color.fromRGBO(150, 150, 150, 1),
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 13.0,
-                                )),
-                          ],
+                          ),
                         ),
-                        Row(
+                        if (ad.ownerId == userId)
+                          (Positioned(
+                              right: 80,
+                              bottom: 0,
+                              child: SizedBox.fromSize(
+                                size: Size(50, 50), // button width and height
+                                child: ClipOval(
+                                  child: Material(
+                                    elevation: 60,
+                                    color: Color.fromRGBO(
+                                        239, 235, 235, 1), // button color
+                                    child: InkWell(
+                                      splashColor: Colors.green, // splash color
+                                      onTap: onPressedEdit, // button pressed
+                                      child: Column(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
+                                        children: <Widget>[
+                                          IconButton(
+                                              onPressed: onPressedEdit,
+                                              icon: Icon(
+                                                Icons.edit,
+                                                size: 30,
+                                                color: Colors.black,
+                                              ))
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              )))
+                      ],
+                    ),
+                    // child 2 of column is the white row
+                    Container(
+                        margin: EdgeInsets.all(10),
+                        child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(
-                                ad.manufacturer.toUpperCase() +
-                                    ' ' +
-                                    ad.model.toUpperCase() +
-                                    ' ' +
-                                    ad.year.toString(),
-                                style: TextStyle(
-                                  color: Colors.black,
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 18.0,
-                                )),
-                          ],
-                        ),
-                        SizedBox(height: 15),
-                        Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceAround,
-                            children: [
-                              Column(
-                                  crossAxisAlignment: CrossAxisAlignment.center,
-                                  children: [
-                                    Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.start,
-                                        children: [
-                                          Text('EGP  ' + ad.askPrice.toString(),
-                                              style: TextStyle(
-                                                color: Colors.green,
-                                                fontWeight: FontWeight.bold,
-                                                fontSize: 17.0,
-                                              )),
-                                        ]),
-                                  ]),
-                              Column(
-                                  crossAxisAlignment: CrossAxisAlignment.center,
-                                  children: [
-                                    Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.start,
-                                        children: [
-                                          ad.highestBid == 0
-                                              ? (Text('No Bids Yet',
-                                                  style: TextStyle(
-                                                    color: Colors.green,
-                                                    fontWeight: FontWeight.bold,
-                                                    fontSize: 17.0,
-                                                  )))
-                                              : (Text(
-                                                  'EGP ' +
-                                                      ad.highestBid.toString(),
-                                                  style: TextStyle(
-                                                    color: Colors.green,
-                                                    fontWeight: FontWeight.bold,
-                                                    fontSize: 17.0,
-                                                  ))),
-                                        ]),
-                                  ]),
-                            ]),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceAround,
-                          children: [
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.center,
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.end,
                               children: [
-                                Text('Ask Price',
+                                Text(
+                                    ad.daysRemaining.toString() +
+                                        ' days remaining',
                                     style: TextStyle(
                                       color: Color.fromRGBO(150, 150, 150, 1),
-                                      fontSize: 13.0,
                                       fontWeight: FontWeight.bold,
+                                      fontSize: 13.0,
                                     )),
                               ],
                             ),
-                            Column(
-                                crossAxisAlignment: CrossAxisAlignment.center,
+                            Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                    ad.manufacturer.toUpperCase() +
+                                        ' ' +
+                                        ad.model.toUpperCase() +
+                                        ' ' +
+                                        ad.year.toString(),
+                                    style: TextStyle(
+                                      color: Colors.black,
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 18.0,
+                                    )),
+                              ],
+                            ),
+                            SizedBox(height: 15),
+                            Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceAround,
                                 children: [
-                                  Text('Highest Bid',
+                                  Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.center,
+                                      children: [
+                                        Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.start,
+                                            children: [
+                                              Text(
+                                                  'EGP  ' +
+                                                      ad.askPrice.toString(),
+                                                  style: TextStyle(
+                                                    color: Colors.green,
+                                                    fontWeight: FontWeight.bold,
+                                                    fontSize: 17.0,
+                                                  )),
+                                            ]),
+                                      ]),
+                                  Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.center,
+                                      children: [
+                                        Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.start,
+                                            children: [
+                                              ad.highestBid == 0
+                                                  ? (Text('No Bids Yet',
+                                                      style: TextStyle(
+                                                        color: Colors.green,
+                                                        fontWeight:
+                                                            FontWeight.bold,
+                                                        fontSize: 17.0,
+                                                      )))
+                                                  : (Text(
+                                                      'EGP ' +
+                                                          ad.highestBid
+                                                              .toString(),
+                                                      style: TextStyle(
+                                                        color: Colors.green,
+                                                        fontWeight:
+                                                            FontWeight.bold,
+                                                        fontSize: 17.0,
+                                                      ))),
+                                            ]),
+                                      ]),
+                                ]),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceAround,
+                              children: [
+                                Column(
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  children: [
+                                    Text('Ask Price',
+                                        style: TextStyle(
+                                          color:
+                                              Color.fromRGBO(150, 150, 150, 1),
+                                          fontSize: 13.0,
+                                          fontWeight: FontWeight.bold,
+                                        )),
+                                  ],
+                                ),
+                                Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.center,
+                                    children: [
+                                      Text('Highest Bid',
+                                          style: TextStyle(
+                                            color: Color.fromRGBO(
+                                                150, 150, 150, 1),
+                                            fontSize: 13.0,
+                                            fontWeight: FontWeight.bold,
+                                          )),
+                                    ]),
+                              ],
+                            ),
+                            SizedBox(height: 7),
+                            Divider(
+                                thickness: 1,
+                                color: Color.fromRGBO(150, 150, 150, 1)),
+                            SizedBox(height: 20),
+                            Row(
+                                mainAxisAlignment: MainAxisAlignment.start,
+                                children: [
+                                  Text('Details',
                                       style: TextStyle(
-                                        color: Color.fromRGBO(150, 150, 150, 1),
-                                        fontSize: 13.0,
+                                        color: Colors.black,
                                         fontWeight: FontWeight.bold,
+                                        fontSize: 18.0,
                                       )),
                                 ]),
-                          ],
-                        ),
-                        SizedBox(height: 7),
-                        Divider(
-                            thickness: 1,
-                            color: Color.fromRGBO(150, 150, 150, 1)),
-                        SizedBox(height: 20),
-                        Row(
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            children: [
-                              Text('Details',
-                                  style: TextStyle(
-                                    color: Colors.black,
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 18.0,
-                                  )),
-                            ]),
-                        SizedBox(height: 25),
-                        Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
+                            SizedBox(height: 25),
+                            Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
                                 children: [
-                                  Text('Car Manufacturer',
-                                      style: TextStyle(
-                                        color: Colors.black,
-                                        fontSize: 15.0,
-                                      )),
-                                ],
-                              ),
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.end,
-                                children: [
-                                  Text(ad.manufacturer.toUpperCase(),
-                                      style: TextStyle(
-                                        color: Colors.black87,
-                                        fontSize: 15.0,
-                                        fontWeight: FontWeight.w600,
-                                      )),
-                                ],
-                              )
-                            ]),
-                        Divider(
-                            thickness: 1,
-                            color: Color.fromARGB(255, 195, 193, 193)),
-                        Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text('Car Model',
-                                      style: TextStyle(
-                                        color: Colors.black,
-                                        fontSize: 15.0,
-                                      )),
-                                ],
-                              ),
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.end,
-                                children: [
-                                  Text(ad.model.toUpperCase(),
-                                      style: TextStyle(
-                                        color: Colors.black87,
-                                        fontWeight: FontWeight.w600,
-                                        fontSize: 15.0,
-                                      )),
-                                ],
-                              )
-                            ]),
-                        Divider(
-                            thickness: 1,
-                            color: Color.fromARGB(255, 195, 193, 193)),
-                        Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text('Year',
-                                      style: TextStyle(
-                                        color: Colors.black,
-                                        fontSize: 15.0,
-                                      )),
-                                ],
-                              ),
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.end,
-                                children: [
-                                  Text(ad.year.toString(),
-                                      style: TextStyle(
-                                        color: Colors.black87,
-                                        fontWeight: FontWeight.w600,
-                                        fontSize: 15.0,
-                                      )),
-                                ],
-                              )
-                            ]),
-                        Divider(
-                            thickness: 1,
-                            color: Color.fromARGB(255, 195, 193, 193)),
-                        Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text('Capacity',
-                                      style: TextStyle(
-                                        color: Colors.black,
-                                        fontSize: 15.0,
-                                      )),
-                                ],
-                              ),
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.end,
-                                children: [
-                                  Text(ad.cc.toString() + ' CC',
-                                      style: TextStyle(
-                                        color: Colors.black87,
-                                        fontWeight: FontWeight.w600,
-                                        fontSize: 15.0,
-                                      )),
-                                ],
-                              )
-                            ]),
-                        Divider(
-                            thickness: 1,
-                            color: Color.fromARGB(255, 195, 193, 193)),
-                        Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text('KM',
-                                      style: TextStyle(
-                                        color: Colors.black,
-                                        fontSize: 15.0,
-                                      )),
-                                ],
-                              ),
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.end,
-                                children: [
-                                  Text(ad.km.toString() + ' KM',
-                                      style: TextStyle(
-                                        color: Colors.black87,
-                                        fontWeight: FontWeight.w600,
-                                        fontSize: 15.0,
-                                      )),
-                                ],
-                              )
-                            ]),
-                        Divider(
-                            thickness: 1,
-                            color: Color.fromARGB(255, 195, 193, 193)),
-                        Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text('Gear',
-                                      style: TextStyle(
-                                        color: Colors.black,
-                                        fontSize: 15.0,
-                                      )),
-                                ],
-                              ),
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.end,
-                                children: [
-                                  Text(ad.auto == 0 ? 'AUTO' : 'Manual',
-                                      style: TextStyle(
-                                        color: Colors.black87,
-                                        fontSize: 15.0,
-                                        fontWeight: FontWeight.w600,
-                                      )),
-                                ],
-                              ),
-                            ]),
-                        Divider(
-                            thickness: 1,
-                            color: Color.fromARGB(255, 195, 193, 193)),
-                        Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text('Color',
-                                      style: TextStyle(
-                                        color: Colors.black,
-                                        fontSize: 15.0,
-                                      )),
-                                ],
-                              ),
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.end,
-                                children: [
-                                  Text(ad.colour.toUpperCase(),
-                                      style: TextStyle(
-                                        color: Colors.black87,
-                                        fontWeight: FontWeight.w600,
-                                        fontSize: 15.0,
-                                      )),
-                                ],
-                              )
-                            ]),
-                        Divider(
-                            thickness: 1,
-                            color: Color.fromRGBO(150, 150, 150, 1)),
-                        SizedBox(height: 20),
-                        Row(
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            children: [
-                              Text('Description',
-                                  style: TextStyle(
-                                    color: Colors.black,
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 18.0,
-                                  )),
-                            ]),
-                        SizedBox(height: 20),
-                        Row(
-                          children: [
-                            Expanded(
-                                child: Text(ad.desc,
-                                    style: TextStyle(
-                                      color: Colors.black87,
-                                      fontSize: 15.0,
-                                    )))
-                          ],
-                        ),
-                        SizedBox(height: 150),
-                      ],
-                    ))
-              ]))
-        ])),
-        floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
-        floatingActionButton: Visibility(
-            // visible: ad.ownerId != userId ? (true) : (false),
-            child: ad.ownerId != userId
-                ? (Stack(
-                    fit: StackFit.expand,
-                    children: [
-                      // Positioned(
-                      //   bottom: 20,
-                      //   right: 30,
-                      //   child: FloatingActionButton(
-                      //     backgroundColor: Colors.green[400],
-                      //     heroTag: 'btn1',
-                      //     elevation: 60,
-                      //     onPressed: fetchAllBids,
-                      //     child: Padding(
-                      //       padding: const EdgeInsets.all(10.0),
-                      //       child: const Icon(
-                      //         Icons.phone,
-                      //         color: Colors.black,
-                      //         size: 20,
-                      //       ),
-                      //     ),
-                      //   ),
-                      // ),
-                      // Positioned(
-                      //   bottom: 20,
-                      //   right: 100,
-                      //   child: FloatingActionButton(
-                      //     backgroundColor: Colors.green[400],
-                      //     heroTag: 'btn2',
-                      //     // Color.fromRGBO(239, 235, 235, 1),
-                      //     elevation: 60,
-                      //     onPressed: handleOnPressChat,
-                      //     child: Padding(
-                      //       padding: const EdgeInsets.all(10.0),
-                      //       child: Image(
-                      //         image: AssetImage("assets/images/chatsNoBck.png"),
-                      //         width: 30,
-                      //       ),
-                      //     ),
-                      //   ),
-                      // ),
-
-                      Positioned(
-                        bottom: 20,
-                        right: 100,
-                        child: FloatingActionButton.extended(
-                          backgroundColor: Colors.green[400],
-                          elevation: 60,
-                          heroTag: 'btn3',
-                          onPressed: showBidSheet,
-                          label: Padding(
-                              padding: const EdgeInsets.all(10.0),
-                              child: Row(
-                                children: [
-                                  SizedBox(width: 10),
-                                  Image(
-                                    image:
-                                        AssetImage('assets/images/auction.png'),
-                                    width: 30,
+                                  Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text('Car Manufacturer',
+                                          style: TextStyle(
+                                            color: Colors.black,
+                                            fontSize: 15.0,
+                                          )),
+                                    ],
                                   ),
-                                  SizedBox(width: 10),
-                                  Text('Place Bid',
+                                  Column(
+                                    crossAxisAlignment: CrossAxisAlignment.end,
+                                    children: [
+                                      Text(ad.manufacturer.toUpperCase(),
+                                          style: TextStyle(
+                                            color: Colors.black87,
+                                            fontSize: 15.0,
+                                            fontWeight: FontWeight.w600,
+                                          )),
+                                    ],
+                                  )
+                                ]),
+                            Divider(
+                                thickness: 1,
+                                color: Color.fromARGB(255, 195, 193, 193)),
+                            Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text('Car Model',
+                                          style: TextStyle(
+                                            color: Colors.black,
+                                            fontSize: 15.0,
+                                          )),
+                                    ],
+                                  ),
+                                  Column(
+                                    crossAxisAlignment: CrossAxisAlignment.end,
+                                    children: [
+                                      Text(ad.model.toUpperCase(),
+                                          style: TextStyle(
+                                            color: Colors.black87,
+                                            fontWeight: FontWeight.w600,
+                                            fontSize: 15.0,
+                                          )),
+                                    ],
+                                  )
+                                ]),
+                            Divider(
+                                thickness: 1,
+                                color: Color.fromARGB(255, 195, 193, 193)),
+                            Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text('Year',
+                                          style: TextStyle(
+                                            color: Colors.black,
+                                            fontSize: 15.0,
+                                          )),
+                                    ],
+                                  ),
+                                  Column(
+                                    crossAxisAlignment: CrossAxisAlignment.end,
+                                    children: [
+                                      Text(ad.year.toString(),
+                                          style: TextStyle(
+                                            color: Colors.black87,
+                                            fontWeight: FontWeight.w600,
+                                            fontSize: 15.0,
+                                          )),
+                                    ],
+                                  )
+                                ]),
+                            Divider(
+                                thickness: 1,
+                                color: Color.fromARGB(255, 195, 193, 193)),
+                            Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text('Capacity',
+                                          style: TextStyle(
+                                            color: Colors.black,
+                                            fontSize: 15.0,
+                                          )),
+                                    ],
+                                  ),
+                                  Column(
+                                    crossAxisAlignment: CrossAxisAlignment.end,
+                                    children: [
+                                      Text(ad.cc.toString() + ' CC',
+                                          style: TextStyle(
+                                            color: Colors.black87,
+                                            fontWeight: FontWeight.w600,
+                                            fontSize: 15.0,
+                                          )),
+                                    ],
+                                  )
+                                ]),
+                            Divider(
+                                thickness: 1,
+                                color: Color.fromARGB(255, 195, 193, 193)),
+                            Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text('KM',
+                                          style: TextStyle(
+                                            color: Colors.black,
+                                            fontSize: 15.0,
+                                          )),
+                                    ],
+                                  ),
+                                  Column(
+                                    crossAxisAlignment: CrossAxisAlignment.end,
+                                    children: [
+                                      Text(ad.km.toString() + ' KM',
+                                          style: TextStyle(
+                                            color: Colors.black87,
+                                            fontWeight: FontWeight.w600,
+                                            fontSize: 15.0,
+                                          )),
+                                    ],
+                                  )
+                                ]),
+                            Divider(
+                                thickness: 1,
+                                color: Color.fromARGB(255, 195, 193, 193)),
+                            Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text('Gear',
+                                          style: TextStyle(
+                                            color: Colors.black,
+                                            fontSize: 15.0,
+                                          )),
+                                    ],
+                                  ),
+                                  Column(
+                                    crossAxisAlignment: CrossAxisAlignment.end,
+                                    children: [
+                                      Text(ad.auto == 0 ? 'AUTO' : 'Manual',
+                                          style: TextStyle(
+                                            color: Colors.black87,
+                                            fontSize: 15.0,
+                                            fontWeight: FontWeight.w600,
+                                          )),
+                                    ],
+                                  ),
+                                ]),
+                            Divider(
+                                thickness: 1,
+                                color: Color.fromARGB(255, 195, 193, 193)),
+                            Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text('Color',
+                                          style: TextStyle(
+                                            color: Colors.black,
+                                            fontSize: 15.0,
+                                          )),
+                                    ],
+                                  ),
+                                  Column(
+                                    crossAxisAlignment: CrossAxisAlignment.end,
+                                    children: [
+                                      Text(ad.colour.toUpperCase(),
+                                          style: TextStyle(
+                                            color: Colors.black87,
+                                            fontWeight: FontWeight.w600,
+                                            fontSize: 15.0,
+                                          )),
+                                    ],
+                                  )
+                                ]),
+                            Divider(
+                                thickness: 1,
+                                color: Color.fromRGBO(150, 150, 150, 1)),
+                            SizedBox(height: 20),
+                            Row(
+                                mainAxisAlignment: MainAxisAlignment.start,
+                                children: [
+                                  Text('Description',
                                       style: TextStyle(
-                                        color: Colors.white,
-                                        fontWeight: FontWeight.w700,
-                                        fontSize: 15.0,
+                                        color: Colors.black,
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 18.0,
                                       )),
-                                  SizedBox(width: 10),
-                                ],
-                              )),
-                        ),
-                      )
-                    ],
-                  ))
-                : (Stack(fit: StackFit.expand, children: [
-                    Positioned(
-                      bottom: 20,
-                      right: 100,
-                      child: FloatingActionButton.extended(
-                        backgroundColor: Colors.green[400],
-                        elevation: 60,
-                        heroTag: 'btn3',
-                        onPressed: viewBidsSheet,
-                        label: Padding(
-                            padding: const EdgeInsets.all(10.0),
-                            child: Row(
+                                ]),
+                            SizedBox(height: 20),
+                            Row(
                               children: [
-                                SizedBox(width: 10),
-                                Image(
-                                  image:
-                                      AssetImage('assets/images/auction.png'),
-                                  width: 30,
-                                ),
-                                SizedBox(width: 10),
-                                Text('View Bids',
-                                    style: TextStyle(
-                                      color: Colors.white,
-                                      fontWeight: FontWeight.w700,
-                                      fontSize: 15.0,
-                                    )),
-                                SizedBox(width: 10),
+                                Expanded(
+                                    child: Text(ad.desc,
+                                        style: TextStyle(
+                                          color: Colors.black87,
+                                          fontSize: 15.0,
+                                        )))
                               ],
-                            )),
-                      ),
-                    )
-                  ]))));
+                            ),
+                            SizedBox(height: 150),
+                          ],
+                        ))
+                  ]))
+            ])),
+            floatingActionButtonLocation:
+                FloatingActionButtonLocation.centerFloat,
+            floatingActionButton: Visibility(
+                // visible: ad.ownerId != userId ? (true) : (false),
+                child: ad.ownerId != userId
+                    ? (Stack(
+                        fit: StackFit.expand,
+                        children: [
+                          // Positioned(
+                          //   bottom: 20,
+                          //   right: 30,
+                          //   child: FloatingActionButton(
+                          //     backgroundColor: Colors.green[400],
+                          //     heroTag: 'btn1',
+                          //     elevation: 60,
+                          //     onPressed: fetchAllBids,
+                          //     child: Padding(
+                          //       padding: const EdgeInsets.all(10.0),
+                          //       child: const Icon(
+                          //         Icons.phone,
+                          //         color: Colors.black,
+                          //         size: 20,
+                          //       ),
+                          //     ),
+                          //   ),
+                          // ),
+                          // Positioned(
+                          //   bottom: 20,
+                          //   right: 100,
+                          //   child: FloatingActionButton(
+                          //     backgroundColor: Colors.green[400],
+                          //     heroTag: 'btn2',
+                          //     // Color.fromRGBO(239, 235, 235, 1),
+                          //     elevation: 60,
+                          //     onPressed: handleOnPressChat,
+                          //     child: Padding(
+                          //       padding: const EdgeInsets.all(10.0),
+                          //       child: Image(
+                          //         image: AssetImage("assets/images/chatsNoBck.png"),
+                          //         width: 30,
+                          //       ),
+                          //     ),
+                          //   ),
+                          // ),
+
+                          Positioned(
+                            bottom: 20,
+                            right: 100,
+                            child: FloatingActionButton.extended(
+                              backgroundColor: Colors.green[400],
+                              elevation: 60,
+                              heroTag: 'btn3',
+                              onPressed: showBidSheet,
+                              label: Padding(
+                                  padding: const EdgeInsets.all(10.0),
+                                  child: Row(
+                                    children: [
+                                      SizedBox(width: 10),
+                                      Image(
+                                        image: AssetImage(
+                                            'assets/images/auction.png'),
+                                        width: 30,
+                                      ),
+                                      SizedBox(width: 10),
+                                      Text('Place Bid',
+                                          style: TextStyle(
+                                            color: Colors.white,
+                                            fontWeight: FontWeight.w700,
+                                            fontSize: 15.0,
+                                          )),
+                                      SizedBox(width: 10),
+                                    ],
+                                  )),
+                            ),
+                          )
+                        ],
+                      ))
+                    : (Stack(fit: StackFit.expand, children: [
+                        Positioned(
+                          bottom: 20,
+                          right: 100,
+                          child: FloatingActionButton.extended(
+                            backgroundColor: Colors.green[400],
+                            elevation: 60,
+                            heroTag: 'btn3',
+                            onPressed: viewBidsSheet,
+                            label: Padding(
+                                padding: const EdgeInsets.all(10.0),
+                                child: Row(
+                                  children: [
+                                    SizedBox(width: 10),
+                                    Image(
+                                      image: AssetImage(
+                                          'assets/images/auction.png'),
+                                      width: 30,
+                                    ),
+                                    SizedBox(width: 10),
+                                    Text('View Bids',
+                                        style: TextStyle(
+                                          color: Colors.white,
+                                          fontWeight: FontWeight.w700,
+                                          fontSize: 15.0,
+                                        )),
+                                    SizedBox(width: 10),
+                                  ],
+                                )),
+                          ),
+                        )
+                      ])))))
+        : (noInternet());
   }
 }
