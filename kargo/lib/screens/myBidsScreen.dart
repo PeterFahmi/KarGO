@@ -29,6 +29,7 @@ class _MyBidsScreenState extends State<MyBidsScreen> {
   @override
   void initState() {
     super.initState();
+
     loadAds();
   }
 
@@ -88,7 +89,9 @@ class _MyBidsScreenState extends State<MyBidsScreen> {
     var curUserModel = UserModel.User(
         email: snapShotData['email'],
         name: snapShotData['name'],
-        imagePath: snapShotData['photoURL']);
+        imagePath: snapShotData['photoURL'],
+        myAds: snapShotData['myAds'],
+        myBids: snapShotData['myBids']);
     return curUserModel;
   }
 

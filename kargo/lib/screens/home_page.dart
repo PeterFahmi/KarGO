@@ -85,7 +85,9 @@ class _HomePageState extends State<HomePage> {
     var curUserModel = UserModel.User(
         email: snapShotData['email'],
         name: snapShotData['name'],
-        imagePath: snapShotData['photoURL']);
+        imagePath: snapShotData['photoURL'],
+        myAds: snapShotData['myAds'],
+        myBids: snapShotData['myBids']);
     return curUserModel;
   }
 

@@ -28,7 +28,9 @@ class _FilterScreenState extends State<FilterScreen> {
   @override
   void initState() {
     super.initState();
+
     getAllAds();
+
   }
 
   var _selectedTabIndex = 0;
@@ -122,7 +124,9 @@ class _FilterScreenState extends State<FilterScreen> {
     var curUserModel = UserModel.User(
         email: snapShotData['email'],
         name: snapShotData['name'],
-        imagePath: snapShotData['photoURL']);
+        imagePath: snapShotData['photoURL'],
+        myAds: snapShotData['myAds'],
+        myBids: snapShotData['myBids']);
     return curUserModel;
   }
 

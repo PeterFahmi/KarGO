@@ -28,6 +28,7 @@ class _FaveScreenState extends State<FaveScreen> {
   @override
   void initState() {
     super.initState();
+
     loadAds();
   }
 
@@ -76,6 +77,7 @@ class _FaveScreenState extends State<FaveScreen> {
     });
   }
 
+
   void loadAds() async {
     CollectionReference adsCollection =
         FirebaseFirestore.instance.collection('ads');
@@ -85,6 +87,7 @@ class _FaveScreenState extends State<FaveScreen> {
         .get()
         .then((res) async {
       final data = res.data() as Map<String, dynamic>;
+
       setState(() {
         favAdsIds = data['favAds'];
       });
@@ -121,6 +124,7 @@ class _FaveScreenState extends State<FaveScreen> {
           desc = data['desc'];
           carId = data['car_id'];
           uId = data['owner_id'];
+
           favAdsIds.contains(adId) ? fav = 1 : fav = 0;
           endDate = data['end_date'] ?? endDate;
           startDate = data['start_date'] ?? startDate;
@@ -136,6 +140,7 @@ class _FaveScreenState extends State<FaveScreen> {
             final data = res.data() as Map<String, dynamic>;
             color = data['color'];
             km = data['km'];
+
             cc = data['cc'] ?? 0;
             photos = (data['photos'] as List<dynamic>)
                 .map((e) => e as String)
@@ -151,6 +156,7 @@ class _FaveScreenState extends State<FaveScreen> {
               manufacturer = data['manufacturer'];
               model = data['model'];
             });
+
           });
           Ad adModel = Ad(
               adId: adId,

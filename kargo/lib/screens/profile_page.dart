@@ -1,10 +1,12 @@
 import 'dart:io';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:getwidget/getwidget.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:kargo/models/user.dart' as UserModel;
+import 'package:kargo/models/ad.dart';
 import '../components/profile_component.dart';
 import '../components/my_expansion_tile.dart';
 import 'package:firebase_storage/firebase_storage.dart';
@@ -22,6 +24,11 @@ class _ProfilePageState extends State<ProfilePage>
   bool isEditable = false;
   XFile? uploadedImage;
   int tabIndex = 0;
+  var userAds = [];
+  var userBids = [];
+  bool fetched = false;
+  bool isAdLoading = true;
+  bool isBidLoading = true;
 
   late TextEditingController nameController;
   late TabController _tabController;
@@ -54,6 +61,11 @@ class _ProfilePageState extends State<ProfilePage>
     final updateUserFunction = routeArgs['callBack'] as Function;
     List<String> childrenList = ["Child1", "Child2"];
     nameController = TextEditingController(text: curUser!.name);
+    if (!fetched) {
+      fetchAds(curUser.myAds, true);
+      fetchAds(curUser.myBids, false);
+      fetched = true;
+    }
     return Scaffold(
       appBar: AppBar(
         leading: BackButton(
@@ -106,51 +118,8 @@ class _ProfilePageState extends State<ProfilePage>
           tabIndex == 2
               ? getSettingsList(curUser, context)
               : tabIndex == 1
-                  ? Center(
-                      child: getListTile("BMW X3", false),
-                    )
-                  : Center(
-                      child: Center(
-                        child: getListTile("Mercedes E", true),
-                      ),
-                    )
-          // myExpansionTile(
-          //   myTitle: "Settings",
-          //   myIcon: Icons.settings,
-          //   children: [
-          //     TextButton(
-          //         onPressed: () {
-          //           Navigator.of(context).pushNamed('/update_password_screen',
-          //               arguments: {'user': curUser});
-          //         },
-          //         child: Text(
-          //           "Change Password",
-          //           style: TextStyle(color: Colors.black, fontSize: 17),
-          //         ))
-          //   ],
-          // ),
-          // myExpansionTile(
-          //     myTitle: "My Ads",
-          //     myIcon: Icons.ad_units,
-          //     children: childrenList.map((e) {
-          //       return getListTile(e);
-          //     }).toList()),
-          // myExpansionTile(
-          //     myTitle: "My Bids",
-          //     myIcon: Icons.monetization_on_outlined,
-          //     children: childrenList.map((e) {
-          //       return getListTile(e);
-          //     }).toList()),
-          // const SizedBox(height: 30),
-          // TextButton(
-          //   style: ButtonStyle(
-          //     foregroundColor: MaterialStateProperty.all<Color>(Colors.red),
-          //   ),
-          //   onPressed: () {
-          //     FirebaseAuth.instance.signOut();
-          //   },
-          //   child: Text('Log out'),
-          // )
+                  ? dispayBids(context)
+                  : displayAds(context)
         ],
       ),
     );
@@ -217,6 +186,144 @@ class _ProfilePageState extends State<ProfilePage>
   void setUploadedImage(XFile myUploadedImage) {
     uploadedImage = myUploadedImage;
   }
+
+  wrapDBAd(adData, carData, typeData, adId) {
+    List<String> imgPth = [];
+    for (var i = 0; i < carData['photos'].length; i++) {
+      imgPth.add(carData['photos'][i]);
+    }
+    if (imgPth.isEmpty)
+      imgPth.add(
+          "https://prod-ripcut-delivery.disney-plus.net/v1/variant/disney/406172AFB9ADF0578670A0B256610FA794B8D2C6259DC784B1DB900C92694E1D/scale?width=1200&aspectRatio=1.78&format=jpeg");
+    return Ad(
+        imagePaths: imgPth,
+        adId: adId,
+        highestBidderId: adData['highest_bidder_id'],
+        ownerId: adData['owner_id'],
+        manufacturer: typeData['manufacturer'],
+        model: typeData['model'],
+        askPrice: adData['ask_price'],
+        highestBid: adData['highest_bid'],
+        cc: (carData['cc']),
+        auto: adData['auto'],
+        year: carData['year'],
+        typeId: carData['type_id'],
+        colour: carData['color'],
+        km: carData['km'],
+        title: adData['title'],
+        desc: adData['desc'],
+        carId: adData['car_id'],
+        startDate: adData['start_date'],
+        endDate: adData['end_date'],
+        fav: adData['fav'] ?? 0,
+        daysRemaining:
+            DateTime.now().difference(adData['end_date'].toDate()).inDays * -1);
+  }
+
+  fetchAds(adsIds, isAd) async {
+    var adsArr = [];
+    final adsCollection = FirebaseFirestore.instance.collection('ads');
+    for (var i = 0; i < adsIds.length; i++) {
+      final ad = await adsCollection.doc(adsIds[i]).get();
+      if (ad.data() != null) {
+        final adCar = await FirebaseFirestore.instance
+            .collection('cars')
+            .doc(ad.data()!['car_id'])
+            .get();
+        if (adCar != null) {
+          final carType = await FirebaseFirestore.instance
+              .collection('types')
+              .doc(adCar.data()!['type_id'])
+              .get();
+          adsArr.add(
+              wrapDBAd(ad.data(), adCar.data(), carType.data(), adsIds[i]));
+        }
+      }
+    }
+    isAd
+        ? setState(() {
+            userAds = adsArr;
+            isAdLoading = false;
+          })
+        : setState(
+            () {
+              userBids = adsArr;
+              isBidLoading = false;
+            },
+          );
+  }
+
+  dispayBids(ctx) {
+    return isBidLoading
+        ? Center(
+            child: CircularProgressIndicator(),
+          )
+        : userBids.isEmpty
+            ? Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Center(
+                    child: Image(
+                      image: NetworkImage(
+                          "https://firebasestorage.googleapis.com/v0/b/mobileapp-18909.appspot.com/o/no%20bids.png?alt=media&token=33b9e404-12c8-4d3e-bec8-0a98a8d256d6"),
+                    ),
+                  ),
+                  SizedBox(height: 30),
+                  Text(
+                    "No bids yet",
+                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                  ),
+                ],
+              )
+            : Column(
+                children: userBids.map((e) {
+                  return getListTile(e, false, ctx);
+                }).toList(),
+              );
+  }
+
+  displayAds(ctx) {
+    return isAdLoading
+        ? Center(
+            child: CircularProgressIndicator(),
+          )
+        : userAds.isEmpty
+            ? Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  SizedBox(
+                    height: 40,
+                  ),
+                  Text(
+                    "You have no ads yet",
+                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                  ),
+                  SizedBox(
+                    height: 20,
+                  ),
+                  Text(
+                    "Create your first by clicking the button below ...",
+                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.w500),
+                  ),
+                  SizedBox(
+                    height: 20,
+                  ),
+                  MaterialButton(
+                    textColor: Colors.white,
+                    color: Colors.black,
+                    child: Text("Create a new ad"),
+                    onPressed: () {
+                      Navigator.of(context).pushNamed('/create_ad');
+                    },
+                  )
+                ],
+              )
+            : Column(
+                children: userAds.map((e) {
+                  return getListTile(e, true, ctx);
+                }).toList(),
+              );
+  }
 }
 
 Widget getSettingsList(UserModel.User curUser, context) {
@@ -280,17 +387,14 @@ Widget getSettingsList(UserModel.User curUser, context) {
   );
 }
 
-Widget getListTile(elem, isAd) {
-  return Dismissible(
-      onDismissed: (res) {},
-      key: Key("0"),
-      child: ListTile(
-        title: Text(elem),
-        leading: CircleAvatar(
-            radius: 30,
-            foregroundImage: NetworkImage(
-                "https://firebasestorage.googleapis.com/v0/b/mobileapp-18909.appspot.com/o/car_images%2Fold%20Mercedes%20e.jpg?alt=media&token=7bf7fc84-298e-4638-8de4-e673c65f440e")),
-        subtitle: Text("Highest bid ${isAd ? 50000 : 900000}"),
-        onTap: () {},
-      ));
+Widget getListTile(elem, isAd, ctx) {
+  return ListTile(
+    title: Text(elem.title),
+    leading: CircleAvatar(
+        radius: 30, foregroundImage: NetworkImage(elem.imagePaths[0])),
+    subtitle: Text("Highest bid ${elem.highestBid}"),
+    onTap: () {
+      Navigator.of(ctx).pushNamed('/ad', arguments: elem);
+    },
+  );
 }
