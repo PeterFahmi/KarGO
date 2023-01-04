@@ -17,6 +17,7 @@ import '../components/multiChip.dart';
 import '../models/ad.dart';
 import '../models/user.dart' as UserModel;
 
+import 'empty_screen.dart';
 import 'my_ads_screen.dart';
 
 class FaveScreen extends StatefulWidget {
@@ -74,13 +75,15 @@ class _FaveScreenState extends State<FaveScreen> {
                     color: Colors.black,
                   ),
                 Expanded(
-                  child: ListView(
-                    reverse: false,
-                    children: [
-                      ...favoriteAds.map((e) => Ad_Card2(Ad: e)),
-                      if (isLoading) ShimmerCard(),
-                    ],
-                  ),
+                  child: favoriteAds.length == 0
+                      ? EmptyScreen()
+                      : ListView(
+                          reverse: false,
+                          children: [
+                            ...favoriteAds.map((e) => Ad_Card2(Ad: e)),
+                            if (isLoading) ShimmerCard(),
+                          ],
+                        ),
                 ),
               ],
             ),
