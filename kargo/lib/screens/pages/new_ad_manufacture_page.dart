@@ -6,13 +6,14 @@ import 'package:flutter/src/widgets/framework.dart';
 
 class ManufacturePage extends StatefulWidget {
   static const _subheader = TextStyle(fontWeight: FontWeight.w600);
-  final manufacturerDropdownCtrl, modelDropdownCtrl;
+  final manufacturerDropdownCtrl, modelDropdownCtrl, transmissionCtrl;
 
   VoidCallback onChanged;
 
   ManufacturePage(
       {required this.manufacturerDropdownCtrl,
       required this.modelDropdownCtrl,
+      required this.transmissionCtrl,
       required this.onChanged});
 
   @override
@@ -22,6 +23,7 @@ class ManufacturePage extends StatefulWidget {
 class _ManufacturePageState extends State<ManufacturePage> {
   var carList = ["audi", "honda", "balabizo"];
   var modelList = ["civic", "corrola", "balabizo"];
+  var transmissionList = ["Automatic", "Manual"];
 
   @override
   void initState() {
@@ -73,6 +75,15 @@ class _ManufacturePageState extends State<ManufacturePage> {
             hintText: 'Select model',
             items: modelList,
             controller: widget.modelDropdownCtrl,
+            excludeSelected: false,
+            onChanged: (_) => widget.onChanged(),
+          ),
+          const Divider(height: 24),
+          const Text('Transmission', style: ManufacturePage._subheader),
+          CustomDropdown.search(
+            hintText: 'Select Transmission',
+            items: transmissionList,
+            controller: widget.transmissionCtrl,
             excludeSelected: false,
             onChanged: (_) => widget.onChanged(),
           ),
