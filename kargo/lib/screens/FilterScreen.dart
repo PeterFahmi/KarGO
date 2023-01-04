@@ -703,7 +703,7 @@ class _FilterScreenState extends State<FilterScreen> {
             });
           });
 
-          setState(() {
+          
             Ad adv = Ad(
                 adId: adId,
                 model: model,
@@ -727,6 +727,7 @@ class _FilterScreenState extends State<FilterScreen> {
                 cc: cc,
                 daysRemaining:
                     DateTime.now().difference(endDate.toDate()).inDays * -1);
+                   if (this.mounted) { setState(() {
             bool p = false;
             for (var ad in ads) {
               if (adv.adId == ad.adId) p = true;
@@ -746,7 +747,7 @@ class _FilterScreenState extends State<FilterScreen> {
             if (myAds.length == mAds.length) isLoadingm = false;
             if (carsIDs.length == ads.length ||
                 searchResults.length == ads.length) isLoading = false;
-          });
+          });}
         });
       }
 

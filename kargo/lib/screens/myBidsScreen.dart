@@ -112,7 +112,10 @@ class _MyBidsScreenState extends State<MyBidsScreen> {
         .then((res) async {
       final data = res.data() as Map<String, dynamic>;
       favAds = data['favAds'];
-      mbAds = data['myBids'];
+      var b = data['myBids'];
+      print(b);
+       mbAds = [for (var ad in b) ad['ad_id']];
+        print(mbAds);
       if (mbAds.isEmpty) {
         setState(() {
           isLoadingb = false;
