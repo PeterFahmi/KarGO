@@ -66,7 +66,7 @@ class _MyAdsScreenState extends State<MyAdsScreen> {
                 SliverAppBar(
                   backgroundColor: Color.fromRGBO(0, 0, 0, 0.2),
                   floating: true,
-                  title: Text("Have a new car to offer"),
+                  title: Text("Have a new car to offer?"),
                   actions: [
                     Padding(
                       padding: EdgeInsets.all(10),
@@ -100,7 +100,7 @@ class _MyAdsScreenState extends State<MyAdsScreen> {
                       color: Colors.black,
                     ),
                   Expanded(
-                    child: ads.length == 0 && !isLoading
+                    child: (ads.length == 0 && !isLoading)
                         ? EmptyScreen()
                         : ListView(
                             reverse: false,

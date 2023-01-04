@@ -122,7 +122,7 @@ class _FilterScreenState extends State<FilterScreen> {
             },
             floatHeaderSlivers: true,
             body: (Container(
-                child: ads.length == 0 && !isLoading
+                child: (ads.length == 0 && !isLoading)
                     ? EmptyScreen()
                     : ListView(
                         reverse: false,
