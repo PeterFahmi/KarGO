@@ -75,9 +75,11 @@ class _Ad_Card2State extends State<Ad_Card2> {
     });
   }
 
+  List<String> imageDefault = ['assets/images/carPlaceHolder.jpg'];
   @override
   Widget build(BuildContext context) {
     //  var bidp = int.parse(widget.Ad.highestBid);
+
     return InkWell(
       onTap: () => adDetails(context),
       child: Card(
@@ -91,6 +93,7 @@ class _Ad_Card2State extends State<Ad_Card2> {
             Stack(
               children: [
 // child 1 of stack is the recipe image
+
                 CarouselWithDotsPage(imgList: widget.Ad.imagePaths),
 // child 2 of stack is the recipe title
 
