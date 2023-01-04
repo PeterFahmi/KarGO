@@ -1,3 +1,4 @@
+import 'dart:ffi';
 import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -9,6 +10,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:kargo/components/my_scaffold.dart';
 import 'package:kargo/components/no_Internet.dart';
 import 'package:kargo/components/uploaded_photos_row.dart';
+import 'package:kargo/models/ad.dart';
 import 'package:kargo/screens/pages/new_ad_car_page.dart';
 import 'package:kargo/screens/pages/new_ad_details_page.dart';
 import 'package:kargo/screens/pages/new_ad_manufacture_page.dart';
@@ -32,6 +34,7 @@ class _CreateAdScreenState extends State<CreateAdScreen> {
         width: double.infinity)
   ];
   List<XFile> imgsXfiles = [];
+  List<String> imgPaths = [];
 
   final yearCtrl = TextEditingController(),
       kmCtrl = TextEditingController(),
@@ -63,11 +66,45 @@ class _CreateAdScreenState extends State<CreateAdScreen> {
     }
   }
 
+  bool hasLoaded = false;
+
   @override
   Widget build(BuildContext context) {
     checkConnectitivy();
+
+    final routeArgs =
+        ModalRoute.of(context)!.settings.arguments as Map<String, Object>;
+
+    bool isEditable = routeArgs['isEditable'] as bool;
+    Ad? editableAd;
+    if (isEditable) {
+      editableAd = routeArgs['ad'] as Ad;
+      if (editableAd != null && !hasLoaded) {
+        imgPaths = editableAd.imagePaths;
+        yearCtrl.text = editableAd.year.toString();
+        kmCtrl.text = editableAd.km.toString();
+        ccCtrl.text = editableAd.cc.toString();
+        colorCtrl.text = editableAd.colour.toString();
+        adTitle.text = editableAd.title.toString();
+        adDescription.text = editableAd.desc.toString();
+        askPrice.text = editableAd.askPrice.toString();
+        adDuration.text = editableAd.endDate
+            .toDate()
+            .difference(editableAd.startDate.toDate())
+            .inDays
+            .toString();
+        editableAd.imagePaths.forEach((element) {
+          imgs.add(Image(
+              image: NetworkImage(element),
+              fit: BoxFit.fill,
+              width: double.infinity));
+        });
+      }
+      hasLoaded = true;
+    }
     var pages = [
       ManufacturePage(
+        ad: editableAd,
         manufacturerDropdownCtrl: manufacturerDropdownCtrl,
         modelDropdownCtrl: modelDropdownCtrl,
         transmissionCtrl: transmissionCtrl,
@@ -76,6 +113,7 @@ class _CreateAdScreenState extends State<CreateAdScreen> {
         onChanged: setCanGoNext,
       ),
       CarPage(
+        imgPaths: !isEditable ? null : editableAd!.imagePaths,
         imgs: imgs,
         imgsXFile: imgsXfiles,
         yearCtrl: yearCtrl,
@@ -93,6 +131,12 @@ class _CreateAdScreenState extends State<CreateAdScreen> {
         onChange: setCanGoNext,
       )
     ];
+    if (editableAd != null) {
+      setState(() {
+        nextEnabled = true;
+      });
+    }
+
     return internetConnection
         ? (MyScaffold(
             hasLeading: false,
@@ -141,7 +185,9 @@ class _CreateAdScreenState extends State<CreateAdScreen> {
                       ),
                       index == pages.length - 1
                           ? TextButton(
-                              onPressed: showBottomSheet,
+                              onPressed: () {
+                                showBottomSheet(isEditable, editableAd);
+                              },
                               child: Text(
                                 "Next",
                                 style: TextStyle(
@@ -223,7 +269,7 @@ class _CreateAdScreenState extends State<CreateAdScreen> {
     ;
   }
 
-  void showBottomSheet() {
+  void showBottomSheet(isEditable, editableAdBridge) {
     if (!nextEnabled) return;
     showModalBottomSheet<dynamic>(
         backgroundColor: Colors.transparent,
@@ -281,7 +327,9 @@ class _CreateAdScreenState extends State<CreateAdScreen> {
                   ),
                   Center(
                     child: ElevatedButton(
-                      onPressed: submit,
+                      onPressed: () {
+                        submit(isEditable, editableAdBridge);
+                      },
                       child: Text('Submit'),
                       style: ButtonStyle(
                         backgroundColor:
@@ -298,18 +346,63 @@ class _CreateAdScreenState extends State<CreateAdScreen> {
         });
   }
 
-  void submit() async {
+  void submit(isEditable, editableAd) async {
     showLoading();
-    String typeId = await createType();
-    if (typeId == 'error') return;
-    String carId = await createCar(typeId);
-    if (carId == 'error') return;
-    String adId = await createAd(carId);
-    if (adId == 'error') return;
-    await addAdToUser(adId);
+    if (!isEditable) {
+      String typeId = await createType();
+      if (typeId == 'error') return;
+      String carId = await createCar(typeId);
+      if (carId == 'error') return;
+      String adId = await createAd(carId);
+      if (adId == 'error') return;
+      await addAdToUser(adId);
+    } else
+      await updateAd(editableAd);
     Navigator.pop(context);
     Navigator.pop(context);
     Navigator.pop(context);
+  }
+
+  updateAd(Ad editableAd) async {
+    print("start updating");
+    await FirebaseFirestore.instance
+        .collection('types')
+        .doc(editableAd.typeId)
+        .update({
+      'manufacturer': manufacturerDropdownCtrl.text == "other..."
+          ? manufacturerOtherCtrl.text
+          : manufacturerDropdownCtrl.text,
+      'model': modelDropdownCtrl.text == "other..."
+          ? modelOtherCtrl.text
+          : modelDropdownCtrl.text,
+    });
+    print("type updated");
+    List<String> images = await getImagesUrl(imgsXfiles);
+    print("images retrieved");
+    await FirebaseFirestore.instance
+        .collection('cars')
+        .doc(editableAd.carId)
+        .update({
+      'km': int.parse(kmCtrl.text),
+      'cc': int.parse(ccCtrl.text),
+      'year': int.parse(yearCtrl.text),
+      'color': colorCtrl.text,
+      'photos': images
+    });
+    print("car updated");
+    await FirebaseFirestore.instance
+        .collection('ads')
+        .doc(editableAd.adId)
+        .update({
+      'title': adTitle.text,
+      'desc': adDescription.text,
+      'ask_price': int.parse(askPrice.text),
+      'auto': transmissionCtrl.text == "Automatic" ? 0 : 1,
+      'end_date': editableAd.startDate
+          .toDate()
+          .add(Duration(days: int.parse(adDuration.text)))
+    });
+    print("finish updating");
   }
 
   Future<String> createType() async {
@@ -442,7 +535,7 @@ class _CreateAdScreenState extends State<CreateAdScreen> {
         });
       });
     }
-    return res;
+    return imgPaths + res;
   }
 
   void showLoading() {

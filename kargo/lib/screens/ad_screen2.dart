@@ -217,7 +217,10 @@ class _AdScreenState extends State<AdScreen> {
       Navigator.pushNamed(context, "/ad", arguments: ad); // push it back in
     }
 
-    void onPressedEdit() {}
+    void onPressedEdit() {
+      Navigator.of(context)
+          .pushNamed('/create_ad', arguments: {'ad': ad, 'isEditable': true});
+    }
 
     showBidSheet() {
       print("in modal");
