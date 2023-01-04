@@ -11,6 +11,7 @@ import 'package:flutter/src/widgets/framework.dart';
 import 'package:kargo/components/ad_card2.dart';
 
 import '../components/my_shimmering_card.dart';
+import 'empty_screen.dart';
 
 class MyAdsScreen extends StatefulWidget {
   const MyAdsScreen({super.key});
@@ -58,9 +59,6 @@ class _MyAdsScreenState extends State<MyAdsScreen> {
   @override
   Widget build(BuildContext context) {
     checkConnectitivy();
-    for (var ad in ads) {
-      //  print(ad.);
-    }
     return internetConnection
         ? (NestedScrollView(
             headerSliverBuilder: (context, innerBoxIsScrolled) {
@@ -68,7 +66,7 @@ class _MyAdsScreenState extends State<MyAdsScreen> {
                 SliverAppBar(
                   backgroundColor: Color.fromRGBO(0, 0, 0, 0.2),
                   floating: true,
-                  title: Text("Have a new car to offer"),
+                  title: Text("Have a new car to offer?"),
                   actions: [
                     Padding(
                       padding: EdgeInsets.all(10),
@@ -106,13 +104,15 @@ class _MyAdsScreenState extends State<MyAdsScreen> {
                       color: Colors.black,
                     ),
                   Expanded(
-                    child: ListView(
-                      reverse: false,
-                      children: [
-                        ...ads,
-                        if (isLoading) ShimmerCard(),
-                      ],
-                    ),
+                    child: (ads.length == 0 && !isLoading)
+                        ? EmptyScreen()
+                        : ListView(
+                            reverse: false,
+                            children: [
+                              ...ads,
+                              if (isLoading) ShimmerCard(),
+                            ],
+                          ),
                   ),
                 ],
               ),

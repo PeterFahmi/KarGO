@@ -270,6 +270,12 @@ class _CreateAdScreenState extends State<CreateAdScreen> {
   }
 
   void showBottomSheet(isEditable, editableAdBridge) {
+    String manufacturer = (manufacturerDropdownCtrl.text == "other...")
+        ? manufacturerOtherCtrl.text
+        : manufacturerDropdownCtrl.text;
+    String model = (modelDropdownCtrl.text == "other...")
+        ? modelOtherCtrl.text
+        : modelDropdownCtrl.text;
     if (!nextEnabled) return;
     showModalBottomSheet<dynamic>(
         backgroundColor: Colors.transparent,
@@ -312,9 +318,8 @@ class _CreateAdScreenState extends State<CreateAdScreen> {
                             style: TextStyle(fontWeight: FontWeight.w600)),
                         UploadedPhotosRow(imgs: imgs, removeCallback: null),
                         ...getAdDetailsEntry('Title', adTitle.text),
-                        ...getAdDetailsEntry(
-                            'Manufacturer', manufacturerDropdownCtrl.text),
-                        ...getAdDetailsEntry('Model', modelDropdownCtrl.text),
+                        ...getAdDetailsEntry('Manufacturer', manufacturer),
+                        ...getAdDetailsEntry('Model', model),
                         ...getAdDetailsEntry('Year', yearCtrl.text),
                         ...getAdDetailsEntry('Car Km', kmCtrl.text),
                         ...getAdDetailsEntry('Car CC', ccCtrl.text),
@@ -332,8 +337,8 @@ class _CreateAdScreenState extends State<CreateAdScreen> {
                       },
                       child: Text('Submit'),
                       style: ButtonStyle(
-                        backgroundColor:
-                            MaterialStateProperty.all<Color>(Colors.black),
+                        backgroundColor: MaterialStateProperty.all<Color>(
+                            Colors.green[400]!),
                         foregroundColor:
                             MaterialStateProperty.all<Color>(Colors.white),
                       ),

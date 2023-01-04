@@ -17,14 +17,19 @@ class CarouselBig extends StatefulWidget {
 class _CarouselBigState extends State<CarouselBig> {
   int _current = 0;
   late List<Image> imgs;
-  @override
   void initState() {
-    if (widget.isURLList)
+    print("widget.imgList=" + widget.imgList.toString());
+    if (widget.imgList.length == 0) {
+      imgs = [
+        Image.asset('assets/images/carPlaceHolder.jpg',
+            fit: BoxFit.fill, width: double.infinity)
+      ];
+    } else if (widget.isURLList) {
       imgs = widget.imgList
           .map(
               (e) => Image.network(e, fit: BoxFit.fill, width: double.infinity))
           .toList();
-    else
+    } else
       imgs = widget.imgList as List<Image>;
     super.initState();
   }
