@@ -75,7 +75,7 @@ class _ChatListScreenState extends State<ChatListScreen> {
 
   @override
   Widget build(BuildContext context) {
-    print("search val="+chatSearchBar.searchCtrl.text);
+    // print("search val="+chatSearchBar.searchCtrl.text);
     return Scaffold(
         appBar: PreferredSize(
             preferredSize: const Size.fromHeight(80.0),
