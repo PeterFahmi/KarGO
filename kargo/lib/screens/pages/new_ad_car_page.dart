@@ -6,6 +6,7 @@ import 'package:kargo/components/uploaded_photos_row.dart';
 
 import '../../components/CarouselWithDots.dart';
 import '../../components/my_textfield.dart';
+import '../../models/ad.dart';
 
 class CarPage extends StatefulWidget {
   static const _subheader = TextStyle(fontWeight: FontWeight.w600);
@@ -17,8 +18,10 @@ class CarPage extends StatefulWidget {
   TextEditingController ccCtrl;
   bool noImages;
   VoidCallback onChange;
+  List<String>? imgPaths;
   CarPage(
-      {required this.imgs,
+      {this.imgPaths,
+      required this.imgs,
       required this.colorCtrl,
       required this.kmCtrl,
       required this.ccCtrl,
@@ -152,6 +155,11 @@ class _CarPageState extends State<CarPage> {
     setState(() {
       int idx = widget.imgs.indexOf(e);
       widget.imgs.removeAt(idx);
+      if (widget.imgPaths != null) {
+        if (widget.imgPaths!.length > idx - 1 && idx - 1 >= 0) {
+          widget.imgPaths!.removeAt(idx - 1);
+        }
+      }
       if (!widget.noImages) widget.imgsXFile.removeAt(idx);
       if (widget.imgs.length == 0) {
         widget.noImages = true;

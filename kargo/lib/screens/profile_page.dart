@@ -62,8 +62,9 @@ class _ProfilePageState extends State<ProfilePage>
     List<String> childrenList = ["Child1", "Child2"];
     nameController = TextEditingController(text: curUser!.name);
     if (!fetched) {
-      fetchAds(curUser.myAds, true);
-      fetchAds(curUser.myBids, false);
+      fetchAds(curUser.myAds);
+      print(curUser.myBids);
+      fetchBids(curUser.myBids);
       fetched = true;
     }
     return Scaffold(
@@ -99,27 +100,31 @@ class _ProfilePageState extends State<ProfilePage>
           const SizedBox(height: 24),
           buildName(curUser),
           const SizedBox(height: 24),
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: TabBar(
-              onTap: (value) => setState(() {
-                tabIndex = value;
-              }),
-              controller: _tabController,
-              tabs: _tabs,
-              unselectedLabelColor: Colors.black,
-              labelColor: _selectedColor,
-              indicator: BoxDecoration(
-                borderRadius: BorderRadius.circular(80.0),
-                color: _selectedColor.withOpacity(0.2),
-              ),
-            ),
-          ),
-          tabIndex == 2
-              ? getSettingsList(curUser, context)
-              : tabIndex == 1
-                  ? dispayBids(context)
-                  : displayAds(context)
+          !isEditable
+              ? Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: TabBar(
+                    onTap: (value) => setState(() {
+                      tabIndex = value;
+                    }),
+                    controller: _tabController,
+                    tabs: _tabs,
+                    unselectedLabelColor: Colors.black,
+                    labelColor: _selectedColor,
+                    indicator: BoxDecoration(
+                      borderRadius: BorderRadius.circular(80.0),
+                      color: _selectedColor.withOpacity(0.2),
+                    ),
+                  ),
+                )
+              : Container(),
+          !isEditable
+              ? (tabIndex == 2
+                  ? getSettingsList(curUser, context)
+                  : tabIndex == 1
+                      ? dispayBids(context)
+                      : displayAds(context))
+              : Container()
         ],
       ),
     );
@@ -220,37 +225,52 @@ class _ProfilePageState extends State<ProfilePage>
             DateTime.now().difference(adData['end_date'].toDate()).inDays * -1);
   }
 
-  fetchAds(adsIds, isAd) async {
-    var adsArr = [];
+  fetchAnAd(adId) async {
     final adsCollection = FirebaseFirestore.instance.collection('ads');
-    for (var i = 0; i < adsIds.length; i++) {
-      final ad = await adsCollection.doc(adsIds[i]).get();
-      if (ad.data() != null) {
-        final adCar = await FirebaseFirestore.instance
-            .collection('cars')
-            .doc(ad.data()!['car_id'])
+    final ad = await adsCollection.doc(adId).get();
+    if (ad.data() != null) {
+      final adCar = await FirebaseFirestore.instance
+          .collection('cars')
+          .doc(ad.data()!['car_id'])
+          .get();
+      if (adCar != null) {
+        final carType = await FirebaseFirestore.instance
+            .collection('types')
+            .doc(adCar.data()!['type_id'])
             .get();
-        if (adCar != null) {
-          final carType = await FirebaseFirestore.instance
-              .collection('types')
-              .doc(adCar.data()!['type_id'])
-              .get();
-          adsArr.add(
-              wrapDBAd(ad.data(), adCar.data(), carType.data(), adsIds[i]));
-        }
+        return wrapDBAd(ad.data(), adCar.data(), carType.data(), adId);
       }
+      return null;
     }
-    isAd
-        ? setState(() {
-            userAds = adsArr;
-            isAdLoading = false;
-          })
-        : setState(
-            () {
-              userBids = adsArr;
-              isBidLoading = false;
-            },
-          );
+  }
+
+  fetchBids(bidsIds) async {
+    var bidsArr = [];
+    for (var i = 0; i < bidsIds.length; i++) {
+      Map<String, dynamic> bid = bidsIds[i] as Map<String, dynamic>;
+      final fetchedAd = await fetchAnAd(bid[bid.keys.first]);
+      if (fetchedAd != null)
+        bidsArr.add({'ad': fetchedAd, 'price': bidsIds[i][bid.keys.last]});
+    }
+    setState(
+      () {
+        userBids = bidsArr;
+        isBidLoading = false;
+      },
+    );
+  }
+
+  fetchAds(adsIds) async {
+    var adsArr = [];
+    for (var i = 0; i < adsIds.length; i++) {
+      final fetchedAd = await fetchAnAd(adsIds[i]);
+      if (fetched != null) adsArr.add(fetchedAd);
+    }
+
+    setState(() {
+      userAds = adsArr;
+      isAdLoading = false;
+    });
   }
 
   dispayBids(ctx) {
@@ -313,7 +333,8 @@ class _ProfilePageState extends State<ProfilePage>
                     color: Colors.black,
                     child: Text("Create a new ad"),
                     onPressed: () {
-                      Navigator.of(context).pushNamed('/create_ad');
+                      Navigator.of(context)
+                          .pushNamed('/create_ad', arguments: {'ad': null});
                     },
                   )
                 ],
@@ -389,12 +410,15 @@ Widget getSettingsList(UserModel.User curUser, context) {
 
 Widget getListTile(elem, isAd, ctx) {
   return ListTile(
-    title: Text(elem.title),
+    title: Text(isAd ? elem.title : elem['ad'].title),
     leading: CircleAvatar(
-        radius: 30, foregroundImage: NetworkImage(elem.imagePaths[0])),
-    subtitle: Text("Highest bid ${elem.highestBid}"),
+        radius: 30,
+        foregroundImage:
+            NetworkImage(isAd ? elem.imagePaths[0] : elem['ad'].imagePaths[0])),
+    subtitle: Text(
+        "Highest bid ${isAd ? elem.highestBid : elem['ad'].highestBid.toString() + ", you bidded: " + elem['price'].toString()}"),
     onTap: () {
-      Navigator.of(ctx).pushNamed('/ad', arguments: elem);
+      Navigator.of(ctx).pushNamed('/ad', arguments: isAd ? elem : elem['ad']);
     },
   );
 }

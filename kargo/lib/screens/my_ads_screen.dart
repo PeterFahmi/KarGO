@@ -72,7 +72,11 @@ class _MyAdsScreenState extends State<MyAdsScreen> {
                       padding: EdgeInsets.all(10),
                       child: ElevatedButton(
                         onPressed: () {
-                          Navigator.of(context).pushNamed('/create_ad').then(
+                          Navigator.of(context).pushNamed('/create_ad',
+                              arguments: {
+                                'ad': Object(),
+                                'isEditable': false
+                              }).then(
                               (_) => {Navigator.popAndPushNamed(context, '/')});
                         },
                         child: Text('Add'),
