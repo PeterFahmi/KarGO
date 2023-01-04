@@ -3,11 +3,13 @@ import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_chat_ui/flutter_chat_ui.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 import 'package:image_picker/image_picker.dart';
 import 'package:kargo/components/my_shimmering_card.dart';
+import 'package:kargo/components/no_Internet.dart';
 import 'package:kargo/components/no_chats_component.dart';
 
 import '../services/database_services.dart';
@@ -20,12 +22,26 @@ class ChatScreen extends StatefulWidget {
 }
 
 class ChatScreenState extends State<ChatScreen> {
+  bool internetConnection = true;
   final List<types.Message> _messages = [];
   final _user = types.User(id: FirebaseAuth.instance.currentUser!.uid);
   late final String username;
   late final DocumentReference chatReference;
   Stream? messageStream;
   var db = DatabaseService(uid: FirebaseAuth.instance.currentUser!.uid);
+  void checkConnectitivy() async {
+    var result = await Connectivity().checkConnectivity();
+
+    if (result.name == "none") {
+      setState(() {
+        internetConnection = false;
+      });
+    } else {
+      setState(() {
+        internetConnection = true;
+      });
+    }
+  }
 
   @override
   void didChangeDependencies() {
@@ -48,30 +64,33 @@ class ChatScreenState extends State<ChatScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-        appBar: PreferredSize(
-            preferredSize: const Size.fromHeight(80.0),
-            child: Container(
-              padding: const EdgeInsets.only(top: 10),
-              child: AppBar(
-                backgroundColor: Colors.white,
-                titleSpacing: 0,
-                leading: IconButton(
-                  icon: const Icon(Icons.arrow_back, color: Colors.black),
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                  },
-                ),
-                title: Text(
-                  username,
-                  style: const TextStyle(
-                      fontSize: 28,
-                      color: Colors.black,
-                      fontWeight: FontWeight.bold),
-                ),
-              ),
-            )),
-        body: buildChatMessages());
+    checkConnectitivy();
+    return internetConnection
+        ? (Scaffold(
+            appBar: PreferredSize(
+                preferredSize: const Size.fromHeight(80.0),
+                child: Container(
+                  padding: const EdgeInsets.only(top: 10),
+                  child: AppBar(
+                    backgroundColor: Colors.white,
+                    titleSpacing: 0,
+                    leading: IconButton(
+                      icon: const Icon(Icons.arrow_back, color: Colors.black),
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                      },
+                    ),
+                    title: Text(
+                      username,
+                      style: const TextStyle(
+                          fontSize: 28,
+                          color: Colors.black,
+                          fontWeight: FontWeight.bold),
+                    ),
+                  ),
+                )),
+            body: buildChatMessages()))
+        : (noInternet());
   }
 
   void _addMessage(types.Message message) {
@@ -156,8 +175,7 @@ class ChatScreenState extends State<ChatScreen> {
           id: DateTime.now().toString(),
           text: msg.data()['content'],
         );
-      }
-      else{
+      } else {
         message = types.ImageMessage(
           author: sender,
           createdAt: DateTime.parse(msg.data()['date'].toDate().toString())

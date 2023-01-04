@@ -4,7 +4,6 @@ import 'package:kargo/screens/ad_screen2.dart';
 import 'package:kargo/screens/chat_list_screen.dart';
 import 'package:kargo/screens/chat_screen.dart';
 import 'package:kargo/screens/create_ad_screen.dart';
-
 import 'package:kargo/screens/home_page.dart';
 import 'package:kargo/screens/profile_page.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -28,7 +27,9 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> {
   bool _initialized = false;
+  bool internetConnection = true;
   bool _error = false;
+
   // This widget is the root of your application.
   void initializeFlutterFire() async {
     try {
@@ -48,6 +49,7 @@ class _MyAppState extends State<MyApp> {
   @override
   void initState() {
     initializeFlutterFire();
+
     super.initState();
   }
 
@@ -64,7 +66,6 @@ class _MyAppState extends State<MyApp> {
         '/profile_page': (ctx) => ProfilePage(),
         '/update_password_screen': (ctx) => UpdatePasswordScreen(),
         '/create_ad': (context) => CreateAdScreen(),
- 
         '/ad': (ctx) => AdScreen(),
       },
     );
@@ -79,10 +80,13 @@ class _MyAppState extends State<MyApp> {
               if (userSnapshot.connectionState == ConnectionState.waiting) {
                 return LoadingScreen();
               }
-              if (userSnapshot.hasData) {
+              if (userSnapshot.hasData && internetConnection) {
                 return HomePage();
+              } else if (internetConnection)
+                return LoginScreen();
+              else {
+                return Text("No Internet!");
               }
-              return LoginScreen();
             });
   }
 }

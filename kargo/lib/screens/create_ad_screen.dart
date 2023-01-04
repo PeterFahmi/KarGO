@@ -7,10 +7,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_chat_ui/flutter_chat_ui.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:kargo/components/my_scaffold.dart';
+import 'package:kargo/components/no_Internet.dart';
 import 'package:kargo/components/uploaded_photos_row.dart';
 import 'package:kargo/screens/pages/new_ad_car_page.dart';
 import 'package:kargo/screens/pages/new_ad_details_page.dart';
 import 'package:kargo/screens/pages/new_ad_manufacture_page.dart';
+import 'package:connectivity_plus/connectivity_plus.dart';
 
 class CreateAdScreen extends StatefulWidget {
   @override
@@ -21,6 +23,7 @@ class _CreateAdScreenState extends State<CreateAdScreen> {
   final PageController _pageController = PageController();
   int index = 0;
 
+  bool internetConnection = true;
   //carpage
   List<Image> imgs = [
     Image(
@@ -46,9 +49,23 @@ class _CreateAdScreenState extends State<CreateAdScreen> {
 
   bool noImages = true;
   bool nextEnabled = false;
+  void checkConnectitivy() async {
+    var result = await Connectivity().checkConnectivity();
+
+    if (result.name == "none") {
+      setState(() {
+        internetConnection = false;
+      });
+    } else {
+      setState(() {
+        internetConnection = true;
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
+    checkConnectitivy();
     var pages = [
       ManufacturePage(
         manufacturerDropdownCtrl: manufacturerDropdownCtrl,
@@ -76,72 +93,76 @@ class _CreateAdScreenState extends State<CreateAdScreen> {
         onChange: setCanGoNext,
       )
     ];
-    return MyScaffold(
-      hasLeading: false,
-      body: Column(
-        children: [
-          Expanded(
-            child: PageView(
-              onPageChanged: (value) => setState(() {
-                index = value;
-              }),
-              controller: _pageController,
-              children: pages,
-            ),
-          ),
-          Container(
-            color: Colors.black,
-            height: 50,
-            child: Row(
+    return internetConnection
+        ? (MyScaffold(
+            hasLeading: false,
+            body: Column(
               children: [
-                IconButton(
-                    onPressed: (() => changePage(index - 1)),
-                    icon: Icon(
-                      Icons.arrow_back,
-                      color: index == 0 ? Colors.black : Colors.white,
-                      size: 30,
-                    )),
                 Expanded(
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: pages.map((e) {
-                      int current = pages.indexOf(e);
-                      return Container(
-                        width: 10,
-                        height: 8,
-                        margin:
-                            EdgeInsets.symmetric(vertical: 2, horizontal: 2),
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: index == current
-                              ? Color.fromRGBO(255, 255, 255, 0.9)
-                              : Color.fromRGBO(255, 255, 255, 0.4),
-                        ),
-                      );
-                    }).toList(),
+                  child: PageView(
+                    onPageChanged: (value) => setState(() {
+                      index = value;
+                    }),
+                    controller: _pageController,
+                    children: pages,
                   ),
                 ),
-                index == pages.length - 1
-                    ? TextButton(
-                        onPressed: showBottomSheet,
-                        child: Text(
-                          "Next",
-                          style: TextStyle(
-                              color: nextEnabled ? Colors.white : Colors.grey),
-                        ))
-                    : IconButton(
-                        onPressed: (() => changePage(index + 1)),
-                        icon: Icon(
-                          Icons.arrow_forward,
-                          color: nextEnabled ? Colors.white : Colors.grey,
-                          size: 30,
-                        )),
+                Container(
+                  color: Colors.black,
+                  height: 50,
+                  child: Row(
+                    children: [
+                      IconButton(
+                          onPressed: (() => changePage(index - 1)),
+                          icon: Icon(
+                            Icons.arrow_back,
+                            color: index == 0 ? Colors.black : Colors.white,
+                            size: 30,
+                          )),
+                      Expanded(
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: pages.map((e) {
+                            int current = pages.indexOf(e);
+                            return Container(
+                              width: 10,
+                              height: 8,
+                              margin: EdgeInsets.symmetric(
+                                  vertical: 2, horizontal: 2),
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                color: index == current
+                                    ? Color.fromRGBO(255, 255, 255, 0.9)
+                                    : Color.fromRGBO(255, 255, 255, 0.4),
+                              ),
+                            );
+                          }).toList(),
+                        ),
+                      ),
+                      index == pages.length - 1
+                          ? TextButton(
+                              onPressed: showBottomSheet,
+                              child: Text(
+                                "Next",
+                                style: TextStyle(
+                                    color: nextEnabled
+                                        ? Colors.white
+                                        : Colors.grey),
+                              ))
+                          : IconButton(
+                              onPressed: (() => changePage(index + 1)),
+                              icon: Icon(
+                                Icons.arrow_forward,
+                                color: nextEnabled ? Colors.white : Colors.grey,
+                                size: 30,
+                              )),
+                    ],
+                  ),
+                )
               ],
             ),
-          )
-        ],
-      ),
-    );
+          ))
+        : (noInternet());
   }
 
   void changePage(int idx) {
