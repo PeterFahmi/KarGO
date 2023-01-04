@@ -39,7 +39,10 @@ class _CreateAdScreenState extends State<CreateAdScreen> {
       adTitle = TextEditingController(),
       adDescription = TextEditingController(),
       askPrice = TextEditingController(),
-      adDuration = TextEditingController();
+      adDuration = TextEditingController(),
+      transmissionCtrl = TextEditingController(),
+      manufacturerOtherCtrl = TextEditingController(),
+      modelOtherCtrl = TextEditingController();
 
   bool noImages = true;
   bool nextEnabled = false;
@@ -50,6 +53,9 @@ class _CreateAdScreenState extends State<CreateAdScreen> {
       ManufacturePage(
         manufacturerDropdownCtrl: manufacturerDropdownCtrl,
         modelDropdownCtrl: modelDropdownCtrl,
+        transmissionCtrl: transmissionCtrl,
+        manufacturerOtherCtrl: manufacturerOtherCtrl,
+        modelOtherCtrl: modelOtherCtrl,
         onChanged: setCanGoNext,
       ),
       CarPage(
@@ -171,11 +177,19 @@ class _CreateAdScreenState extends State<CreateAdScreen> {
     bool canGoNext = true;
     if (index == 0) {
       canGoNext &= manufacturerDropdownCtrl.text.isNotEmpty;
+      canGoNext &= (manufacturerDropdownCtrl.text == "other...")
+          ? manufacturerOtherCtrl.text.isNotEmpty
+          : true;
       canGoNext &= modelDropdownCtrl.text.isNotEmpty;
+      canGoNext &= (modelDropdownCtrl.text == "other...")
+          ? modelOtherCtrl.text.isNotEmpty
+          : true;
+      canGoNext &= transmissionCtrl.text.isNotEmpty;
     } else if (index == 1) {
       canGoNext &= yearCtrl.text.isNotEmpty;
       canGoNext &= colorCtrl.text.isNotEmpty;
       canGoNext &= kmCtrl.text.isNotEmpty;
+      canGoNext &= ccCtrl.text.isNotEmpty;
     } else {
       canGoNext &= adTitle.text.isNotEmpty;
       canGoNext &= adDescription.text.isNotEmpty;
@@ -279,16 +293,22 @@ class _CreateAdScreenState extends State<CreateAdScreen> {
 
   Future<String> createType() async {
     String res = '';
+    String manufacturer = (manufacturerDropdownCtrl.text == "other...")
+        ? manufacturerOtherCtrl.text
+        : manufacturerDropdownCtrl.text;
+    String model = (modelDropdownCtrl.text == "other...")
+        ? modelOtherCtrl.text
+        : modelDropdownCtrl.text;
     CollectionReference types = FirebaseFirestore.instance.collection('types');
     await types
-        .where('manufacturer', isEqualTo: manufacturerDropdownCtrl.text)
-        .where('model', isEqualTo: modelDropdownCtrl.text)
+        .where('manufacturer', isEqualTo: manufacturer)
+        .where('model', isEqualTo: model)
         .get()
         .then((value) async {
       if (value.docs.length == 0) {
         await types.add({
-          'manufacturer': manufacturerDropdownCtrl.text,
-          'model': modelDropdownCtrl.text
+          'manufacturer': manufacturer,
+          'model': model,
         }).then((value) {
           res = value.id;
         }).catchError((err) {
@@ -311,10 +331,10 @@ class _CreateAdScreenState extends State<CreateAdScreen> {
     List<String> images = await getImagesUrl(imgsXfiles);
     await cars.add({
       'color': colorCtrl.text,
-      'km':int.parse( kmCtrl.text),
+      'km': int.parse(kmCtrl.text),
       'type_id': typeId,
-      'cc':int.parse( ccCtrl.text),
-      'year': int.parse( yearCtrl.text),
+      'cc': int.parse(ccCtrl.text),
+      'year': int.parse(yearCtrl.text),
       'photos': images
     }).then((value) {
       res = value.id;
@@ -338,7 +358,7 @@ class _CreateAdScreenState extends State<CreateAdScreen> {
       'desc': adDescription.text,
       'car_id': carId,
       'highest_bid': 0,
-      'auto': 0, //NEEDS FIX
+      'auto': transmissionCtrl.text == "Automatic" ? 0 : 1, //NEEDS FIX
       'highest_bidder_id': "",
 
       'end_date':
