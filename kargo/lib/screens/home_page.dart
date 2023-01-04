@@ -28,12 +28,9 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-
   @override
   void initState() {
     super.initState();
-       
- ;
     final fbm = FirebaseMessaging.instance;
     fbm.getToken().then((value) => print(value));
     fbm.requestPermission();
@@ -103,7 +100,6 @@ class _HomePageState extends State<HomePage> {
   Widget showTab(selectedTabIndex) {
     switch (selectedTabIndex) {
       case 0:
-
         return FilterScreen();
       case 1:
         return FaveScreen();
@@ -116,10 +112,8 @@ class _HomePageState extends State<HomePage> {
         return Text("");
     }
   }
-
-
- 
 }
+
 Future<DocumentSnapshot<Map<String, dynamic>>> getCurrentUser() async {
   final currentUserUid = FirebaseAuth.instance.currentUser!.uid;
   return FirebaseFirestore.instance

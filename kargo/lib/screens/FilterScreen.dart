@@ -30,9 +30,7 @@ class _FilterScreenState extends State<FilterScreen> {
     super.initState();
 
     getAllAds();
-    final fbm = FirebaseMessaging.instance;
-    fbm.getToken().then((value) => print(value));
-    fbm.requestPermission();
+
   }
 
   var _selectedTabIndex = 0;

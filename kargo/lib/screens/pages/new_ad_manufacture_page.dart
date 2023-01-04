@@ -4,24 +4,35 @@ import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/container.dart';
 import 'package:flutter/src/widgets/framework.dart';
 
+import '../../components/my_textfield.dart';
+
 class ManufacturePage extends StatefulWidget {
   static const _subheader = TextStyle(fontWeight: FontWeight.w600);
-  final manufacturerDropdownCtrl, modelDropdownCtrl;
+  TextEditingController manufacturerDropdownCtrl,
+      modelDropdownCtrl,
+      transmissionCtrl,
+      manufacturerOtherCtrl,
+      modelOtherCtrl;
 
   VoidCallback onChanged;
 
-  ManufacturePage(
-      {required this.manufacturerDropdownCtrl,
-      required this.modelDropdownCtrl,
-      required this.onChanged});
+  ManufacturePage({
+    required this.manufacturerDropdownCtrl,
+    required this.modelDropdownCtrl,
+    required this.transmissionCtrl,
+    required this.onChanged,
+    required this.manufacturerOtherCtrl,
+    required this.modelOtherCtrl,
+  });
 
   @override
   State<ManufacturePage> createState() => _ManufacturePageState();
 }
 
 class _ManufacturePageState extends State<ManufacturePage> {
-  var carList = ["audi", "honda", "balabizo"];
-  var modelList = ["civic", "corrola", "balabizo"];
+  var carList = ["other..."];
+  var modelList = ["other..."];
+  var transmissionList = ["Automatic", "Manual"];
 
   @override
   void initState() {
@@ -67,12 +78,33 @@ class _ManufacturePageState extends State<ManufacturePage> {
               widget.onChanged();
             },
           ),
+          if (widget.manufacturerDropdownCtrl.text == "other...")
+            MyTextField(
+              controller: widget.manufacturerOtherCtrl,
+              labelText: "Specify manufacturer",
+              onSubmitted: widget.onChanged,
+            ),
           const Divider(height: 24),
           const Text('Car model', style: ManufacturePage._subheader),
           CustomDropdown.search(
             hintText: 'Select model',
             items: modelList,
             controller: widget.modelDropdownCtrl,
+            excludeSelected: false,
+            onChanged: (_) => widget.onChanged(),
+          ),
+          if (widget.modelDropdownCtrl.text == "other...")
+            MyTextField(
+              controller: widget.modelOtherCtrl,
+              labelText: "Specify model",
+              onSubmitted: widget.onChanged,
+            ),
+          const Divider(height: 24),
+          const Text('Transmission', style: ManufacturePage._subheader),
+          CustomDropdown.search(
+            hintText: 'Select Transmission',
+            items: transmissionList,
+            controller: widget.transmissionCtrl,
             excludeSelected: false,
             onChanged: (_) => widget.onChanged(),
           ),

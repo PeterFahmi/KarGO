@@ -31,9 +31,6 @@ class _MyBidsScreenState extends State<MyBidsScreen> {
     super.initState();
 
     loadAds();
-    final fbm = FirebaseMessaging.instance;
-    fbm.getToken().then((value) => print(value));
-    fbm.requestPermission();
   }
 
   var _selectedTabIndex = 0;

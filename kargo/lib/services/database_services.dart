@@ -15,11 +15,12 @@ class DatabaseService {
     return snapshot;
   }
 
-  Future getUserDataFromId(String id) async {
+  Future<Object?> getUserDataFromId(String id) async {
     DocumentReference docRef = userCollection.doc(id);
     DocumentSnapshot snapshot = await docRef.get();
     // print("userdata = " + snapshot.data().toString());
-    return snapshot;
+    var userdata = snapshot.data();
+    return userdata;
   }
   getUserChats() async {
     return userCollection.doc(uid).snapshots();
@@ -76,14 +77,62 @@ class DatabaseService {
     return newMsg;
   }
 
-  /**
-    I/flutter ( 7835): image message json = {
-      author: {id: dspuAgOXFcRcXIUwiDYbLBX3jEx2}, 
-      createdAt: 1672403324368, id: 2022-12-30 14:28:44.368769, 
-      type: image, 
-      name: scaled_image_picker2774617387038099389.jpg, 
-      size: 27, 
-      uri: /data/user/0/com.example.kargo/cache/scaled_image_picker2774617387038099389.jpg
+  // This method takes in a user id and returns the corresponding chat document reference
+  // if exists, else returns null.
+  Future<DocumentReference?> checkChatExists(String otherUserId) async {
+    DocumentReference? correspondingChat = null;
+    DocumentReference otherUserRef = userCollection.doc(otherUserId);
+    // print("other user ref=" + otherUserRef.toString());
+    await userCollection.doc(uid).get()
+      .then((snapshot) async {
+        final data = snapshot.data() as Map;
+        final chats = data['chats'] as List;
+        // print("chatsList" + chats.toString());
+        for (var chatRef in chats) { 
+          // print("chatRef="+chatRef.toString());
+          await chatRef.get()
+            .then((DocumentSnapshot snapshot) {
+              final chatData = snapshot.data() as Map;
+              final chatUsers = chatData['users'] as List;
+              // print("chatsList="+chatUsers.toString());
+              if(chatUsers.contains(otherUserRef)){
+                correspondingChat = chatRef;
+                return;
+              }
+            });
+        }
+      });
+    return correspondingChat;
+  }
+  
+  Future<DocumentReference<Object?>?> createChat(String otherUserId) async {
+    DocumentReference? exists = await checkChatExists(otherUserId);
+    print("Chat already exists?" + exists.toString());
+    if(exists != null){
+      return exists;
     }
-   */
+
+    DocumentReference curUserRef = userCollection.doc(uid);
+    DocumentReference otherUserRef = userCollection.doc(otherUserId);
+    await chatCollection.add({
+      "users": [
+        curUserRef, 
+        otherUserRef
+      ],
+      "recentMessage": "",
+      "recentMessageSender": "",
+      "recentMessageTime": Timestamp.now()
+    })
+    .then((DocumentReference chatRef) {
+      print("chat then value = " + chatRef.toString());
+      exists = chatRef;
+      userCollection.doc(uid).update({
+        "chats": FieldValue.arrayUnion([chatRef as DocumentReference])
+      });
+      userCollection.doc(otherUserId).update({
+        "chats": FieldValue.arrayUnion([chatRef])
+      });
+    });
+    return exists;
+  }
 }
