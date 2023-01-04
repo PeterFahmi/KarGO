@@ -11,6 +11,7 @@ import 'package:flutter/src/widgets/framework.dart';
 import 'package:kargo/components/ad_card2.dart';
 
 import '../components/my_shimmering_card.dart';
+import 'empty_screen.dart';
 
 class MyAdsScreen extends StatefulWidget {
   const MyAdsScreen({super.key});
@@ -102,13 +103,15 @@ class _MyAdsScreenState extends State<MyAdsScreen> {
                       color: Colors.black,
                     ),
                   Expanded(
-                    child: ListView(
-                      reverse: false,
-                      children: [
-                        ...ads,
-                        if (isLoading) ShimmerCard(),
-                      ],
-                    ),
+                    child: ads.length == 0
+                        ? EmptyScreen()
+                        : ListView(
+                            reverse: false,
+                            children: [
+                              ...ads,
+                              if (isLoading) ShimmerCard(),
+                            ],
+                          ),
                   ),
                 ],
               ),

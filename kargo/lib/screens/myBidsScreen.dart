@@ -12,6 +12,7 @@ import 'package:kargo/components/my_bottom_navigator.dart';
 import 'package:kargo/components/my_scaffold.dart';
 import 'package:kargo/components/my_shimmering_card.dart';
 import 'package:kargo/components/no_Internet.dart';
+import 'package:kargo/screens/empty_screen.dart';
 import 'package:kargo/screens/loading_screen.dart';
 import '../components/multiChip.dart';
 import '../models/ad.dart';
@@ -70,7 +71,7 @@ class _MyBidsScreenState extends State<MyBidsScreen> {
             : Column(children: [
                 Expanded(
                     child: myBids.length == 0
-                        ? Text("No favourites found")
+                        ? EmptyScreen()
                         : ListView.builder(
                             itemCount: myBids.length,
                             itemBuilder: (context, index) {
@@ -131,7 +132,10 @@ class _MyBidsScreenState extends State<MyBidsScreen> {
         .then((res) async {
       final data = res.data() as Map<String, dynamic>;
       favAds = data['favAds'];
-      mbAds = data['myBids'];
+      var b = data['myBids'];
+      print(b);
+      mbAds = [for (var ad in b) ad['ad_id']];
+      print(mbAds);
       if (mbAds.isEmpty) {
         setState(() {
           isLoadingb = false;
