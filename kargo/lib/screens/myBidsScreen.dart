@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/container.dart';
@@ -10,6 +11,8 @@ import 'package:kargo/components/ad_card2.dart';
 import 'package:kargo/components/my_bottom_navigator.dart';
 import 'package:kargo/components/my_scaffold.dart';
 import 'package:kargo/components/my_shimmering_card.dart';
+import 'package:kargo/components/no_Internet.dart';
+import 'package:kargo/screens/empty_screen.dart';
 import 'package:kargo/screens/loading_screen.dart';
 import '../components/multiChip.dart';
 import '../models/ad.dart';
@@ -44,28 +47,45 @@ class _MyBidsScreenState extends State<MyBidsScreen> {
   var currentUser = getCurrentUser();
 
   bool isLoadingb = true;
+  bool internetConnection = true;
+  void checkConnectitivy() async {
+    var result = await Connectivity().checkConnectivity();
+
+    if (result.name == "none") {
+      setState(() {
+        internetConnection = false;
+      });
+    } else {
+      setState(() {
+        internetConnection = true;
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
-    return isLoadingb
-        ? ShimmerCard()
-        : Column(children: [
-            Expanded(
-                child: myBids.length == 0
-                    ? Text("No favourites found")
-                    : ListView.builder(
-                        itemCount: myBids.length,
-                        itemBuilder: (context, index) {
-                          // Get the map object at the current index
-                          Ad item = myBids[index];
+    checkConnectitivy();
+    return internetConnection
+        ? (isLoadingb
+            ? ShimmerCard()
+            : Column(children: [
+                Expanded(
+                    child: myBids.length == 0
+                        ? EmptyScreen()
+                        : ListView.builder(
+                            itemCount: myBids.length,
+                            itemBuilder: (context, index) {
+                              // Get the map object at the current index
+                              Ad item = myBids[index];
 
-                          // Turn the map object into a card widget
-                          return Ad_Card2(
-                            Ad: item,
-                          );
-                        },
-                      ))
-          ]);
+                              // Turn the map object into a card widget
+                              return Ad_Card2(
+                                Ad: item,
+                              );
+                            },
+                          ))
+              ]))
+        : (noInternet());
   }
 
   void updateUserProfile(UserModel.User updatedUser) async {
@@ -114,8 +134,8 @@ class _MyBidsScreenState extends State<MyBidsScreen> {
       favAds = data['favAds'];
       var b = data['myBids'];
       print(b);
-       mbAds = [for (var ad in b) ad['ad_id']];
-        print(mbAds);
+      mbAds = [for (var ad in b) ad['ad_id']];
+      print(mbAds);
       if (mbAds.isEmpty) {
         setState(() {
           isLoadingb = false;

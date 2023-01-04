@@ -16,6 +16,7 @@ class NoChatsComponent extends StatelessWidget {
           GestureDetector(
             onTap: () {
               //TODO: on press, redirect the user to the ads page
+              Navigator.of(context).pop();
             },
             child: Icon(
               Icons.ads_click,

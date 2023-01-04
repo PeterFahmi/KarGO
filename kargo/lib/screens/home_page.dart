@@ -7,9 +7,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/container.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:kargo/components/ad_card2.dart';
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:kargo/components/my_bottom_navigator.dart';
 import 'package:kargo/components/my_scaffold.dart';
 import 'package:kargo/components/my_shimmering_card.dart';
+import 'package:kargo/components/no_Internet.dart';
 import 'package:kargo/screens/favScreen.dart';
 import 'package:kargo/screens/loading_screen.dart';
 import 'package:kargo/screens/myBidsScreen.dart';
@@ -28,12 +30,30 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  bool internetConnection = true;
+  void checkConnectitivy() async {
+    var result = await Connectivity().checkConnectivity();
+
+    if (result.name == "none") {
+      setState(() {
+        internetConnection = false;
+      });
+    } else {
+      setState(() {
+        internetConnection = true;
+      });
+    }
+  }
+
   @override
   void initState() {
+    checkConnectitivy();
     super.initState();
-    final fbm = FirebaseMessaging.instance;
-    fbm.getToken().then((value) => print(value));
-    fbm.requestPermission();
+    if (internetConnection) {
+      final fbm = FirebaseMessaging.instance;
+      fbm.getToken().then((value) => print(value));
+      fbm.requestPermission();
+    }
   }
 
   var _selectedTabIndex = 0;
@@ -42,26 +62,30 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<DocumentSnapshot<Map<String, dynamic>>>(
-      future: currentUser,
-      builder: (BuildContext context,
-          AsyncSnapshot<DocumentSnapshot<Map<String, dynamic>>> snapshot) {
-        if (snapshot.hasData) {
-          var currentUserModel = createCurrentUserModel(snapshot);
-          return MyScaffold(
-            body: showTab(_selectedTabIndex),
-            bottomNavigationBar: MyBottomNavagationBar(
-              notifyParent: onNavigationBarChanged,
-            ),
-            currentUser: currentUserModel,
-            updateUserFunction: updateUserProfile,
-          );
-        } else if (snapshot.hasError) {
-          throw Exception("");
-        }
-        return LoadingScreen();
-      },
-    );
+    checkConnectitivy();
+    return internetConnection
+        ? (FutureBuilder<DocumentSnapshot<Map<String, dynamic>>>(
+            future: currentUser,
+            builder: (BuildContext context,
+                AsyncSnapshot<DocumentSnapshot<Map<String, dynamic>>>
+                    snapshot) {
+              if (snapshot.hasData) {
+                var currentUserModel = createCurrentUserModel(snapshot);
+                return MyScaffold(
+                  body: showTab(_selectedTabIndex),
+                  bottomNavigationBar: MyBottomNavagationBar(
+                    notifyParent: onNavigationBarChanged,
+                  ),
+                  currentUser: currentUserModel,
+                  updateUserFunction: updateUserProfile,
+                );
+              } else if (snapshot.hasError) {
+                throw Exception("");
+              }
+              return LoadingScreen();
+            },
+          ))
+        : (noInternet());
   }
 
   void updateUserProfile(UserModel.User updatedUser) async {

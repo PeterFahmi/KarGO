@@ -5,16 +5,19 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/container.dart';
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:kargo/components/ad_card2.dart';
 import 'package:kargo/components/my_bottom_navigator.dart';
 import 'package:kargo/components/my_scaffold.dart';
 import 'package:kargo/components/my_shimmering_card.dart';
+import 'package:kargo/components/no_Internet.dart';
 import 'package:kargo/screens/loading_screen.dart';
 import '../components/multiChip.dart';
 import '../models/ad.dart';
 import '../models/user.dart' as UserModel;
 
+import 'empty_screen.dart';
 import 'my_ads_screen.dart';
 
 class FaveScreen extends StatefulWidget {
@@ -25,11 +28,28 @@ class FaveScreen extends StatefulWidget {
 }
 
 class _FaveScreenState extends State<FaveScreen> {
+  bool internetConnection = true;
+  void checkConnectitivy() async {
+    var result = await Connectivity().checkConnectivity();
+
+    if (result.name == "none") {
+      setState(() {
+        internetConnection = false;
+      });
+    } else {
+      setState(() {
+        internetConnection = true;
+      });
+    }
+  }
+
   @override
   void initState() {
     super.initState();
-
-    loadAds();
+    checkConnectitivy();
+    if (internetConnection) {
+      loadAds();
+    }
   }
 
   var currentUser = getCurrentUser();
@@ -41,28 +61,34 @@ class _FaveScreenState extends State<FaveScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      child: Column(
-        children: [
-          if (isLoading)
-            LinearProgressIndicator(
-              minHeight: 5,
-              value: favoriteAds.length / (favAdsIds.length + 0.1),
-              backgroundColor: Colors.white,
-              color: Colors.black,
-            ),
-          Expanded(
-            child: ListView(
-              reverse: false,
+    checkConnectitivy();
+
+    return internetConnection
+        ? (Container(
+            child: Column(
               children: [
-                ...favoriteAds.map((e) => Ad_Card2(Ad: e)),
-                if (isLoading) ShimmerCard(),
+                if (isLoading)
+                  LinearProgressIndicator(
+                    minHeight: 5,
+                    value: favoriteAds.length / (favAdsIds.length + 0.1),
+                    backgroundColor: Colors.white,
+                    color: Colors.black,
+                  ),
+                Expanded(
+                  child: favoriteAds.length == 0
+                      ? EmptyScreen()
+                      : ListView(
+                          reverse: false,
+                          children: [
+                            ...favoriteAds.map((e) => Ad_Card2(Ad: e)),
+                            if (isLoading) ShimmerCard(),
+                          ],
+                        ),
+                ),
               ],
             ),
-          ),
-        ],
-      ),
-    );
+          ))
+        : (noInternet());
   }
 
   void updateUserProfile(UserModel.User updatedUser) async {
@@ -76,7 +102,6 @@ class _FaveScreenState extends State<FaveScreen> {
       currentUser = getCurrentUser();
     });
   }
-
 
   void loadAds() async {
     CollectionReference adsCollection =
@@ -156,7 +181,6 @@ class _FaveScreenState extends State<FaveScreen> {
               manufacturer = data['manufacturer'];
               model = data['model'];
             });
-
           });
           Ad adModel = Ad(
               adId: adId,

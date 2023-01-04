@@ -7,14 +7,17 @@ import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/container.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:kargo/components/ad_card2.dart';
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:kargo/components/my_bottom_navigator.dart';
 import 'package:kargo/components/my_scaffold.dart';
 import 'package:kargo/components/my_shimmering_card.dart';
+import 'package:kargo/components/no_Internet.dart';
 import 'package:kargo/screens/loading_screen.dart';
 import '../components/multiChip.dart';
 import '../models/ad.dart';
 import '../models/user.dart' as UserModel;
 
+import 'empty_screen.dart';
 import 'my_ads_screen.dart';
 
 class FilterScreen extends StatefulWidget {
@@ -25,19 +28,31 @@ class FilterScreen extends StatefulWidget {
 }
 
 class _FilterScreenState extends State<FilterScreen> {
+  bool internetConnection = true;
+  void checkConnectitivy() async {
+    var result = await Connectivity().checkConnectivity();
+
+    if (result.name == "none") {
+      setState(() {
+        internetConnection = false;
+      });
+    } else {
+      setState(() {
+        internetConnection = true;
+      });
+    }
+  }
+
   @override
   void initState() {
     super.initState();
-
-    getAllAds();
-
+    checkConnectitivy();
+    if (internetConnection) {
+      getAllAds();
+    }
   }
 
   var _selectedTabIndex = 0;
-  List<String> imgUrls = [
-    'https://www.hdcarwallpapers.com/download/abt_sportsline_audi_tt-2880x1800.jpg',
-    'https://th.bing.com/th/id/OIP.zpu1nHs3RCyeRXikR-nFGgHaFj?pid=ImgDet&w=1600&h=1200&rs=1'
-  ];
   List<Ad> ads = [];
   List<Ad> favoriteAds = [];
   List<Ad> myAds = [];
@@ -77,30 +92,47 @@ class _FilterScreenState extends State<FilterScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return isLoading
-        ? ShimmerCard()
-        : Column(children: [
-            TextButton(
-                onPressed: Adfilter,
-                child: Text(
-                  "Filter",
-                )),
-            Expanded(
-                child: ads.length == 0
-                    ? Text("No results found")
-                    : ListView.builder(
-                        itemCount: ads.length,
-                        itemBuilder: (context, index) {
-                          // Get the map object at the current index
-                          Ad item = ads[index];
+    checkConnectitivy();
 
-                          // Turn the map object into a card widget
-                          return Ad_Card2(
-                            Ad: item,
-                          );
-                        },
-                      ))
-          ]);
+    return internetConnection
+        ? NestedScrollView(
+            headerSliverBuilder: (context, innerBoxIsScrolled) {
+              return [
+                SliverAppBar(
+                  backgroundColor: Color.fromRGBO(0, 0, 0, 0.2),
+                  floating: true,
+                  title: Text("Have a specific car in mind?"),
+                  actions: [
+                    Padding(
+                      padding: EdgeInsets.all(10),
+                      child: ElevatedButton(
+                        onPressed: Adfilter,
+                        child: Text('Filter'),
+                        style: ButtonStyle(
+                          backgroundColor:
+                              MaterialStateProperty.all<Color>(Colors.green),
+                          foregroundColor:
+                              MaterialStateProperty.all<Color>(Colors.white),
+                        ),
+                      ),
+                    ),
+                  ],
+                )
+              ];
+            },
+            floatHeaderSlivers: true,
+            body: (Container(
+                child: ads.length == 0
+                    ? EmptyScreen()
+                    : ListView(
+                        reverse: false,
+                        children: [
+                          ...ads.map((e) => Ad_Card2(Ad: e)),
+                          if (isLoading) ShimmerCard(),
+                        ],
+                      ))),
+          )
+        : (noInternet());
   }
 
   void updateUserProfile(UserModel.User updatedUser) async {
@@ -703,51 +735,52 @@ class _FilterScreenState extends State<FilterScreen> {
             });
           });
 
-          
-            Ad adv = Ad(
-                adId: adId,
-                model: model,
-                year: year,
-                manufacturer: manufacturer,
-                km: km,
-                fav: fav,
-                imagePaths: photos,
-                highestBid: highestBid,
-                askPrice: askPrice,
-                highestBidderId: highestBidderId,
-                ownerId: uId,
-                colour: color,
-                title: title,
-                desc: desc,
-                typeId: typeId,
-                startDate: startDate,
-                endDate: endDate,
-                carId: carId,
-                auto: auto,
-                cc: cc,
-                daysRemaining:
-                    DateTime.now().difference(endDate.toDate()).inDays * -1);
-                   if (this.mounted) { setState(() {
-            bool p = false;
-            for (var ad in ads) {
-              if (adv.adId == ad.adId) p = true;
-            }
-            if (!p) {
-              ads.add(adv);
-              if (adv.fav > 0) favoriteAds.add(adv);
-              if (mAds.contains(adv.adId)) {
-                myAds.add(adv);
+          Ad adv = Ad(
+              adId: adId,
+              model: model,
+              year: year,
+              manufacturer: manufacturer,
+              km: km,
+              fav: fav,
+              imagePaths: photos,
+              highestBid: highestBid,
+              askPrice: askPrice,
+              highestBidderId: highestBidderId,
+              ownerId: uId,
+              colour: color,
+              title: title,
+              desc: desc,
+              typeId: typeId,
+              startDate: startDate,
+              endDate: endDate,
+              carId: carId,
+              auto: auto,
+              cc: cc,
+              daysRemaining:
+                  DateTime.now().difference(endDate.toDate()).inDays * -1);
+          if (this.mounted) {
+            setState(() {
+              bool p = false;
+              for (var ad in ads) {
+                if (adv.adId == ad.adId) p = true;
               }
-            }
-            print(myAds);
-            print("IDS:$carsIDs");
-            print(ads);
-            print("aa");
-            if (favoriteAds.length == favAds.length) isLoadingf = false;
-            if (myAds.length == mAds.length) isLoadingm = false;
-            if (carsIDs.length == ads.length ||
-                searchResults.length == ads.length) isLoading = false;
-          });}
+              if (!p) {
+                ads.add(adv);
+                if (adv.fav > 0) favoriteAds.add(adv);
+                if (mAds.contains(adv.adId)) {
+                  myAds.add(adv);
+                }
+              }
+              print(myAds);
+              print("IDS:$carsIDs");
+              print(ads);
+              print("aa");
+              if (favoriteAds.length == favAds.length) isLoadingf = false;
+              if (myAds.length == mAds.length) isLoadingm = false;
+              if (carsIDs.length == ads.length ||
+                  searchResults.length == ads.length) isLoading = false;
+            });
+          }
         });
       }
 
