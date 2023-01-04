@@ -165,7 +165,7 @@ class _ChatListScreenState extends State<ChatListScreen> {
                 }
                 // print("snapshot.data=" + (snapshot.data as ChatUser).id);
                 ChatUser chatUser = snapshot.data as ChatUser;
-                if(isSearchActivated && !chatUser.name!.contains(chatSearchBar.searchCtrl.text)){
+                if(isSearchActivated && !chatUser.name!.toUpperCase().contains(chatSearchBar.searchCtrl.text.toUpperCase())){
                   return Container();
                 }
                 return ChatCard(
