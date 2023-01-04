@@ -3,6 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/container.dart';
 import 'package:flutter/src/widgets/framework.dart';
+import '../../models/ad.dart';
 
 import '../../components/my_textfield.dart';
 
@@ -13,10 +14,11 @@ class ManufacturePage extends StatefulWidget {
       transmissionCtrl,
       manufacturerOtherCtrl,
       modelOtherCtrl;
-
+  Ad? ad;
   VoidCallback onChanged;
 
   ManufacturePage({
+    this.ad,
     required this.manufacturerDropdownCtrl,
     required this.modelDropdownCtrl,
     required this.transmissionCtrl,
@@ -69,15 +71,11 @@ class _ManufacturePageState extends State<ManufacturePage> {
           child: Center(
         child: ListView(padding: EdgeInsets.all(15), children: [
           const Text('Car manufacturer', style: ManufacturePage._subheader),
-          CustomDropdown.search(
-            hintText: 'Select manufacturer',
-            items: carList,
-            controller: widget.manufacturerDropdownCtrl,
-            excludeSelected: false,
-            onChanged: (_) {
-              widget.onChanged();
-            },
-          ),
+          getCustomDropDown(
+              'Select manufacturer', modelList, widget.manufacturerDropdownCtrl,
+              (_) {
+            widget.onChanged();
+          }, widget.ad, 1),
           if (widget.manufacturerDropdownCtrl.text == "other...")
             MyTextField(
               controller: widget.manufacturerOtherCtrl,
@@ -86,13 +84,8 @@ class _ManufacturePageState extends State<ManufacturePage> {
             ),
           const Divider(height: 24),
           const Text('Car model', style: ManufacturePage._subheader),
-          CustomDropdown.search(
-            hintText: 'Select model',
-            items: modelList,
-            controller: widget.modelDropdownCtrl,
-            excludeSelected: false,
-            onChanged: (_) => widget.onChanged(),
-          ),
+          getCustomDropDown('Select model', modelList, widget.modelDropdownCtrl,
+              (_) => widget.onChanged(), widget.ad, 2),
           if (widget.modelDropdownCtrl.text == "other...")
             MyTextField(
               controller: widget.modelOtherCtrl,
@@ -101,15 +94,30 @@ class _ManufacturePageState extends State<ManufacturePage> {
             ),
           const Divider(height: 24),
           const Text('Transmission', style: ManufacturePage._subheader),
-          CustomDropdown.search(
-            hintText: 'Select Transmission',
-            items: transmissionList,
-            controller: widget.transmissionCtrl,
-            excludeSelected: false,
-            onChanged: (_) => widget.onChanged(),
-          ),
+          getCustomDropDown('Select Transmission', transmissionList,
+              widget.transmissionCtrl, (_) => widget.onChanged(), widget.ad, 3)
         ]),
       ))
     ]);
   }
+}
+
+Widget getCustomDropDown(hintText, itemsList, ctrl, onChgd, Ad? ad, type) {
+  var wdgt = CustomDropdown.search(
+    hintText: hintText,
+    items: itemsList,
+    controller: ctrl,
+    excludeSelected: false,
+    onChanged: onChgd,
+  );
+  if (ad != null) {
+    if (type == 1) {
+      wdgt.controller.text = (ad.manufacturer.toString());
+    } else if (type == 2) {
+      wdgt.controller.text = (ad.model.toString());
+    } else {
+      wdgt.controller.text = (ad.auto == 0 ? 'Automatic' : 'Manual');
+    }
+  }
+  return wdgt;
 }
