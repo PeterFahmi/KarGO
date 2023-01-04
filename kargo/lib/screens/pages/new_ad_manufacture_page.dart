@@ -121,29 +121,6 @@ class _ManufacturePageState extends State<ManufacturePage> {
     hasLoaded = true;
     return myWidget;
   }
-}
-
-Widget getCustomDropDown(
-    hintText, itemsList, ctrl, onChgd, Ad? ad, type, hasLoaded) {
-  var wdgt = CustomDropdown.search(
-    hintText: hintText,
-    items: itemsList,
-    controller: ctrl,
-    excludeSelected: false,
-    onChanged: onChgd,
-  );
-  if (ad != null && !hasLoaded) {
-    if (type == 1) {
-      ctrl.value = TextEditingValue(text: ad.manufacturer.toString());
-    } else if (type == 2) {
-      ctrl.value = TextEditingValue(text: ad.model.toString());
-    } else {
-      ctrl.value =
-          TextEditingValue(text: ad.auto == 0 ? 'Automatic' : 'Manual');
-    }
-  }
-  return wdgt;
-}
 
   void chooseManufacturer() {
     FirebaseFirestore.instance
@@ -166,4 +143,26 @@ Widget getCustomDropDown(
     });
     widget.onChanged();
   }
+}
+
+Widget getCustomDropDown(
+    hintText, itemsList, ctrl, onChgd, Ad? ad, type, hasLoaded) {
+  var wdgt = CustomDropdown.search(
+    hintText: hintText,
+    items: itemsList,
+    controller: ctrl,
+    excludeSelected: false,
+    onChanged: onChgd,
+  );
+  if (ad != null && !hasLoaded) {
+    if (type == 1) {
+      ctrl.value = TextEditingValue(text: ad.manufacturer.toString());
+    } else if (type == 2) {
+      ctrl.value = TextEditingValue(text: ad.model.toString());
+    } else {
+      ctrl.value =
+          TextEditingValue(text: ad.auto == 0 ? 'Automatic' : 'Manual');
+    }
+  }
+  return wdgt;
 }

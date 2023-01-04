@@ -980,28 +980,35 @@ class _AdScreenState extends State<AdScreen> {
                                         )))
                               ],
                             ),
-                            SizedBox(height: 50),
-                            Center(
-                              child: MaterialButton(
-                                  shape: RoundedRectangleBorder(
-                                      borderRadius:
-                                          BorderRadius.all(Radius.circular(9))),
-                                  height: 50,
-                                  minWidth: 150,
-                                  color: Colors.red[400],
-                                  onPressed: () async {
-                                    await FirebaseFirestore.instance
-                                        .collection('ads')
-                                        .doc(ad.adId)
-                                        .delete();
-                                    Navigator.of(context).popAndPushNamed('/');
-                                  },
-                                  child: Icon(
-                                    Icons.delete,
-                                    color: Colors.white,
-                                  )),
-                            ),
-                            SizedBox(height: 90),
+                            ad.ownerId == userId
+                                ? Column(
+                                    children: [
+                                      SizedBox(height: 50),
+                                      Center(
+                                        child: MaterialButton(
+                                            shape: RoundedRectangleBorder(
+                                                borderRadius: BorderRadius.all(
+                                                    Radius.circular(9))),
+                                            height: 50,
+                                            minWidth: 150,
+                                            color: Colors.red[400],
+                                            onPressed: () async {
+                                              await FirebaseFirestore.instance
+                                                  .collection('ads')
+                                                  .doc(ad.adId)
+                                                  .delete();
+                                              Navigator.of(context)
+                                                  .popAndPushNamed('/');
+                                            },
+                                            child: Icon(
+                                              Icons.delete,
+                                              color: Colors.white,
+                                            )),
+                                      ),
+                                      SizedBox(height: 90),
+                                    ],
+                                  )
+                                : Container(),
                           ],
                         ))
                   ]))
