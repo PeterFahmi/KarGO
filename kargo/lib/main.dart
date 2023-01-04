@@ -1,3 +1,4 @@
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:kargo/screens/ad_screen2.dart';
@@ -37,6 +38,9 @@ class _MyAppState extends State<MyApp> {
       await Firebase.initializeApp();
       setState(() {
         _initialized = true;
+         var fbm = FirebaseMessaging.instance;
+ fbm.requestPermission(); // only shows on ios
+ fbm.subscribeToTopic(FirebaseAuth.instance.currentUser!.uid);
       });
     } catch (e) {
       // Set `_error` state to true if Firebase initialization fails

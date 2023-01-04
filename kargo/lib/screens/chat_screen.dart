@@ -31,12 +31,12 @@ class ChatScreenState extends State<ChatScreen> {
   var db = DatabaseService(uid: FirebaseAuth.instance.currentUser!.uid);
   void checkConnectitivy() async {
     var result = await Connectivity().checkConnectivity();
-
-    if (result.name == "none") {
+    if (result.name == "none" && internetConnection) {
       setState(() {
         internetConnection = false;
       });
-    } else {
+    } else if ((!internetConnection) &&
+        (result.name == "wifi" || result.name == "mobile")) {
       setState(() {
         internetConnection = true;
       });
@@ -64,7 +64,7 @@ class ChatScreenState extends State<ChatScreen> {
 
   @override
   Widget build(BuildContext context) {
-    checkConnectitivy();
+    //checkConnectitivy();
     return internetConnection
         ? (Scaffold(
             appBar: PreferredSize(

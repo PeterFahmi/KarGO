@@ -20,7 +20,7 @@ class ShimmerCard extends StatelessWidget {
                   height: 150,
                   width: 300,
                   radius: 10,
-                  millisecondsDelay: 2,
+                  millisecondsDelay: 1,
                   fadeTheme: FadeTheme.light,
                 ),
                 SizedBox(

@@ -31,12 +31,12 @@ class _ChatListScreenState extends State<ChatListScreen> {
   SearchBar chatSearchBar = SearchBar();
   void checkConnectitivy() async {
     var result = await Connectivity().checkConnectivity();
-
-    if (result.name == "none") {
+    if (result.name == "none" && internetConnection) {
       setState(() {
         internetConnection = false;
       });
-    } else {
+    } else if ((!internetConnection) &&
+        (result.name == "wifi" || result.name == "mobile")) {
       setState(() {
         internetConnection = true;
       });
@@ -96,7 +96,7 @@ class _ChatListScreenState extends State<ChatListScreen> {
 
   @override
   Widget build(BuildContext context) {
-    checkConnectitivy();
+    //checkConnectitivy();
     // print("search val=" + chatSearchBar.searchCtrl.text);
     return internetConnection
         ? (Scaffold(
