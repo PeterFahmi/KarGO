@@ -98,30 +98,43 @@ class _FilterScreenState extends State<FilterScreen> {
     checkConnectitivy();
 
     return internetConnection
-        ? (isLoading
-            ? ShimmerCard()
-            : Column(children: [
-                TextButton(
-                    onPressed: Adfilter,
-                    child: Text(
-                      "Filter",
-                    )),
-                Expanded(
-                    child: ads.length == 0
-                        ? Text("No results found")
-                        : ListView.builder(
-                            itemCount: ads.length,
-                            itemBuilder: (context, index) {
-                              // Get the map object at the current index
-                              Ad item = ads[index];
-
-                              // Turn the map object into a card widget
-                              return Ad_Card2(
-                                Ad: item,
-                              );
-                            },
-                          ))
-              ]))
+        ? NestedScrollView(
+            headerSliverBuilder: (context, innerBoxIsScrolled) {
+              return [
+                SliverAppBar(
+                  backgroundColor: Color.fromRGBO(0, 0, 0, 0.2),
+                  floating: true,
+                  title: Text("Have a specific car in mind?"),
+                  actions: [
+                    Padding(
+                      padding: EdgeInsets.all(10),
+                      child: ElevatedButton(
+                        onPressed: Adfilter,
+                        child: Text('Filter'),
+                        style: ButtonStyle(
+                          backgroundColor:
+                              MaterialStateProperty.all<Color>(Colors.green),
+                          foregroundColor:
+                              MaterialStateProperty.all<Color>(Colors.white),
+                        ),
+                      ),
+                    ),
+                  ],
+                )
+              ];
+            },
+            floatHeaderSlivers: true,
+            body: (Container(
+                child: ads.length == 0
+                    ? Text("No results found")
+                    : ListView(
+                        reverse: false,
+                        children: [
+                          ...ads.map((e) => Ad_Card2(Ad: e)),
+                          if (isLoading) ShimmerCard(),
+                        ],
+                      ))),
+          )
         : (noInternet());
   }
 
@@ -725,51 +738,52 @@ class _FilterScreenState extends State<FilterScreen> {
             });
           });
 
-          
-            Ad adv = Ad(
-                adId: adId,
-                model: model,
-                year: year,
-                manufacturer: manufacturer,
-                km: km,
-                fav: fav,
-                imagePaths: photos,
-                highestBid: highestBid,
-                askPrice: askPrice,
-                highestBidderId: highestBidderId,
-                ownerId: uId,
-                colour: color,
-                title: title,
-                desc: desc,
-                typeId: typeId,
-                startDate: startDate,
-                endDate: endDate,
-                carId: carId,
-                auto: auto,
-                cc: cc,
-                daysRemaining:
-                    DateTime.now().difference(endDate.toDate()).inDays * -1);
-                   if (this.mounted) { setState(() {
-            bool p = false;
-            for (var ad in ads) {
-              if (adv.adId == ad.adId) p = true;
-            }
-            if (!p) {
-              ads.add(adv);
-              if (adv.fav > 0) favoriteAds.add(adv);
-              if (mAds.contains(adv.adId)) {
-                myAds.add(adv);
+          Ad adv = Ad(
+              adId: adId,
+              model: model,
+              year: year,
+              manufacturer: manufacturer,
+              km: km,
+              fav: fav,
+              imagePaths: photos,
+              highestBid: highestBid,
+              askPrice: askPrice,
+              highestBidderId: highestBidderId,
+              ownerId: uId,
+              colour: color,
+              title: title,
+              desc: desc,
+              typeId: typeId,
+              startDate: startDate,
+              endDate: endDate,
+              carId: carId,
+              auto: auto,
+              cc: cc,
+              daysRemaining:
+                  DateTime.now().difference(endDate.toDate()).inDays * -1);
+          if (this.mounted) {
+            setState(() {
+              bool p = false;
+              for (var ad in ads) {
+                if (adv.adId == ad.adId) p = true;
               }
-            }
-            print(myAds);
-            print("IDS:$carsIDs");
-            print(ads);
-            print("aa");
-            if (favoriteAds.length == favAds.length) isLoadingf = false;
-            if (myAds.length == mAds.length) isLoadingm = false;
-            if (carsIDs.length == ads.length ||
-                searchResults.length == ads.length) isLoading = false;
-          });}
+              if (!p) {
+                ads.add(adv);
+                if (adv.fav > 0) favoriteAds.add(adv);
+                if (mAds.contains(adv.adId)) {
+                  myAds.add(adv);
+                }
+              }
+              print(myAds);
+              print("IDS:$carsIDs");
+              print(ads);
+              print("aa");
+              if (favoriteAds.length == favAds.length) isLoadingf = false;
+              if (myAds.length == mAds.length) isLoadingm = false;
+              if (carsIDs.length == ads.length ||
+                  searchResults.length == ads.length) isLoading = false;
+            });
+          }
         });
       }
 
