@@ -66,13 +66,13 @@ class _Ad_Card2State extends State<Ad_Card2> {
   }
 
   void adDetails(BuildContext context) {
-    Navigator.pushNamed(context, AdScreen.routeName, arguments: widget.Ad).then((_){
-      String? path= ModalRoute.of(context)!.settings.name;
+    Navigator.pushNamed(context, AdScreen.routeName, arguments: widget.Ad)
+        .then((_) {
+      String? path = ModalRoute.of(context)!.settings.name;
       Navigator.popAndPushNamed(context, path!);
-   print( "aloooo");
-    print( ModalRoute.of(context)!.settings.name);});
-    
-    
+      print("aloooo");
+      print(ModalRoute.of(context)!.settings.name);
+    });
   }
 
   @override
@@ -84,7 +84,7 @@ class _Ad_Card2State extends State<Ad_Card2> {
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
         elevation: 4,
         color: Colors.white60,
-        margin: EdgeInsets.all(10),
+        margin: EdgeInsets.all(15),
         child: Column(
           children: [
             // child 1 of column is image + title
@@ -164,7 +164,7 @@ class _Ad_Card2State extends State<Ad_Card2> {
                                     '  ' +
                                     widget.Ad.model.toUpperCase() +
                                     '  ' +
-                                    widget.Ad.year.toString() ,
+                                    widget.Ad.year.toString(),
                                 style: TextStyle(
                                   color: Colors.black,
                                   fontWeight: FontWeight.bold,
