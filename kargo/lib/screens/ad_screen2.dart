@@ -6,6 +6,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:kargo/models/ad.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:kargo/screens/ad_screen2.dart';
+import 'package:kargo/services/database_services.dart';
 
 class AdScreen extends StatefulWidget {
   const AdScreen({super.key});
@@ -19,6 +20,7 @@ class AdScreen extends StatefulWidget {
 class _AdScreenState extends State<AdScreen> {
   var bidPrice = 0;
   bool initialB = true;
+  DatabaseService db = DatabaseService(uid: FirebaseAuth.instance.currentUser!.uid);
   @override
   Widget build(BuildContext context) {
     var ad = ModalRoute.of(context)!.settings.arguments as Ad;
@@ -227,6 +229,16 @@ class _AdScreenState extends State<AdScreen> {
               ]);
             });
           });
+    }
+
+    void handleOnPressChat() async {
+      Map ownerData = (await db.getUserDataFromId(ad.ownerId)) as Map;
+      String ownerName = ownerData['name'];
+      DocumentReference? chatRef = await db.createChat(ad.ownerId);
+      Navigator.of(context).pushNamed('/ChatDetail', arguments: {
+                'username': ownerName,
+                'chatRef': chatRef
+              });
     }
 
     return new Scaffold(
@@ -750,9 +762,7 @@ class _AdScreenState extends State<AdScreen> {
                     heroTag: 'btn2',
                     // Color.fromRGBO(239, 235, 235, 1),
                     elevation: 60,
-                    onPressed: () {
-                      Navigator.of(context).pushNamed('/Chats');
-                    },
+                    onPressed: handleOnPressChat,
                     child: Padding(
                       padding: const EdgeInsets.all(10.0),
                       child: Image(
@@ -782,4 +792,7 @@ class _AdScreenState extends State<AdScreen> {
               ],
             )));
   }
+
+
+  
 }
