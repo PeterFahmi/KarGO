@@ -96,7 +96,7 @@ class _ChatListScreenState extends State<ChatListScreen> {
 
   @override
   Widget build(BuildContext context) {
-    checkConnectitivy();
+    //checkConnectitivy();
     // print("search val=" + chatSearchBar.searchCtrl.text);
     return internetConnection
         ? (Scaffold(
