@@ -52,7 +52,7 @@ class _CarPageState extends State<CarPage> {
         height: 55,
         padding: EdgeInsets.all(5),
         width: double.infinity,
-        color: Colors.green[400],
+        color: Colors.black,
         child: Center(
           child: const Text(
             'Car details',
