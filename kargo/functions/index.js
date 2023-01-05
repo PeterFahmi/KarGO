@@ -78,33 +78,41 @@ exports.updatebid = functions.firestore.document("ads/{docId}")
       const previousValue = change.before.data()||{};
       const newBid = newValue.highest_bid;
       const oldBid = previousValue.highest_bid;
-      db.collection('users').get().then((snapshot) => {
+      const promises = [];
+      return db.collection('users').get().then((snapshot) => {
         snapshot.forEach((doc) => {
-        
-        console.log(doc.data());
-        
-        
         const allbids=doc.data().myBids;
         console.log(allbids);
-
+        console.log(doc.id);
         if(allbids.length>0){
           console.log("da5alt");
           console.log(allbids[0].ad_id);
           const bids = allbids.map(ad => ad.ad_id);
           console.log(bids);
-
-          if(bids.includes(context.params.docId)) {
+          const str="Check "+newValue.title
+          console.log(str);
+          if(bids.includes(context.params.docId) ) {
             console.log(doc.data().name,bids);
-            if (newBid!==oldBid) {
+            if (newBid!==oldBid &&newValue.highest_bidder_id!=doc.id ) {
               console.log("sa7 mot");
-            } else{
+              
+
+              admin.messaging().sendToTopic(doc.id,
+                {notification: {title: "SOMEONE IS OUT BIDDING YOU!",
+                  body:str }});   
+            } 
+            if (newBid==oldBid) {
               console.log("sa7 mesh mot");
+
+              admin.messaging().sendToTopic(doc.id,
+                    {notification: {title: "The seller edited an ad you bidded on",
+                      body:str }});     
             }
             
           }
         }
       });
-      return;
+      console.log("promises ",promises.length);  
     });
 
 
