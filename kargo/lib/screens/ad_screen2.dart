@@ -210,11 +210,16 @@ class _AdScreenState extends State<AdScreen> {
           .catchError((error) => print('Failed: $error'));
 
       Navigator.pop(context);
-      Navigator.pop(context);
+      // Navigator.pop(context);
 
-      // Navigator.pop(context); // pop current page
-      ad.highestBid = bidPrice;
-      Navigator.pushNamed(context, "/ad", arguments: ad); // push it back in
+      Navigator.popAndPushNamed(context, "/ad",
+          arguments: ad); // pop current page
+      // setState(() {
+      //   ad.highestBid = bidPrice;
+      //   ad.highestBidderId = userId;
+      // });
+
+      //  Navigator.pushNamed(context, "/ad", arguments: ad); // push it back in
     }
 
     void onPressedEdit() {}
@@ -494,15 +499,10 @@ class _AdScreenState extends State<AdScreen> {
                     leading: IconButton(
                       icon: const Icon(Icons.arrow_back, color: Colors.black),
                       onPressed: () {
-                        Navigator.of(context).pop();
+                        Navigator.popAndPushNamed(context, '/');
                       },
                     ),
                     actions: <Widget>[
-                      // IconButton(
-                      //   icon: const Icon(Icons.phone, color: Colors.black),
-                      //   tooltip: 'Call',
-                      //   onPressed: () {},
-                      // ),
                       GestureDetector(
                         onTap: ad.ownerId == userId
                             ? ((() =>
