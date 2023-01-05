@@ -691,29 +691,7 @@ class _AdScreenState extends State<AdScreen> {
                                     height: 5,
                                   )
                                 : Container(),
-                            ad.ownerId == userId
-                                ? Row(
-                                    mainAxisAlignment: MainAxisAlignment.end,
-                                    children: [
-                                      OutlinedButton(
-                                          style: ButtonStyle(
-                                            side: MaterialStateProperty.all(
-                                                BorderSide(width: 1)),
-                                            shape: MaterialStateProperty.all(
-                                                RoundedRectangleBorder(
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            30.0))),
-                                          ),
-                                          onPressed: onPressedEdit,
-                                          child: Text(
-                                            "Edit ad",
-                                            style:
-                                                TextStyle(color: Colors.black),
-                                          ))
-                                    ],
-                                  )
-                                : Container(),
+                          
                             SizedBox(
                               height: 10,
                             ),

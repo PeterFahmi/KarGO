@@ -365,7 +365,8 @@ class _CreateAdScreenState extends State<CreateAdScreen> {
       await updateAd(editableAd);
     Navigator.pop(context);
     Navigator.pop(context);
-    Navigator.pop(context);
+    Navigator.pop(context); Navigator.pop(context);
+   // Navigator.popAndPushNamed(context, '/ad',arguments: ad)
   }
 
   updateAd(Ad editableAd) async {
