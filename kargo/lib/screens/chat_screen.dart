@@ -64,7 +64,7 @@ class ChatScreenState extends State<ChatScreen> {
 
   @override
   Widget build(BuildContext context) {
-    checkConnectitivy();
+    //checkConnectitivy();
     return internetConnection
         ? (Scaffold(
             appBar: PreferredSize(
