@@ -106,7 +106,9 @@ class _ManufacturePageState extends State<ManufacturePage> {
               isReady,
             ),
           ],
-          if (widget.modelDropdownCtrl.text == "other...")
+          if (widget.modelDropdownCtrl.text == "other..." &&
+              (widget.manufacturerDropdownCtrl.text != 'other...' ||
+                  widget.manufacturerOtherCtrl.text.isNotEmpty))
             MyTextField(
               controller: widget.modelOtherCtrl,
               labelText: "Specify model",
