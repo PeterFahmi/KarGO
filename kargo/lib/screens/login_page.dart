@@ -306,18 +306,32 @@ class _LoginScreenState extends State<LoginScreen> {
                                 ),
                               ),
                             ],
-                            SizedBox(height: 5),
-                            ElevatedButton(
-                              style: ButtonStyle(
-                                  backgroundColor:
-                                      MaterialStateProperty.all(Colors.black)),
-                              onPressed: () {
-                                loginORsignup();
-                              },
-                              child: (authenticationMode == 1)
-                                  ? Text("Sign up")
-                                  : Text("Login"),
-                            ),
+                            SizedBox(height: 8),
+                            TextButton(
+                                onPressed: () {
+                                  loginORsignup();
+                                },
+                                child: authenticationMode == 1
+                                    ? (Text('     Sign Up     ',
+                                        style: TextStyle(
+                                            color: Colors.white,
+                                            //fontWeight: FontWeight.bold,
+                                            fontSize: 15)))
+                                    : (Text('      Login      ',
+                                        style: TextStyle(
+                                            color: Colors.white,
+                                            //fontWeight: FontWeight.bold,
+                                            fontSize: 15))),
+                                style: ButtonStyle(
+                                    backgroundColor:
+                                        MaterialStateProperty.all(Colors.black),
+                                    shape: MaterialStateProperty.all<
+                                            RoundedRectangleBorder>(
+                                        RoundedRectangleBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(15.0),
+                                            side: BorderSide(
+                                                color: Colors.black))))),
                             SizedBox(height: 5),
                             TextButton(
                               onPressed: () {
