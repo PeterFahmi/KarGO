@@ -228,7 +228,7 @@ class _CarPageState extends State<CarPage> {
 //   copy the file to a new path
     if (img != null)
       setState(() {
-        if (widget.noImages) {
+        if (widget.imgsXFile.isEmpty) {
           widget.imgs.removeAt(0);
           widget.noImages = false;
         }

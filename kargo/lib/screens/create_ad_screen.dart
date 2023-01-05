@@ -531,7 +531,7 @@ class _CreateAdScreenState extends State<CreateAdScreen> {
     final storageRef = FirebaseStorage.instance.ref();
     for (var img in imgs) {
       File imageFile = File(img.path);
-      final imageRef = storageRef.child('car_images/${imgs[0].name}');
+      final imageRef = storageRef.child('car_images/${img.name}');
       var uploadTask = imageRef.putFile(imageFile);
 
       final snapshot = await uploadTask.then((value) async {
