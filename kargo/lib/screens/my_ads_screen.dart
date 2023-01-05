@@ -48,6 +48,7 @@ class _MyAdsScreenState extends State<MyAdsScreen> {
         setState(() {
           adIds =
               (data['myAds'] as List<dynamic>).map((e) => e as String).toList();
+          if (adIds.length == 0) isLoading = false;
         });
         loadAds();
       });
@@ -124,6 +125,7 @@ class _MyAdsScreenState extends State<MyAdsScreen> {
   void loadAds() async {
     CollectionReference adsCollection =
         FirebaseFirestore.instance.collection('ads');
+
     for (var adId in adIds) {
       var askPrice;
       var title;
