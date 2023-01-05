@@ -103,34 +103,46 @@ class _CarPageState extends State<CarPage> {
             ),
             const Divider(height: 10),
             const Text('Car model year', style: CarPage._subheader),
-            MyTextField(
-              controller: widget.yearCtrl,
-              labelText: "Model year",
-              keyboardType: TextInputType.number,
-              onSubmitted: widget.onChange,
+            Container(
+              padding: EdgeInsets.only(top: 5),
+              child: MyTextField(
+                controller: widget.yearCtrl,
+                labelText: "Model year",
+                keyboardType: TextInputType.number,
+                onSubmitted: widget.onChange,
+              ),
             ),
             const Divider(height: 10),
             const Text('Car CC', style: CarPage._subheader),
-            MyTextField(
-              controller: widget.ccCtrl,
-              labelText: "Car CC",
-              keyboardType: TextInputType.number,
-              onSubmitted: widget.onChange,
+            Container(
+              padding: EdgeInsets.only(top: 5),
+              child: MyTextField(
+                controller: widget.ccCtrl,
+                labelText: "Car CC",
+                keyboardType: TextInputType.number,
+                onSubmitted: widget.onChange,
+              ),
             ),
-            const Divider(height: 24),
+            const Divider(height: 10),
             const Text('Car km', style: CarPage._subheader),
-            MyTextField(
-              controller: widget.kmCtrl,
-              labelText: "Car km",
-              keyboardType: TextInputType.number,
-              onSubmitted: widget.onChange,
+            Container(
+              padding: EdgeInsets.only(top: 5),
+              child: MyTextField(
+                controller: widget.kmCtrl,
+                labelText: "Car km",
+                keyboardType: TextInputType.number,
+                onSubmitted: widget.onChange,
+              ),
             ),
-            const Divider(height: 24),
+            const Divider(height: 10),
             const Text('Car color', style: CarPage._subheader),
-            MyTextField(
-              controller: widget.colorCtrl,
-              labelText: "Car color",
-              onSubmitted: widget.onChange,
+            Container(
+              padding: EdgeInsets.only(top: 5),
+              child: MyTextField(
+                controller: widget.colorCtrl,
+                labelText: "Car color",
+                onSubmitted: widget.onChange,
+              ),
             ),
           ],
         ),
@@ -228,7 +240,7 @@ class _CarPageState extends State<CarPage> {
 //   copy the file to a new path
     if (img != null)
       setState(() {
-        if (widget.noImages) {
+        if (widget.imgsXFile.isEmpty) {
           widget.imgs.removeAt(0);
           widget.noImages = false;
         }

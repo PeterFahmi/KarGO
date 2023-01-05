@@ -196,6 +196,9 @@ class _ManufacturePageState extends State<ManufacturePage> {
             TextEditingValue(text: ad.auto == 0 ? 'Automatic' : 'Manual');
       }
     }
-    return wdgt;
+    return Container(
+      padding: EdgeInsets.only(top: 5),
+      child: wdgt,
+    );
   }
 }

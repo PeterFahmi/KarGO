@@ -86,273 +86,314 @@ class _LoginScreenState extends State<LoginScreen> {
     checkConnectitivy();
     return internetConnection
         ? (Scaffold(
-            body: SingleChildScrollView(
-            child: Container(
-              padding:
-                  EdgeInsets.only(bottom: authenticationMode == 0 ? 750 : 600),
-              decoration: BoxDecoration(
-                  image: DecorationImage(
-                image: NetworkImage(
-                    'https://i.pinimg.com/736x/2b/25/90/2b259027d014fd2234af64d3e626bb39--bubbles-green.jpg'),
-                fit: BoxFit.fitWidth,
-              )),
-              child: Center(
-                child: Container(
-                  width: double.infinity,
-                  height: authenticationMode == 1 ? 550 : 400,
-                  margin: EdgeInsets.only(top: 200, left: 10, right: 10),
-                  child: Card(
-                    elevation: 5,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(20),
+            body: ListView(
+            children: [
+              Stack(
+                children: [
+                  Image(
+                      image: AssetImage('assets/images/fadedSpeedoMeter.png')),
+                  getRequiredFields()
+                ],
+              )
+            ],
+          )))
+        : (noInternet());
+  }
+
+  getRequiredFields() {
+    return Positioned(
+      child: Container(
+        child: Center(
+          child: Container(
+            margin: EdgeInsets.only(top: authenticationMode == 0 ? 240 : 180),
+            width: double.infinity,
+            height: authenticationMode == 1 ? 550 : 400,
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Form(
+                autovalidateMode: AutovalidateMode.onUserInteraction,
+                child: Column(
+                  children: [
+                    Center(
+                      child: Image(
+                        image: AssetImage(
+                            'assets/images/${authenticationMode == 0 ? 'logo' : 'logo_inverted'}.png'),
+                        width: 150,
+                        height: 100,
+                      ),
                     ),
-                    child: Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Form(
-                        autovalidateMode: AutovalidateMode.onUserInteraction,
-                        child: Column(
-                          children: [
-                            Center(
-                              child: Image(
-                                image: AssetImage('assets/images/logo.png'),
-                                width: 150,
-                                height: 100,
-                              ),
-                            ),
-                            SizedBox(height: 10),
-                            Expanded(
-                              child: TextFormField(
-                                decoration: InputDecoration(labelText: "Email"),
-                                controller: emailController,
-                                keyboardType: TextInputType.emailAddress,
-                                validator: (value) {
-                                  if (value!.isEmpty) {
-                                    return 'Please enter a valid email address';
-                                  }
-                                  return null;
-                                },
-                              ),
-                            ),
-                            SizedBox(height: 10),
-                            Expanded(
-                              child: TextFormField(
-                                decoration:
-                                    InputDecoration(labelText: "Password"),
-                                controller: passwordController,
-                                obscureText: true,
-                                validator: (value) {
-                                  if (value!.isEmpty) {
-                                    return 'Please enter a password';
-                                  }
-                                  if (value.length < 6 &&
-                                      authenticationMode == 1)
-                                    return 'Password is too short';
-                                  return null;
-                                },
-                              ),
-                            ),
-                            if (authenticationMode == 0)
-                              TextButton(
-                                onPressed: () async {
-                                  // 1. Display a form or a dialog to collect the email address of the user whose password needs to be reset
-                                  showDialog(
-                                    context: context,
-                                    builder: (context) {
-                                      String _email = "";
-                                      return AlertDialog(
-                                        title: Text("Reset Password"),
-                                        content: Form(
-                                          key: _formKey,
-                                          child: Column(
-                                            mainAxisSize: MainAxisSize.min,
-                                            children: [
-                                              TextFormField(
-                                                decoration: InputDecoration(
-                                                    labelText: "Email"),
-                                                validator: (value) {
-                                                  if (value!.isEmpty) {
-                                                    return "Please enter an email";
-                                                  }
-                                                  return null;
-                                                },
-                                                onSaved: (value) =>
-                                                    _email = value!,
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                        actions: [
-                                          ElevatedButton(
-                                            style: ButtonStyle(
-                                                backgroundColor:
-                                                    MaterialStateProperty.all(
-                                                        Colors.black)),
-                                            child: Text("Cancel"),
-                                            onPressed: () =>
-                                                Navigator.of(context).pop(),
-                                          ),
-                                          ElevatedButton(
-                                            style: ButtonStyle(
-                                                backgroundColor:
-                                                    MaterialStateProperty.all(
-                                                        Colors.black)),
-                                            child: Text("Send"),
-                                            onPressed: () async {
-                                              if (_formKey.currentState!
-                                                  .validate()) {
-                                                _formKey.currentState!.save();
-                                                try {
-                                                  await FirebaseAuth.instance
-                                                      .sendPasswordResetEmail(
-                                                          email: _email);
-                                                  ScaffoldMessenger.of(context)
-                                                      .showSnackBar(
-                                                    SnackBar(
-                                                        content: Text(
-                                                            "Password reset email sent")),
-                                                  );
-                                                } catch (e) {
-                                                  ScaffoldMessenger.of(context)
-                                                      .showSnackBar(
-                                                    SnackBar(
-                                                        content:
-                                                            Text("Error: $e")),
-                                                  );
-                                                }
-                                                Navigator.of(context).pop();
-                                              }
-                                            },
-                                          ),
-                                        ],
-                                      );
-                                    },
-                                  );
-                                },
-                                child: Text("Forgot Password",
-                                    style: TextStyle(color: Colors.black)),
-                              ),
-                            if (authenticationMode == 1) ...[
-                              SizedBox(height: 10),
-                              Expanded(
-                                child: TextFormField(
-                                  decoration: InputDecoration(
-                                      labelText: "Reenter Password"),
-                                  controller: passwordController1,
-                                  obscureText: true,
-                                  validator: (value) {
-                                    if (value!.isEmpty) {
-                                      return 'Please reenter the password';
-                                    }
-                                    if (value != passwordController.text.trim())
-                                      return 'Password does not match';
-                                    return null;
-                                  },
-                                ),
-                              ),
-                              SizedBox(height: 10),
-                              Expanded(
-                                child: TextFormField(
-                                  decoration:
-                                      InputDecoration(labelText: "Name"),
-                                  controller: usernameController,
-                                  validator: (value) {
-                                    if (value!.isEmpty) {
-                                      return 'Please enter your Name';
-                                    }
-                                    return null;
-                                  },
-                                ),
-                              ),
-                              SizedBox(height: 10),
-                              ConstrainedBox(
-                                constraints: BoxConstraints(
-                                    maxWidth: double.infinity, minHeight: 48),
-                                child: Row(
-                                  children: [
-                                    Image.network(
-                                      _selectedCountry.flagUrl,
-                                      width: 32,
-                                      height: 32,
-                                    ),
-                                    SizedBox(width: 8),
-                                    Text(" +" + _selectedCountry.code,
-                                        style: TextStyle(fontSize: 15)),
-                                    PopupMenuButton(
-                                      onSelected: (Country country) {
-                                        setState(() {
-                                          _selectedCountry = country;
-                                        });
-                                      },
-                                      itemBuilder: (BuildContext context) {
-                                        return _countries
-                                            .map((Country country) {
-                                          return PopupMenuItem(
-                                            value: country,
-                                            child: Text(country.name),
-                                          );
-                                        }).toList();
-                                      },
-                                    ),
-                                    SizedBox(width: 5),
-                                    Expanded(
-                                      child: TextField(
+                    SizedBox(height: 10),
+                    Expanded(
+                      child: TextFormField(
+                        decoration: InputDecoration(
+                            border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(9)),
+                            fillColor: Colors.white,
+                            filled: false,
+                            enabledBorder: OutlineInputBorder(
+                                borderSide: BorderSide(width: 1),
+                                borderRadius: BorderRadius.circular(9)),
+                            labelText: "Email"),
+                        controller: emailController,
+                        keyboardType: TextInputType.emailAddress,
+                        validator: (value) {
+                          if (value!.isEmpty) {
+                            return 'Please enter a valid email address';
+                          }
+                          return null;
+                        },
+                      ),
+                    ),
+                    SizedBox(height: 10),
+                    Expanded(
+                      child: TextFormField(
+                        decoration: InputDecoration(
+                            border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(9)),
+                            fillColor: Colors.white,
+                            filled: false,
+                            enabledBorder: OutlineInputBorder(
+                                borderSide: BorderSide(width: 1),
+                                borderRadius: BorderRadius.circular(9)),
+                            labelText: "Password"),
+                        controller: passwordController,
+                        obscureText: true,
+                        validator: (value) {
+                          if (value!.isEmpty) {
+                            return 'Please enter a password';
+                          }
+                          if (value.length < 6 && authenticationMode == 1)
+                            return 'Password is too short';
+                          return null;
+                        },
+                      ),
+                    ),
+                    if (authenticationMode == 0)
+                      TextButton(
+                        onPressed: () async {
+                          // 1. Display a form or a dialog to collect the email address of the user whose password needs to be reset
+                          showDialog(
+                            context: context,
+                            builder: (context) {
+                              String _email = "";
+                              return AlertDialog(
+                                title: Text("Reset Password"),
+                                content: Form(
+                                  key: _formKey,
+                                  child: Column(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      TextFormField(
                                         decoration: InputDecoration(
-                                            labelText: "Phone Number"),
-                                        controller: phoneNumberController,
-                                        keyboardType: TextInputType.phone,
+                                            border: OutlineInputBorder(
+                                                borderRadius:
+                                                    BorderRadius.circular(9)),
+                                            enabledBorder: OutlineInputBorder(
+                                                borderSide:
+                                                    BorderSide(width: 1),
+                                                borderRadius:
+                                                    BorderRadius.circular(9)),
+                                            fillColor: Colors.white,
+                                            filled: false,
+                                            labelText: "Email"),
+                                        validator: (value) {
+                                          if (value!.isEmpty) {
+                                            return "Please enter an email";
+                                          }
+                                          return null;
+                                        },
+                                        onSaved: (value) => _email = value!,
                                       ),
-                                    ),
-                                  ],
+                                    ],
+                                  ),
                                 ),
-                              ),
-                            ],
-                            SizedBox(height: 8),
-                            TextButton(
-                                onPressed: () {
-                                  loginORsignup();
-                                },
-                                child: authenticationMode == 1
-                                    ? (Text('     Sign Up     ',
-                                        style: TextStyle(
-                                            color: Colors.white,
-                                            //fontWeight: FontWeight.bold,
-                                            fontSize: 15)))
-                                    : (Text('      Login      ',
-                                        style: TextStyle(
-                                            color: Colors.white,
-                                            //fontWeight: FontWeight.bold,
-                                            fontSize: 15))),
-                                style: ButtonStyle(
-                                    backgroundColor:
-                                        MaterialStateProperty.all(Colors.black),
-                                    shape: MaterialStateProperty.all<
-                                            RoundedRectangleBorder>(
-                                        RoundedRectangleBorder(
-                                            borderRadius:
-                                                BorderRadius.circular(15.0),
-                                            side: BorderSide(
-                                                color: Colors.black))))),
-                            SizedBox(height: 5),
-                            TextButton(
-                              onPressed: () {
-                                toggleAuthMode();
+                                actions: [
+                                  ElevatedButton(
+                                    style: ButtonStyle(
+                                        backgroundColor:
+                                            MaterialStateProperty.all(
+                                                Colors.black)),
+                                    child: Text("Cancel"),
+                                    onPressed: () =>
+                                        Navigator.of(context).pop(),
+                                  ),
+                                  ElevatedButton(
+                                    style: ButtonStyle(
+                                        backgroundColor:
+                                            MaterialStateProperty.all(
+                                                Colors.black)),
+                                    child: Text("Send"),
+                                    onPressed: () async {
+                                      if (_formKey.currentState!.validate()) {
+                                        _formKey.currentState!.save();
+                                        try {
+                                          await FirebaseAuth.instance
+                                              .sendPasswordResetEmail(
+                                                  email: _email);
+                                          ScaffoldMessenger.of(context)
+                                              .showSnackBar(
+                                            SnackBar(
+                                                content: Text(
+                                                    "Password reset email sent")),
+                                          );
+                                        } catch (e) {
+                                          ScaffoldMessenger.of(context)
+                                              .showSnackBar(
+                                            SnackBar(
+                                                content: Text("Error: $e")),
+                                          );
+                                        }
+                                        Navigator.of(context).pop();
+                                      }
+                                    },
+                                  ),
+                                ],
+                              );
+                            },
+                          );
+                        },
+                        child: Text("Forgot Password",
+                            style: TextStyle(color: Colors.black)),
+                      ),
+                    if (authenticationMode == 1) ...[
+                      SizedBox(height: 10),
+                      Expanded(
+                        child: TextFormField(
+                          decoration: InputDecoration(
+                              border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(9)),
+                              enabledBorder: OutlineInputBorder(
+                                  borderSide: BorderSide(width: 1),
+                                  borderRadius: BorderRadius.circular(9)),
+                              fillColor: Colors.white,
+                              filled: false,
+                              labelText: "Reenter Password"),
+                          controller: passwordController1,
+                          obscureText: true,
+                          validator: (value) {
+                            if (value!.isEmpty) {
+                              return 'Please reenter the password';
+                            }
+                            if (value != passwordController.text.trim())
+                              return 'Password does not match';
+                            return null;
+                          },
+                        ),
+                      ),
+                      SizedBox(height: 10),
+                      Expanded(
+                        child: TextFormField(
+                          decoration: InputDecoration(
+                              border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(9)),
+                              enabledBorder: OutlineInputBorder(
+                                  borderSide: BorderSide(width: 1),
+                                  borderRadius: BorderRadius.circular(9)),
+                              fillColor: Colors.white,
+                              filled: false,
+                              labelText: "Name"),
+                          controller: usernameController,
+                          validator: (value) {
+                            if (value!.isEmpty) {
+                              return 'Please enter your Name';
+                            }
+                            return null;
+                          },
+                        ),
+                      ),
+                      SizedBox(height: 10),
+                      ConstrainedBox(
+                        constraints: BoxConstraints(
+                            maxWidth: double.infinity, minHeight: 48),
+                        child: Row(
+                          children: [
+                            Image.network(
+                              _selectedCountry.flagUrl,
+                              width: 32,
+                              height: 32,
+                            ),
+                            SizedBox(width: 8),
+                            Text(" +" + _selectedCountry.code,
+                                style: TextStyle(fontSize: 15)),
+                            PopupMenuButton(
+                              onSelected: (Country country) {
+                                setState(() {
+                                  _selectedCountry = country;
+                                });
                               },
-                              child: (authenticationMode == 1)
-                                  ? Text("Login instead",
-                                      style: TextStyle(color: Colors.black))
-                                  : Text("Sign up instead",
-                                      style: TextStyle(color: Colors.black)),
+                              itemBuilder: (BuildContext context) {
+                                return _countries.map((Country country) {
+                                  return PopupMenuItem(
+                                    value: country,
+                                    child: Text(country.name),
+                                  );
+                                }).toList();
+                              },
+                            ),
+                            SizedBox(width: 5),
+                            Expanded(
+                              child: TextField(
+                                decoration: InputDecoration(
+                                  border: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(9)),
+                                  enabledBorder: OutlineInputBorder(
+                                      borderSide: BorderSide(width: 1),
+                                      borderRadius: BorderRadius.circular(9)),
+                                  fillColor: Colors.white,
+                                  filled: false,
+                                  labelText: "Phone Number",
+                                ),
+                                controller: phoneNumberController,
+                                keyboardType: TextInputType.phone,
+                              ),
                             ),
                           ],
                         ),
                       ),
+                    ],
+                    SizedBox(height: 8),
+                    TextButton(
+                        onPressed: () {
+                          loginORsignup();
+                        },
+                        child: authenticationMode == 1
+                            ? (Text('     Sign Up     ',
+                                style: TextStyle(
+                                    color: Colors.white,
+                                    //fontWeight: FontWeight.bold,
+                                    fontSize: 15)))
+                            : (Text('      Login      ',
+                                style: TextStyle(
+                                    color: Colors.white,
+                                    //fontWeight: FontWeight.bold,
+                                    fontSize: 15))),
+                        style: ButtonStyle(
+                            backgroundColor:
+                                MaterialStateProperty.all(Colors.black),
+                            shape: MaterialStateProperty.all<
+                                    RoundedRectangleBorder>(
+                                RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(15.0),
+                                    side: BorderSide(color: Colors.black))))),
+                    SizedBox(height: 5),
+                    TextButton(
+                      onPressed: () {
+                        toggleAuthMode();
+                      },
+                      child: (authenticationMode == 1)
+                          ? Text("Login instead",
+                              style: TextStyle(color: Colors.black))
+                          : Text("Sign up instead",
+                              style: TextStyle(color: Colors.black)),
                     ),
-                  ),
+                  ],
                 ),
               ),
             ),
-          )))
-        : (noInternet());
+          ),
+        ),
+      ),
+    );
   }
 
   void loginORsignup() async {

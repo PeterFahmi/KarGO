@@ -46,36 +46,48 @@ class _AdDetailsPageState extends State<AdDetailsPage> {
           child: Center(
         child: ListView(padding: EdgeInsets.all(15), children: [
           const Text('Ad title', style: AdDetailsPage._subheader),
-          MyTextField(
-            controller: widget.adTitle,
-            labelText: "Title",
-            maxLength: 20,
-            onSubmitted: widget.onChange,
+          Container(
+            padding: EdgeInsets.only(top: 5),
+            child: MyTextField(
+              controller: widget.adTitle,
+              labelText: "Title",
+              maxLength: 20,
+              onSubmitted: widget.onChange,
+            ),
           ),
           const Divider(height: 24),
           const Text('Ad description', style: AdDetailsPage._subheader),
-          MyTextField(
-            controller: widget.adDescription,
-            labelText: "Description",
-            maxLength: 100,
-            height: 140.0,
-            onSubmitted: widget.onChange,
+          Container(
+            padding: EdgeInsets.only(top: 5),
+            child: MyTextField(
+              controller: widget.adDescription,
+              labelText: "Description",
+              maxLength: 100,
+              height: 140.0,
+              onSubmitted: widget.onChange,
+            ),
           ),
           const Divider(height: 24),
           const Text('Ask price', style: AdDetailsPage._subheader),
-          MyTextField(
-            controller: widget.askPrice,
-            labelText: "Ask price",
-            keyboardType: TextInputType.number,
-            onSubmitted: widget.onChange,
+          Container(
+            padding: EdgeInsets.only(top: 5),
+            child: MyTextField(
+              controller: widget.askPrice,
+              labelText: "Ask price",
+              keyboardType: TextInputType.number,
+              onSubmitted: widget.onChange,
+            ),
           ),
           const Divider(height: 24),
           const Text('Ad duration', style: AdDetailsPage._subheader),
-          MyTextField(
-            controller: widget.adDuration,
-            labelText: "Days",
-            keyboardType: TextInputType.number,
-            onSubmitted: widget.onChange,
+          Container(
+            padding: EdgeInsets.only(top: 5),
+            child: MyTextField(
+              controller: widget.adDuration,
+              labelText: "Days",
+              keyboardType: TextInputType.number,
+              onSubmitted: widget.onChange,
+            ),
           ),
         ]),
       ))

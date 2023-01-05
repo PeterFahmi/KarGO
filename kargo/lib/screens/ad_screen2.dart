@@ -97,6 +97,77 @@ class _AdScreenState extends State<AdScreen> {
         fetchAllBids();
       }
     }
+
+    void onPressedDelete() async {
+      Navigator.of(context).pop();
+      await FirebaseFirestore.instance.collection('ads').doc(ad.adId).delete();
+      FirebaseFirestore.instance.collection('users').get().then(
+        (user) {
+          user.docs.forEach((result) {
+            List<dynamic> myBids = result.data()['myBids'];
+            List<dynamic> filteredBids =
+                myBids.where((element) => element['ad_id'] != ad.adId).toList();
+            result.reference.update({'myBids': filteredBids});
+          });
+        },
+      );
+      Navigator.of(context).popAndPushNamed('/');
+    }
+
+    showDeleteAlert() {
+      // set up the buttons
+      Widget cancelButton = TextButton(
+        child: Text(
+          "Cancel",
+          style: TextStyle(
+            color: Colors.black,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        onPressed: () {
+          Navigator.of(context).pop();
+        },
+      );
+      Widget continueButton = TextButton(
+        child: Text(
+          "Delete",
+          style: TextStyle(
+            color: Colors.red,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        onPressed: onPressedDelete,
+      );
+
+      // set up the AlertDialog
+      AlertDialog alert = AlertDialog(
+        title: Text(
+          "Delete?",
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        content: Text(
+          "This action can not be undone. Are you sure you want to delete this ad?",
+          style: TextStyle(
+            fontWeight: FontWeight.normal,
+          ),
+        ),
+        actions: [
+          cancelButton,
+          continueButton,
+        ],
+      );
+
+      // show the dialog
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return alert;
+        },
+      );
+    }
+
     void onPressedFav() async {
       List favAds = List.empty(growable: true);
       await FirebaseFirestore.instance
@@ -992,14 +1063,7 @@ class _AdScreenState extends State<AdScreen> {
                                             height: 50,
                                             minWidth: 150,
                                             color: Colors.red[400],
-                                            onPressed: () async {
-                                              await FirebaseFirestore.instance
-                                                  .collection('ads')
-                                                  .doc(ad.adId)
-                                                  .delete();
-                                              Navigator.of(context)
-                                                  .popAndPushNamed('/');
-                                            },
+                                            onPressed: showDeleteAlert,
                                             child: Icon(
                                               Icons.delete,
                                               color: Colors.white,

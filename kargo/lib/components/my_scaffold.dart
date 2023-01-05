@@ -89,8 +89,9 @@ class MyScaffold extends StatelessWidget {
           ),
           borderRadius: BorderRadius.all(Radius.circular(size / 2)),
           border: Border.all(
+            strokeAlign: StrokeAlign.outside,
             color: Colors.black,
-            width: 4.0,
+            width: 2.0,
           ),
         ),
       ),

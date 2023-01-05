@@ -95,42 +95,33 @@ class _FilterScreenState extends State<FilterScreen> {
     checkConnectitivy();
 
     return internetConnection
-        ? NestedScrollView(
-            headerSliverBuilder: (context, innerBoxIsScrolled) {
-              return [
-                SliverAppBar(
-                  backgroundColor: Color.fromRGBO(0, 0, 0, 0.2),
-                  floating: true,
-                  title: Text("Have a specific car in mind?"),
-                  actions: [
-                    Padding(
-                      padding: EdgeInsets.all(10),
-                      child: ElevatedButton(
-                        onPressed: Adfilter,
-                        child: Text('Filter'),
-                        style: ButtonStyle(
-                          backgroundColor:
-                              MaterialStateProperty.all<Color>(Colors.green),
-                          foregroundColor:
-                              MaterialStateProperty.all<Color>(Colors.white),
-                        ),
-                      ),
-                    ),
-                  ],
-                )
-              ];
-            },
-            floatHeaderSlivers: true,
-            body: (Container(
-                child: (ads.length == 0 && !isLoading)
-                    ? EmptyScreen()
-                    : ListView(
-                        reverse: false,
-                        children: [
-                          ...ads.map((e) => Ad_Card2(Ad: e)),
-                          if (isLoading) ShimmerCard(),
-                        ],
-                      ))),
+        ? Scaffold(
+            floatingActionButton: FloatingActionButton(
+              onPressed: Adfilter,
+              child: ImageIcon(AssetImage('assets/images/filter_icon.png')),
+              backgroundColor: Colors.black,
+            ),
+            body: NestedScrollView(
+              headerSliverBuilder: (context, innerBoxIsScrolled) {
+                return [
+                  SliverAppBar(
+                    backgroundColor: Colors.transparent,
+                    toolbarHeight: 1,
+                  )
+                ];
+              },
+              floatHeaderSlivers: true,
+              body: (Container(
+                  child: (ads.length == 0 && !isLoading)
+                      ? EmptyScreen()
+                      : ListView(
+                          reverse: false,
+                          children: [
+                            ...ads.map((e) => Ad_Card2(Ad: e)),
+                            if (isLoading) ShimmerCard(),
+                          ],
+                        ))),
+            ),
           )
         : (noInternet());
   }
