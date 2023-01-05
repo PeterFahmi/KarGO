@@ -92,9 +92,9 @@ exports.updatebid = functions.firestore.document("ads/{docId}")
           console.log(allbids[0].ad_id);
           const bids = allbids.map(ad => ad.ad_id);
           console.log(bids);
-          console.log(bids);
+
           if(bids.includes(context.params.docId)) {
-            console.log(doc1.name,bids);
+            console.log(doc.data().name,bids);
             if (newBid!==oldBid) {
               console.log("sa7 mot");
             } else{
