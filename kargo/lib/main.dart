@@ -38,9 +38,9 @@ class _MyAppState extends State<MyApp> {
       await Firebase.initializeApp();
       setState(() {
         _initialized = true;
-         var fbm = FirebaseMessaging.instance;
- fbm.requestPermission(); // only shows on ios
- fbm.subscribeToTopic(FirebaseAuth.instance.currentUser!.uid);
+        var fbm = FirebaseMessaging.instance;
+        fbm.requestPermission(); // only shows on ios
+        fbm.subscribeToTopic(FirebaseAuth.instance.currentUser!.uid);
       });
     } catch (e) {
       // Set `_error` state to true if Firebase initialization fails

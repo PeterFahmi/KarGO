@@ -83,7 +83,12 @@ class _Ad_Card2State extends State<Ad_Card2> {
     return InkWell(
       onTap: () => adDetails(context),
       child: Card(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+        shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.only(
+                topLeft: Radius.circular(5),
+                topRight: Radius.circular(5),
+                bottomLeft: Radius.circular(5),
+                bottomRight: Radius.circular(5))),
         elevation: 4,
         color: Colors.white60,
         margin: EdgeInsets.all(15),
@@ -98,8 +103,8 @@ class _Ad_Card2State extends State<Ad_Card2> {
 // child 2 of stack is the recipe title
 
                 Positioned(
-                    right: 10,
                     bottom: 0,
+                    left: 15,
                     child: SizedBox.fromSize(
                       size: Size(50, 50), // button width and height
                       child: ClipOval(
@@ -270,7 +275,7 @@ class _Ad_Card2State extends State<Ad_Card2> {
                     ]),
               ],
             ),
-            SizedBox(height: 5),
+            SizedBox(height: 10),
           ],
         ),
       ),

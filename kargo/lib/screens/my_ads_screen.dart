@@ -61,61 +61,50 @@ class _MyAdsScreenState extends State<MyAdsScreen> {
   Widget build(BuildContext context) {
     checkConnectitivy();
     return internetConnection
-        ? (NestedScrollView(
-            headerSliverBuilder: (context, innerBoxIsScrolled) {
-              return [
-                SliverAppBar(
-                  backgroundColor: Color.fromRGBO(0, 0, 0, 0.2),
-                  floating: true,
-                  title: Text("Have a new car to offer?"),
-                  actions: [
-                    Padding(
-                      padding: EdgeInsets.all(10),
-                      child: ElevatedButton(
-                        onPressed: () {
-                          Navigator.of(context).pushNamed('/create_ad',
-                              arguments: {
-                                'ad': Object(),
-                                'isEditable': false
-                              }).then(
-                              (_) => {Navigator.popAndPushNamed(context, '/')});
-                        },
-                        child: Text('Add'),
-                        style: ButtonStyle(
-                          backgroundColor:
-                              MaterialStateProperty.all<Color>(Colors.green),
-                          foregroundColor:
-                              MaterialStateProperty.all<Color>(Colors.white),
-                        ),
+        ? (Scaffold(
+            floatingActionButton: FloatingActionButton(
+              onPressed: () {
+                Navigator.of(context).pushNamed('/create_ad', arguments: {
+                  'ad': Object(),
+                  'isEditable': false
+                }).then((_) => {Navigator.popAndPushNamed(context, '/')});
+              },
+              child: Icon(Icons.add),
+              backgroundColor: Colors.black,
+            ),
+            body: NestedScrollView(
+              headerSliverBuilder: (context, innerBoxIsScrolled) {
+                return [
+                  SliverAppBar(
+                    backgroundColor: Colors.transparent,
+                    toolbarHeight: 1,
+                  )
+                ];
+              },
+              floatHeaderSlivers: true,
+              body: Container(
+                child: Column(
+                  children: [
+                    if (isLoading)
+                      LinearProgressIndicator(
+                        minHeight: 5,
+                        value: ads.length / (adIds.length + 0.1),
+                        backgroundColor: Colors.white,
+                        color: Colors.black,
                       ),
+                    Expanded(
+                      child: (ads.length == 0 && !isLoading)
+                          ? EmptyScreen()
+                          : ListView(
+                              reverse: false,
+                              children: [
+                                ...ads,
+                                if (isLoading) ShimmerCard(),
+                              ],
+                            ),
                     ),
                   ],
-                )
-              ];
-            },
-            floatHeaderSlivers: true,
-            body: Container(
-              child: Column(
-                children: [
-                  if (isLoading)
-                    LinearProgressIndicator(
-                      minHeight: 5,
-                      value: ads.length / (adIds.length + 0.1),
-                      backgroundColor: Colors.white,
-                      color: Colors.black,
-                    ),
-                  Expanded(
-                    child: (ads.length == 0 && !isLoading)
-                        ? EmptyScreen()
-                        : ListView(
-                            reverse: false,
-                            children: [
-                              ...ads,
-                              if (isLoading) ShimmerCard(),
-                            ],
-                          ),
-                  ),
-                ],
+                ),
               ),
             ),
           ))
