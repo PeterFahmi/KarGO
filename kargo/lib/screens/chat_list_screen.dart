@@ -171,36 +171,104 @@ class _ChatListScreenState extends State<ChatListScreen> {
 
         var chatsList = snapshot.data['chats'];
 
-        return ListView.builder(
-          itemCount: chatsList.length,
-          itemBuilder: (context, index) {
-            return FutureBuilder(
-              future: getChatData(chatsList[index]),
-              builder: (context, snapshot) {
-                if (!snapshot.hasData) {
-                  return const Center(
-                    child: FadeShimmer(
-                      height: 150,
-                      width: 300,
-                      radius: 10,
-                      millisecondsDelay: 2,
-                      fadeTheme: FadeTheme.light,
-                    ),
-                  );
-                }
-                // print("snapshot.data=" + (snapshot.data as ChatUser).id);
-                ChatUser chatUser = snapshot.data as ChatUser;
-                if(isSearchActivated && !chatUser.name!.toUpperCase().contains(chatSearchBar.searchCtrl.text.toUpperCase())){
-                  return Container();
-                }
-                return ChatCard(
-                    user: snapshot.data as ChatUser,
-                    chatRef: chatsList[index],
-                    isMessageRead: false);
+        Future<List> sortChats(chatRefsList) async {
+          Map<DocumentReference, Timestamp> chatToTime = {};
+          for (DocumentReference chatRef in chatRefsList) {
+            await chatRef.get().then((value) {
+              var chatData = value.data() as Map;
+              Timestamp time = chatData['recentMessageTime'];
+              chatToTime.putIfAbsent(chatRef, () => time);
+            });
+          }
+          // var keys = chatToTime.keys.toList();
+          var sortedKeys = chatToTime.keys.toList()
+            ..sort((k1, k2) => chatToTime[k2]!.compareTo(chatToTime[k1]!));
+          return sortedKeys;
+        }
+
+        return FutureBuilder(
+          future: sortChats(chatsList),
+          builder: (context, snapshot) {
+            if (!snapshot.hasData) {
+              return const Center(
+                child: FadeShimmer(
+                  height: 150,
+                  width: 300,
+                  radius: 10,
+                  millisecondsDelay: 2,
+                  fadeTheme: FadeTheme.light,
+                ),
+              );
+            }
+            print("chatRefsList="+snapshot.toString());
+            var chatRefsList = snapshot.data as List<DocumentReference>;
+            print("chatRefsList="+chatRefsList.toString());
+            return ListView.builder(
+              itemCount: chatRefsList.length,
+              itemBuilder: (context, index) {
+                return FutureBuilder(
+                  future: getChatData(chatRefsList[index]),
+                  builder: (context, snapshot) {
+                    if (!snapshot.hasData) {
+                      return const Center(
+                        child: FadeShimmer(
+                          height: 150,
+                          width: 300,
+                          radius: 10,
+                          millisecondsDelay: 2,
+                          fadeTheme: FadeTheme.light,
+                        ),
+                      );
+                    }
+                    // print("snapshot.data=" + (snapshot.data as ChatUser).id);
+                    ChatUser chatUser = snapshot.data as ChatUser;
+                    if (isSearchActivated &&
+                        !chatUser.name!.toUpperCase().contains(
+                            chatSearchBar.searchCtrl.text.toUpperCase())) {
+                      return Container();
+                    }
+                    return ChatCard(
+                        user: snapshot.data as ChatUser,
+                        chatRef: chatRefsList[index],
+                        isMessageRead: false);
+                  },
+                );
               },
             );
           },
         );
+        // return ListView.builder(
+        //   itemCount: chatsList.length,
+        //   itemBuilder: (context, index) {
+        //     return FutureBuilder(
+        //       future: getChatData(chatsList[index]),
+        //       builder: (context, snapshot) {
+        //         if (!snapshot.hasData) {
+        //           return const Center(
+        //             child: FadeShimmer(
+        //               height: 150,
+        //               width: 300,
+        //               radius: 10,
+        //               millisecondsDelay: 2,
+        //               fadeTheme: FadeTheme.light,
+        //             ),
+        //           );
+        //         }
+        //         // print("snapshot.data=" + (snapshot.data as ChatUser).id);
+        //         ChatUser chatUser = snapshot.data as ChatUser;
+        //         if (isSearchActivated &&
+        //             !chatUser.name!.toUpperCase().contains(
+        //                 chatSearchBar.searchCtrl.text.toUpperCase())) {
+        //           return Container();
+        //         }
+        //         return ChatCard(
+        //             user: snapshot.data as ChatUser,
+        //             chatRef: chatsList[index],
+        //             isMessageRead: false);
+        //       },
+        //     );
+        //   },
+        // );
       },
     );
   }

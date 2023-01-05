@@ -66,13 +66,17 @@ class _MyAdsScreenState extends State<MyAdsScreen> {
                 SliverAppBar(
                   backgroundColor: Color.fromRGBO(0, 0, 0, 0.2),
                   floating: true,
-                  title: Text("Have a new car to offer"),
+                  title: Text("Have a new car to offer?"),
                   actions: [
                     Padding(
                       padding: EdgeInsets.all(10),
                       child: ElevatedButton(
                         onPressed: () {
-                          Navigator.of(context).pushNamed('/create_ad').then(
+                          Navigator.of(context).pushNamed('/create_ad',
+                              arguments: {
+                                'ad': Object(),
+                                'isEditable': false
+                              }).then(
                               (_) => {Navigator.popAndPushNamed(context, '/')});
                         },
                         child: Text('Add'),
@@ -100,7 +104,7 @@ class _MyAdsScreenState extends State<MyAdsScreen> {
                       color: Colors.black,
                     ),
                   Expanded(
-                    child: ads.length == 0 && !isLoading
+                    child: (ads.length == 0 && !isLoading)
                         ? EmptyScreen()
                         : ListView(
                             reverse: false,

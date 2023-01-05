@@ -122,7 +122,7 @@ class _FilterScreenState extends State<FilterScreen> {
             },
             floatHeaderSlivers: true,
             body: (Container(
-                child: ads.length == 0 && !isLoading
+                child: (ads.length == 0 && !isLoading)
                     ? EmptyScreen()
                     : ListView(
                         reverse: false,
@@ -297,6 +297,22 @@ class _FilterScreenState extends State<FilterScreen> {
                         key: _formKey,
                         child: Column(
                           children: [
+                            Container(
+                              width: double.infinity,
+                              height: 60,
+                              decoration: new BoxDecoration(
+                                  color: Colors.black,
+                                  borderRadius: new BorderRadius.only(
+                                      topLeft: const Radius.circular(25.0),
+                                      topRight: const Radius.circular(25.0))),
+                              child: Center(
+                                child: Text('Filter Car Ads',
+                                    style: TextStyle(
+                                        fontWeight: FontWeight.w600,
+                                        color: Colors.white,
+                                        fontSize: 20)),
+                              ),
+                            ),
                             Row(children: [
                               SizedBox(width: 5),
                               Text("Manufacturers: "),
