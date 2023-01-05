@@ -568,7 +568,7 @@ class _AdScreenState extends State<AdScreen> {
                     leading: IconButton(
                       icon: const Icon(Icons.arrow_back, color: Colors.black),
                       onPressed: () {
-                        Navigator.of(context).pop();
+                        Navigator.popAndPushNamed(context,'/');
                       },
                     ),
                     actions: <Widget>[
@@ -647,7 +647,37 @@ class _AdScreenState extends State<AdScreen> {
                               ),
                             ),
                           ),
-                        ),
+                        ),  if(ad.ownerId == userId)
+                         (Positioned(
+                            right: 80,
+                            bottom: 0,
+                            child: SizedBox.fromSize(
+                              size: Size(50, 50), // button width and height
+                              child: ClipOval(
+                                child: Material(
+                                  elevation: 60,
+                                  color: Color.fromRGBO(
+                                      239, 235, 235, 1), // button color
+                                  child: InkWell(
+                                    splashColor: Colors.green, // splash color
+                                    onTap: onPressedEdit, // button pressed
+                                    child: Column(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      children: <Widget>[
+                                        IconButton(
+                                            onPressed: onPressedEdit,
+                                            icon: Icon(
+                                              Icons.edit,
+                                              size: 30,
+                                              color: Colors.black,
+                                            ))
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            )))
                       ],
                     ),
                     // child 2 of column is the white row
