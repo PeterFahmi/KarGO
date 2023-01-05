@@ -36,6 +36,7 @@ class _ManufacturePageState extends State<ManufacturePage> {
   var modelList = ["other..."];
   var transmissionList = ["Automatic", "Manual"];
   bool hasLoaded = false;
+  bool isReady = false;
 
   @override
   void initState() {
@@ -44,8 +45,14 @@ class _ManufacturePageState extends State<ManufacturePage> {
       for (var doc in value.docs) {
         final data = doc.data() as Map<String, dynamic>;
         final manufacturer = data['manufacturer'];
+        final model = data['model'];
         if (!carList.contains(manufacturer)) carList.add(manufacturer);
+        if (!modelList.contains(model)) modelList.add(model);
       }
+      setState(() {
+        isReady = true;
+        print(isReady);
+      });
     }).catchError((err) {
       print("err");
     });
@@ -76,7 +83,7 @@ class _ManufacturePageState extends State<ManufacturePage> {
               'Select manufacturer', carList, widget.manufacturerDropdownCtrl,
               (_) {
             chooseManufacturer();
-          }, widget.ad, 1, hasLoaded),
+          }, widget.ad, 1, hasLoaded, isReady),
           if (widget.manufacturerDropdownCtrl.text == "other...")
             MyTextField(
               controller: widget.manufacturerOtherCtrl,
@@ -96,6 +103,7 @@ class _ManufacturePageState extends State<ManufacturePage> {
               widget.ad,
               2,
               hasLoaded,
+              isReady,
             ),
           ],
           if (widget.modelDropdownCtrl.text == "other...")
@@ -107,14 +115,14 @@ class _ManufacturePageState extends State<ManufacturePage> {
           const Divider(height: 24),
           const Text('Transmission', style: ManufacturePage._subheader),
           getCustomDropDown(
-            'Select Transmission',
-            transmissionList,
-            widget.transmissionCtrl,
-            (_) => widget.onChanged(),
-            widget.ad,
-            3,
-            hasLoaded,
-          )
+              'Select Transmission',
+              transmissionList,
+              widget.transmissionCtrl,
+              (_) => widget.onChanged(),
+              widget.ad,
+              3,
+              hasLoaded,
+              isReady)
         ]),
       ))
     ]);
@@ -123,6 +131,7 @@ class _ManufacturePageState extends State<ManufacturePage> {
   }
 
   void chooseManufacturer() {
+    widget.modelDropdownCtrl.value = TextEditingValue(text: "other...");
     FirebaseFirestore.instance
         .collection('types')
         .where('manufacturer', isEqualTo: widget.manufacturerDropdownCtrl.text)
@@ -143,26 +152,48 @@ class _ManufacturePageState extends State<ManufacturePage> {
     });
     widget.onChanged();
   }
-}
 
-Widget getCustomDropDown(
-    hintText, itemsList, ctrl, onChgd, Ad? ad, type, hasLoaded) {
-  var wdgt = CustomDropdown.search(
-    hintText: hintText,
-    items: itemsList,
-    controller: ctrl,
-    excludeSelected: false,
-    onChanged: onChgd,
-  );
-  if (ad != null && !hasLoaded) {
-    if (type == 1) {
-      ctrl.value = TextEditingValue(text: ad.manufacturer.toString());
-    } else if (type == 2) {
-      ctrl.value = TextEditingValue(text: ad.model.toString());
-    } else {
-      ctrl.value =
-          TextEditingValue(text: ad.auto == 0 ? 'Automatic' : 'Manual');
+  Widget getCustomDropDown(
+      hintText, itemsList, ctrl, onChgd, Ad? ad, type, hasLoaded, isReady) {
+    var wdgt = CustomDropdown.search(
+      hintText: hintText,
+      items: itemsList,
+      controller: ctrl,
+      excludeSelected: false,
+      onChanged: onChgd,
+    );
+    if (ad != null && !hasLoaded) {
+      if (type == 1) {
+        // print(isReady);
+        // if (isReady)
+        //   ctrl.value = TextEditingValue(text: ad.manufacturer.toString());
+      } else if (type == 2) {
+        // if (isReady)
+        //   FirebaseFirestore.instance
+        //       .collection('types')
+        //       .where('manufacturer',
+        //           isEqualTo: widget.manufacturerDropdownCtrl.text)
+        //       .get()
+        //       .then((value) {
+        //     setState(() {
+        //       modelList = ['other...'];
+        //     });
+        //     for (var doc in value.docs) {
+        //       final data = doc.data() as Map<String, dynamic>;
+        //       final model = data['model'];
+        //       if (!modelList.contains(model)) {
+        //         setState(() {
+        //           modelList.add(model);
+        //         });
+        //       }
+        //     }
+        //     ctrl.value = TextEditingValue(text: ad.model.toString());
+        //   });
+      } else {
+        ctrl.value =
+            TextEditingValue(text: ad.auto == 0 ? 'Automatic' : 'Manual');
+      }
     }
+    return wdgt;
   }
-  return wdgt;
 }

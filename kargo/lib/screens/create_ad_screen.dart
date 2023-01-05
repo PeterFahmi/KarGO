@@ -131,11 +131,11 @@ class _CreateAdScreenState extends State<CreateAdScreen> {
         onChange: setCanGoNext,
       )
     ];
-    if (editableAd != null) {
-      setState(() {
-        nextEnabled = true;
-      });
-    }
+    // if (editableAd != null) {
+    //   setState(() {
+    //     nextEnabled = true;
+    //   });
+    // }
 
     return internetConnection
         ? (MyScaffold(
