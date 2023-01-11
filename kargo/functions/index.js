@@ -118,3 +118,16 @@ exports.updatebid = functions.firestore.document("ads/{docId}")
 
 
     });
+exports.updatebid2 = functions.firestore.document("cars/{docId}")
+    .onUpdate( (change, context) => {
+      const db = admin.firestore();
+      const newValue = change.after.data()||{};
+      const previousValue = change.before.data()||{};
+      const newBid = newValue.highest_bid;
+      const oldBid = previousValue.highest_bid;
+      const str="Check "+newValue.title
+      if (newBid!==oldBid ){
+      return admin.messaging().sendToTopic(newValue.owner_id,
+        {notification: {title: "Someone bidded on your ad",
+          body:str }}); }
+    });

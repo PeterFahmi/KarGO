@@ -373,25 +373,7 @@ Widget getSettingsList(UserModel.User curUser, context) {
               )),
         ],
       ),
-      Row(
-        children: [
-          SizedBox(
-            width: 45,
-          ),
-          Icon(Icons.phone_iphone_sharp),
-          SizedBox(
-            width: 20,
-          ),
-          Container(
-            child: TextButton(
-                onPressed: (() {}),
-                child: Text(
-                  "Add phone number",
-                  style: TextStyle(color: Colors.black),
-                )),
-          )
-        ],
-      ),
+   
       SizedBox(
         height: 50,
       ),
